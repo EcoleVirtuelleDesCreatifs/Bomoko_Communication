@@ -1992,3 +1992,44 @@ fieldset.form-group legend {
 .perm-card input { accent-color: #b8965a; }
 .perm-label { font-weight: 600; font-size: 14px; color: #2b2118; }
 .perm-desc { font-size: 12px; color: #8a7f72; }
+
+/* ── Tableau de bord opérationnel ────────────────────────────── */
+.stat-card { text-decoration: none; display: block; }
+.stat-sub { display: block; font-size: 12px; color: #8a7f72; margin-top: 4px; }
+
+.todo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.todo-card { background: #fff; border: 1px solid #e4ddd0; border-left: 3px solid #b8965a; border-radius: 8px; padding: 18px; display: flex; flex-direction: column; gap: 8px; }
+.todo-card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.todo-when { font-weight: 600; color: #2b2118; font-size: 15px; }
+.todo-meta { margin: 0; font-size: 13px; color: #4a4139; }
+.todo-note { margin: 0; font-size: 12px; color: #8a7f72; }
+.todo-allergies { color: #a05a1a; }
+.todo-phone { font-size: 13px; color: #b8965a; }
+.todo-actions { margin-top: auto; padding-top: 8px; }
+.dashboard-ok { color: #4a7a4a; }
+
+.service-title { font-size: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #b8965a; margin: 18px 0 10px; }
+
+.filter-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.filter-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.filter-tab { padding: 6px 14px; border: 1px solid #d9d2c4; border-radius: 999px; font-size: 13px; color: #4a4139; text-decoration: none; }
+.filter-tab.is-active { background: #2b2118; color: #f5f0e8; border-color: #2b2118; }
+.filter-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.filter-controls select, .filter-controls input[type="search"] { padding: 8px 12px; border: 1px solid #d9d2c4; border-radius: 6px; font-size: 13px; background: #fff; color: #2b2118; }
+
+.widget-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 32px; }
+.widget-card { background: #fff; border: 1px solid #e4ddd0; border-radius: 8px; padding: 20px; }
+.widget-title { margin: 0 0 10px; font-size: 15px; font-weight: 600; color: #2b2118; }
+.widget-stat { margin: 0 0 4px; font-size: 28px; font-weight: 300; color: #2b2118; }
+.widget-stat span { font-size: 13px; color: #8a7f72; }
+.widget-meta { margin: 0 0 6px; font-size: 13px; color: #8a7f72; }
+.widget-list { margin: 0 0 12px; padding-left: 18px; font-size: 13px; color: #4a4139; }
+
+@media (max-width: 760px) {
+    .admin-table-responsive thead { display: none; }
+    .admin-table-responsive tr { display: block; border: 1px solid #e4ddd0; border-radius: 8px; margin-bottom: 12px; padding: 8px 12px; }
+    .admin-table-responsive td { display: flex; justify-content: space-between; align-items: center; gap: 12px; border: none; padding: 8px 0; text-align: right; }
+    .admin-table-responsive td::before { content: attr(data-label); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: #8a7f72; text-align: left; }
+    .admin-table-responsive td.cell-empty { justify-content: center; }
+    .admin-table-responsive td.cell-empty::before { content: none; }
+}

@@ -43,6 +43,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function (): void {
     Route::middleware('can:manage-reservations')->group(function (): void {
         Route::get('/reservations/{reservation}/edit', [DashboardController::class, 'edit'])->name('admin.reservations.edit');
         Route::put('/reservations/{reservation}', [DashboardController::class, 'update'])->name('admin.reservations.update');
+        Route::patch('/reservations/{reservation}/status', [DashboardController::class, 'updateStatus'])->name('admin.reservations.status');
     });
 
     Route::resource('menu', MenuItemController::class)->names('admin.menu')->except(['show'])

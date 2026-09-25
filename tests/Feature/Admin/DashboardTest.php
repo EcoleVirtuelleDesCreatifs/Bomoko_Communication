@@ -2,7 +2,9 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Enums\AdminPermission;
 use App\Mail\ReservationConfirmed;
+use App\Models\Event;
 use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -44,8 +46,8 @@ class DashboardTest extends TestCase
         $response = $this->actingAs($admin)->get(route('admin.dashboard'));
 
         $response->assertOk()
-            ->assertSee('Tableau de bord', false)
-            ->assertSee('Réservations', false);
+            ->assertSee('Bonjour', false)
+            ->assertSee('Toutes les réservations', false);
     }
 
     public function test_admin_can_edit_a_reservation(): void
@@ -140,5 +142,106 @@ class DashboardTest extends TestCase
         $response->assertRedirect()
             ->assertSessionHasErrors(['email']);
         $this->assertGuest();
+    }
+
+    public function test_dashboard_kpis_reflect_reservations(): void
+    {
+        $admin = $this->adminUser();
+
+        Reservation::factory()->create(['status' => Reservation::STATUS_CONFIRMED, 'date' => now()->toDateString(), 'guests' => 4]);
+        Reservation::factory()->create(['status' => Reservation::STATUS_PENDING, 'date' => now()->addDay()->toDateString()]);
+        Reservation::factory()->create(['status' => Reservation::STATUS_PENDING, 'date' => now()->subDay()->toDateString()]);
+        Reservation::factory()->create(['status' => Reservation::STATUS_CONFIRMED, 'date' => now()->addDays(3)->toDateString()]);
+        Reservation::factory()->create(['status' => Reservation::STATUS_CANCELLED, 'date' => now()->addDays(5)->toDateString()]);
+
+        $response = $this->actingAs($admin)->get(route('admin.dashboard'));
+
+        $response->assertOk()
+            ->assertSeeInOrder(['stat-value', '1', 'Aujourd', '4 couverts'], false)
+            ->assertSeeInOrder(['stat-value', '1', 'À traiter'], false)
+            ->assertSeeInOrder(['stat-value', '1', '7 prochains jours'], false)
+            ->assertSeeInOrder(['stat-value', '5', 'Ce mois', '1 annulées'], false);
+    }
+
+    public function test_dashboard_filters_reservations_by_status(): void
+    {
+        $admin = $this->adminUser();
+
+        Reservation::factory()->create(['name' => 'EnAttente Unique', 'status' => Reservation::STATUS_PENDING, 'date' => now()->addDay()->toDateString()]);
+        Reservation::factory()->create(['name' => 'Confirmee Unique', 'status' => Reservation::STATUS_CONFIRMED, 'date' => now()->addDay()->toDateString()]);
+
+        $response = $this->actingAs($admin)->get(route('admin.dashboard', ['status' => 'pending']));
+
+        $response->assertOk()
+            ->assertSee('EnAttente Unique')
+            ->assertDontSee('Confirmee Unique');
+    }
+
+    public function test_dashboard_search_matches_name(): void
+    {
+        $admin = $this->adminUser();
+
+        Reservation::factory()->create(['name' => 'Recherche Trouve', 'status' => Reservation::STATUS_CONFIRMED, 'date' => now()->addDay()->toDateString()]);
+        Reservation::factory()->create(['name' => 'Autre Personne', 'status' => Reservation::STATUS_CONFIRMED, 'date' => now()->addDays(2)->toDateString()]);
+
+        $response = $this->actingAs($admin)->get(route('admin.dashboard', ['q' => 'Recherche']));
+
+        $response->assertOk()
+            ->assertSee('Recherche Trouve')
+            ->assertDontSee('Autre Personne');
+    }
+
+    public function test_status_patch_to_confirmed_sends_email(): void
+    {
+        Mail::fake();
+        $admin = $this->adminUser();
+        $reservation = Reservation::factory()->create(['status' => Reservation::STATUS_PENDING]);
+
+        $response = $this->actingAs($admin)->patch(route('admin.reservations.status', $reservation), [
+            'status' => Reservation::STATUS_CONFIRMED,
+        ]);
+
+        $response->assertRedirect(route('admin.dashboard'))
+            ->assertSessionHas('success');
+
+        $this->assertSame(Reservation::STATUS_CONFIRMED, $reservation->fresh()->status);
+        Mail::assertSent(ReservationConfirmed::class, fn ($mail) => $mail->hasTo($reservation->email));
+    }
+
+    public function test_status_patch_with_invalid_status_fails(): void
+    {
+        $admin = $this->adminUser();
+        $reservation = Reservation::factory()->create();
+
+        $response = $this->actingAs($admin)->patch(route('admin.reservations.status', $reservation), [
+            'status' => 'invalide',
+        ]);
+
+        $response->assertSessionHasErrors('status');
+    }
+
+    public function test_manager_without_reservations_permission_gets_403_on_status_patch(): void
+    {
+        $manager = User::factory()->manager([AdminPermission::Menu->value])->create();
+        $reservation = Reservation::factory()->create(['status' => Reservation::STATUS_PENDING]);
+
+        $response = $this->actingAs($manager)->patch(route('admin.reservations.status', $reservation), [
+            'status' => Reservation::STATUS_CONFIRMED,
+        ]);
+
+        $response->assertForbidden();
+    }
+
+    public function test_manager_with_events_only_sees_events_widget_but_no_kpis(): void
+    {
+        $manager = User::factory()->manager([AdminPermission::Events->value])->create();
+        Event::factory()->create(['is_published' => true, 'title' => 'Widget Événement']);
+
+        $response = $this->actingAs($manager)->get(route('admin.dashboard'));
+
+        $response->assertOk()
+            ->assertDontSee('stat-card', false)
+            ->assertSee('widget-card', false)
+            ->assertSee('Widget Événement');
     }
 }
