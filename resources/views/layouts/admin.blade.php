@@ -30,16 +30,27 @@
                 <nav class="admin-nav" aria-label="Navigation administration">
                     <ul>
                         <li><a href="{{ route('admin.dashboard') }}">Tableau de bord</a></li>
-                        <li><a href="{{ route('admin.menu.index') }}">La Carte</a></li>
-                        <li><a href="{{ route('admin.events.index') }}">Actualités</a></li>
+                        @can('manage-menu')
+                            <li><a href="{{ route('admin.menu.index') }}">La Carte</a></li>
+                        @endcan
+                        @can('manage-events')
+                            <li><a href="{{ route('admin.events.index') }}">Actualités</a></li>
+                        @endcan
+                        @can('manage-users')
+                            <li><a href="{{ route('admin.users.index') }}">Administrateurs</a></li>
+                        @endcan
+                        <li><a href="{{ route('admin.account.edit') }}">Mon compte</a></li>
                         <li><a href="{{ route('home') }}" target="_blank">Voir le site</a></li>
                     </ul>
                 </nav>
 
-                <form method="POST" action="{{ route('admin.logout') }}" class="admin-logout">
-                    @csrf
-                    <button type="submit" class="btn btn-outline">Déconnexion</button>
-                </form>
+                <div class="admin-user">
+                    <span class="admin-user-name">{{ auth()->user()->name }}</span>
+                    <form method="POST" action="{{ route('admin.logout') }}" class="admin-logout">
+                        @csrf
+                        <button type="submit" class="btn btn-outline">Déconnexion</button>
+                    </form>
+                </div>
             </div>
         </header>
     @endauth

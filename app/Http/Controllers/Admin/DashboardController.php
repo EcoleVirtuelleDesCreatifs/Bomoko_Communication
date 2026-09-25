@@ -14,14 +14,15 @@ class DashboardController extends Controller
 {
     public function index(): View
     {
-        $reservations = Reservation::latest()->paginate(10);
+        $canReservations = auth()->user()->can('manage-reservations');
 
         return view('admin.dashboard', [
-            'reservations' => $reservations,
-            'pendingCount' => Reservation::where('status', Reservation::STATUS_PENDING)->count(),
-            'confirmedCount' => Reservation::where('status', Reservation::STATUS_CONFIRMED)->count(),
-            'cancelledCount' => Reservation::where('status', Reservation::STATUS_CANCELLED)->count(),
-            'totalCount' => Reservation::count(),
+            'canReservations' => $canReservations,
+            'reservations' => $canReservations ? Reservation::latest()->paginate(10) : collect(),
+            'pendingCount' => $canReservations ? Reservation::where('status', Reservation::STATUS_PENDING)->count() : 0,
+            'confirmedCount' => $canReservations ? Reservation::where('status', Reservation::STATUS_CONFIRMED)->count() : 0,
+            'cancelledCount' => $canReservations ? Reservation::where('status', Reservation::STATUS_CANCELLED)->count() : 0,
+            'totalCount' => $canReservations ? Reservation::count() : 0,
         ]);
     }
 

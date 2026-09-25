@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\MenuItemController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\HomeController;
@@ -34,12 +36,24 @@ Route::middleware('guest')->group(function (): void {
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-    Route::get('/reservations/{reservation}/edit', [DashboardController::class, 'edit'])->name('admin.reservations.edit');
-    Route::put('/reservations/{reservation}', [DashboardController::class, 'update'])->name('admin.reservations.update');
 
-    Route::resource('menu', MenuItemController::class)->names('admin.menu')->except(['show']);
-    Route::resource('events', AdminEventController::class)->names('admin.events')->except(['show']);
-    Route::delete('/event-images/{image}', [AdminEventController::class, 'destroyImage'])->name('admin.event-images.destroy');
+    Route::get('/compte', [AccountController::class, 'edit'])->name('admin.account.edit');
+    Route::put('/compte', [AccountController::class, 'update'])->name('admin.account.update');
+
+    Route::middleware('can:manage-reservations')->group(function (): void {
+        Route::get('/reservations/{reservation}/edit', [DashboardController::class, 'edit'])->name('admin.reservations.edit');
+        Route::put('/reservations/{reservation}', [DashboardController::class, 'update'])->name('admin.reservations.update');
+    });
+
+    Route::resource('menu', MenuItemController::class)->names('admin.menu')->except(['show'])
+        ->middleware('can:manage-menu');
+    Route::resource('events', AdminEventController::class)->names('admin.events')->except(['show'])
+        ->middleware('can:manage-events');
+    Route::delete('/event-images/{image}', [AdminEventController::class, 'destroyImage'])->name('admin.event-images.destroy')
+        ->middleware('can:manage-events');
+
+    Route::resource('users', UserController::class)->names('admin.users')->except(['show'])
+        ->middleware('can:manage-users');
 });
 
 Route::post('/admin/logout', [LoginController::class, 'destroy'])

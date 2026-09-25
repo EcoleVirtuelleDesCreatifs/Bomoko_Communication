@@ -1976,3 +1976,19 @@ fieldset.form-group legend {
     .admin-logout { width: 100%; text-align: center; }
     .admin-logout .btn-outline { width: 100%; }
 }
+
+/* ── Gestion des administrateurs ─────────────────────────────── */
+.admin-user { display: flex; align-items: center; gap: 14px; }
+.admin-user-name { font-size: 13px; color: #b8965a; letter-spacing: 0.04em; }
+
+.role-badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.role-super { background: #2b2118; color: #b8965a; }
+.role-manager { background: #f8f6f2; color: #4a4139; border: 1px solid #d9d2c4; }
+
+.perm-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.perm-card { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border: 1px solid #e4ddd0; border-radius: 8px; background: #fbfaf7; cursor: pointer; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+.perm-card:hover { border-color: #b8965a; }
+.perm-card:has(input:checked) { border-color: #b8965a; box-shadow: 0 0 0 1px #b8965a; background: #fff; }
+.perm-card input { accent-color: #b8965a; }
+.perm-label { font-weight: 600; font-size: 14px; color: #2b2118; }
+.perm-desc { font-size: 12px; color: #8a7f72; }

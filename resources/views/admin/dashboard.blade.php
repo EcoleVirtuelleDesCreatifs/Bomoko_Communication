@@ -10,8 +10,15 @@
                 <p class="admin-subtitle">Gérez vos réservations et votre carte en temps réel.</p>
             </div>
             <div class="row-actions">
-                <a href="{{ route('admin.menu.index') }}" class="btn btn-gold">Gérer la carte</a>
-                <a href="{{ route('admin.events.index') }}" class="btn btn-ghost-dark">Actualités & événements</a>
+                @can('manage-menu')
+                    <a href="{{ route('admin.menu.index') }}" class="btn btn-gold">Gérer la carte</a>
+                @endcan
+                @can('manage-events')
+                    <a href="{{ route('admin.events.index') }}" class="btn btn-ghost-dark">Actualités & événements</a>
+                @endcan
+                @can('manage-users')
+                    <a href="{{ route('admin.users.index') }}" class="btn btn-ghost-dark">Administrateurs</a>
+                @endcan
             </div>
         </header>
 
@@ -21,6 +28,7 @@
             </div>
         @endif
 
+        @can('manage-reservations')
         <div class="stats-grid">
             <div class="stat-card stat-card-total">
                 <span class="stat-value">{{ $totalCount }}</span>
@@ -110,5 +118,10 @@
                 {{ $reservations->links() }}
             </div>
         </section>
+        @else
+        <section class="admin-section">
+            <p class="cell-empty">Votre compte ne donne pas accès à la gestion des réservations.</p>
+        </section>
+        @endcan
     </div>
 @endsection

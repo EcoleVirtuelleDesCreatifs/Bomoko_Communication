@@ -23,7 +23,22 @@ class LoginController extends Controller
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            $user = Auth::user();
+
+            if (! $user->isAdmin() || ! $user->is_active) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()->withErrors([
+                    'email' => $user->is_active
+                        ? 'Ce compte ne peut pas accéder à l’administration.'
+                        : 'Compte désactivé. Contactez un administrateur.',
+                ])->onlyInput('email');
+            }
+
             $request->session()->regenerate();
+            $user->forceFill(['last_login_at' => now()])->save();
 
             return redirect()->intended(route('admin.dashboard'));
         }

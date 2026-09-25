@@ -20,6 +20,17 @@ class EnsureUserIsAdmin
             return redirect()->route('admin.login');
         }
 
+        if (! Auth::user()->is_active) {
+            Auth::logout();
+
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('admin.login')->withErrors([
+                'email' => 'Compte désactivé. Contactez un administrateur.',
+            ]);
+        }
+
         return $next($request);
     }
 }
