@@ -26,6 +26,19 @@
     var toggle = document.getElementById('navToggle');
     var nav = document.getElementById('mainNav');
 
+    var adminToggle = document.getElementById('adminNavToggle');
+    var adminNav = document.getElementById('adminNav');
+
+    if (adminToggle && adminNav) {
+        adminToggle.addEventListener('click', function () {
+            var open = adminNav.classList.toggle('is-open');
+            adminToggle.classList.toggle('active', open);
+            adminToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            adminToggle.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+        });
+    }
+
+    if (toggle && nav) {
     toggle.addEventListener('click', function () {
         var open = nav.classList.toggle('open');
         toggle.classList.toggle('active', open);
@@ -45,6 +58,7 @@
             document.body.classList.remove('nav-open');
         });
     });
+    }
 
     /* ---------- Reveal au scroll (décalage progressif) ---------- */
     var revealEls = document.querySelectorAll('.reveal');

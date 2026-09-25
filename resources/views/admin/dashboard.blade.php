@@ -7,23 +7,10 @@
         <header class="admin-page-header">
             <div>
                 <h1 class="admin-title">Bonjour {{ Str::of(auth()->user()->name)->before(' ') }}</h1>
-                <p class="admin-subtitle">
-                    {{ now()->translatedFormat('l j F Y') }}
-                    @if ($canReservations && $stats['pending'] > 0)
-                        — {{ $stats['pending'] }} réservation{{ $stats['pending'] > 1 ? 's' : '' }} à traiter
-                    @endif
-                </p>
-            </div>
-            <div class="row-actions">
-                @can('manage-menu')
-                    <a href="{{ route('admin.menu.index') }}" class="btn btn-gold">Gérer la carte</a>
-                @endcan
-                @can('manage-events')
-                    <a href="{{ route('admin.events.index') }}" class="btn btn-ghost-dark">Actualités & événements</a>
-                @endcan
-                @can('manage-users')
-                    <a href="{{ route('admin.users.index') }}" class="btn btn-ghost-dark">Administrateurs</a>
-                @endcan
+                <p class="admin-subtitle">{{ now()->translatedFormat('l j F Y') }}</p>
+                @if ($canReservations && $stats['pending'] > 0)
+                    <a href="#a-traiter" class="pill-alert">{{ $stats['pending'] }} réservation{{ $stats['pending'] > 1 ? 's' : '' }} à traiter</a>
+                @endif
             </div>
         </header>
 
@@ -45,27 +32,27 @@
 
         @can('manage-reservations')
             <div class="stats-grid">
-                <a href="{{ route('admin.dashboard', ['status' => 'confirmed', 'period' => 'upcoming']) }}" class="stat-card stat-card-total">
+                <a href="{{ route('admin.dashboard', ['status' => 'confirmed', 'period' => 'upcoming']) }}" class="stat-card">
                     <span class="stat-value">{{ $stats['today'] }}</span>
                     <span class="stat-label">Aujourd'hui</span>
                     <span class="stat-sub">{{ $stats['today_guests'] }} couverts</span>
                 </a>
-                <a href="{{ route('admin.dashboard', ['status' => 'pending', 'period' => 'upcoming']) }}" class="stat-card stat-card-pending">
+                <a href="{{ route('admin.dashboard', ['status' => 'pending', 'period' => 'upcoming']) }}" class="stat-card {{ $stats['pending'] > 0 ? 'stat-card-alert' : '' }}">
                     <span class="stat-value">{{ $stats['pending'] }}</span>
                     <span class="stat-label">À traiter</span>
                 </a>
-                <a href="{{ route('admin.dashboard', ['status' => 'confirmed', 'period' => 'upcoming']) }}" class="stat-card stat-card-confirmed">
+                <a href="{{ route('admin.dashboard', ['status' => 'confirmed', 'period' => 'upcoming']) }}" class="stat-card">
                     <span class="stat-value">{{ $stats['upcoming_week'] }}</span>
                     <span class="stat-label">7 prochains jours</span>
                 </a>
-                <a href="{{ route('admin.dashboard', ['period' => 'all']) }}" class="stat-card stat-card-cancelled">
+                <a href="{{ route('admin.dashboard', ['period' => 'all']) }}" class="stat-card">
                     <span class="stat-value">{{ $stats['month'] }}</span>
                     <span class="stat-label">Ce mois</span>
                     <span class="stat-sub">{{ $stats['month_cancelled'] }} annulées</span>
                 </a>
             </div>
 
-            <section class="admin-section">
+            <section class="admin-section" id="a-traiter">
                 <div class="admin-section-header">
                     <h2 class="admin-section-title">À traiter</h2>
                 </div>
@@ -76,12 +63,10 @@
                     <div class="todo-grid">
                         @foreach ($todo as $reservation)
                             <article class="todo-card">
-                                <div class="todo-card-head">
-                                    <strong>{{ $reservation->name }}</strong>
-                                    <span class="todo-when">
-                                        {{ $reservation->date->format('d/m') }} · {{ \Carbon\Carbon::parse($reservation->time)->format('H:i') }}
-                                    </span>
-                                </div>
+                                <strong class="todo-name">{{ $reservation->name }}</strong>
+                                <span class="todo-when">
+                                    {{ $reservation->date->translatedFormat('D d/m') }} · {{ \Carbon\Carbon::parse($reservation->time)->format('H:i') }}
+                                </span>
                                 <p class="todo-meta">
                                     {{ $reservation->guests }} couverts
                                     @if ($reservation->menu_choice)
@@ -95,9 +80,9 @@
                                     <p class="todo-note">{{ Str::limit($reservation->message, 60) }}</p>
                                 @endif
                                 @if ($reservation->phone)
-                                    <a href="tel:{{ $reservation->phone }}" class="todo-phone">{{ $reservation->phone }}</a>
+                                    <a href="tel:{{ $reservation->phone }}" class="todo-phone">☎ {{ $reservation->phone }}</a>
                                 @endif
-                                <div class="row-actions todo-actions">
+                                <div class="todo-actions">
                                     <form method="POST" action="{{ route('admin.reservations.status', $reservation) }}">
                                         @csrf
                                         @method('PATCH')
@@ -108,9 +93,9 @@
                                         @csrf
                                         @method('PATCH')
                                         <input type="hidden" name="status" value="cancelled">
-                                        <button type="submit" class="btn btn-small btn-delete">Annuler</button>
+                                        <button type="submit" class="btn btn-small btn-ghost-dark">Annuler</button>
                                     </form>
-                                    <a href="{{ route('admin.reservations.edit', $reservation) }}" class="btn btn-small btn-edit">Modifier</a>
+                                    <a href="{{ route('admin.reservations.edit', $reservation) }}" class="todo-edit">Modifier</a>
                                 </div>
                             </article>
                         @endforeach
@@ -133,33 +118,26 @@
                 @else
                     @foreach ([['Déjeuner', $lunch], ['Dîner', $dinner]] as [$serviceLabel, $serviceReservations])
                         @if ($serviceReservations->isNotEmpty())
-                            <h3 class="service-title">{{ $serviceLabel }}</h3>
-                            <div class="table-wrapper">
-                                <table class="admin-table">
-                                    <tbody>
-                                        @foreach ($serviceReservations as $reservation)
-                                            <tr>
-                                                <td><span class="row-highlight">{{ \Carbon\Carbon::parse($reservation->time)->format('H:i') }}</span></td>
-                                                <td><strong>{{ $reservation->name }}</strong></td>
-                                                <td>{{ $reservation->guests }} couverts</td>
-                                                <td>
-                                                    @if ($reservation->menu_choice)
-                                                        {{ $reservation->menuChoiceLabel() }}
-                                                    @endif
-                                                    @if ($reservation->allergies)
-                                                        <span class="status-badge status-pending" title="{{ $reservation->allergies }}">⚠ allergies</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if ($reservation->phone)
-                                                        <a href="tel:{{ $reservation->phone }}">{{ $reservation->phone }}</a>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
+                            <h3 class="service-title">{{ $serviceLabel }} · {{ $serviceReservations->sum('guests') }} couverts</h3>
+                            <ul class="service-list">
+                                @foreach ($serviceReservations as $reservation)
+                                    <li class="service-row">
+                                        <span class="service-time">{{ \Carbon\Carbon::parse($reservation->time)->format('H:i') }}</span>
+                                        <span class="service-name">
+                                            <strong>{{ $reservation->name }}</strong>
+                                            @if ($reservation->allergies)
+                                                <span class="todo-note todo-allergies">⚠ {{ Str::limit($reservation->allergies, 60) }}</span>
+                                            @endif
+                                        </span>
+                                        <span class="service-guests">{{ $reservation->guests }} couverts</span>
+                                        <span class="service-contact">
+                                            @if ($reservation->phone)
+                                                <a href="tel:{{ $reservation->phone }}">{{ $reservation->phone }}</a>
+                                            @endif
+                                        </span>
+                                    </li>
+                                @endforeach
+                            </ul>
                         @endif
                     @endforeach
                 @endif
@@ -199,7 +177,9 @@
                         @if ($filters['status'])
                             <input type="hidden" name="status" value="{{ $filters['status'] }}">
                         @endif
-                        <button type="submit" class="btn btn-small btn-ghost-dark">Filtrer</button>
+                        @if ($filters['status'] || $filters['q'] || $filters['period'] !== 'upcoming')
+                            <a href="{{ route('admin.dashboard') }}" class="filter-reset">Réinitialiser</a>
+                        @endif
                     </div>
                 </form>
 
@@ -211,7 +191,6 @@
                                 <th>Contact</th>
                                 <th>Jour / Heure</th>
                                 <th>Couverts</th>
-                                <th>Menu</th>
                                 <th>Demandes</th>
                                 <th>Statut</th>
                                 <th>Actions</th>
@@ -224,7 +203,7 @@
                                         <strong>{{ $reservation->name }}</strong>
                                         <span class="row-meta">{{ $reservation->created_at->format('d/m/Y H:i') }}</span>
                                     </td>
-                                    <td data-label="Contact">
+                                    <td data-label="Contact" class="cell-contact">
                                         <a href="mailto:{{ $reservation->email }}">{{ $reservation->email }}</a>
                                         @if ($reservation->phone)
                                             <br><a href="tel:{{ $reservation->phone }}">{{ $reservation->phone }}</a>
@@ -235,12 +214,14 @@
                                         <span class="row-meta">à {{ \Carbon\Carbon::parse($reservation->time)->format('H:i') }}</span>
                                     </td>
                                     <td data-label="Couverts">{{ $reservation->guests }}</td>
-                                    <td data-label="Menu">{{ $reservation->menu_choice ? $reservation->menuChoiceLabel() : '—' }}</td>
                                     <td data-label="Demandes" class="cell-message">
                                         @if ($reservation->allergies)
                                             <span class="status-badge status-pending" title="{{ $reservation->allergies }}">⚠ allergies</span>
                                         @endif
                                         {{ Str::limit($reservation->message, 40) }}
+                                        @if ($reservation->menu_choice)
+                                            <span class="row-meta">{{ $reservation->menuChoiceLabel() }}</span>
+                                        @endif
                                     </td>
                                     <td data-label="Statut">
                                         <span class="status-badge status-{{ $reservation->status }}">
@@ -260,7 +241,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="cell-empty">Aucune réservation ne correspond à ces critères.</td>
+                                    <td colspan="7" class="cell-empty">Aucune réservation ne correspond à ces critères.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -285,7 +266,7 @@
                                 <li>{{ ucfirst($category) }} : {{ $count }}</li>
                             @endforeach
                         </ul>
-                        <a href="{{ route('admin.menu.index') }}" class="btn btn-small btn-ghost-dark">Gérer</a>
+                        <a href="{{ route('admin.menu.index') }}" class="widget-link">Gérer</a>
                     </section>
                 @endif
 
@@ -300,7 +281,7 @@
                                 ({{ $eventStats['latest']->event_date->format('d/m/Y') }})
                             </p>
                         @endif
-                        <a href="{{ route('admin.events.create') }}" class="btn btn-small btn-ghost-dark">Nouvelle actualité</a>
+                        <a href="{{ route('admin.events.create') }}" class="widget-link">Nouvelle actualité</a>
                     </section>
                 @endif
 
@@ -311,7 +292,7 @@
                         @if ($userStats['last_login'])
                             <p class="widget-meta">Dernière connexion : {{ \Carbon\Carbon::parse($userStats['last_login'])->format('d/m/Y H:i') }}</p>
                         @endif
-                        <a href="{{ route('admin.users.index') }}" class="btn btn-small btn-ghost-dark">Gérer</a>
+                        <a href="{{ route('admin.users.index') }}" class="widget-link">Gérer</a>
                     </section>
                 @endif
             </div>

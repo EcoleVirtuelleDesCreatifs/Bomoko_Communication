@@ -18,7 +18,7 @@
     @stack('styles')
 </head>
 
-<body class="admin-body">
+<body class="admin-body admin">
     @auth
         <header class="admin-header">
             <div class="admin-header-inner">
@@ -27,7 +27,11 @@
                     <span class="admin-brand-label">Administration</span>
                 </a>
 
-                <nav class="admin-nav" aria-label="Navigation administration">
+                <button type="button" id="adminNavToggle" class="admin-nav-toggle" aria-expanded="false" aria-controls="adminNav" aria-label="Ouvrir le menu">
+                    <span></span><span></span><span></span>
+                </button>
+
+                <nav class="admin-nav" id="adminNav" aria-label="Navigation administration">
                     <ul>
                         <li><a href="{{ route('admin.dashboard') }}">Tableau de bord</a></li>
                         @can('manage-menu')
@@ -42,9 +46,16 @@
                         <li><a href="{{ route('admin.account.edit') }}">Mon compte</a></li>
                         <li><a href="{{ route('home') }}" target="_blank">Voir le site</a></li>
                     </ul>
+                    <div class="admin-user admin-user-nav">
+                        <span class="admin-user-name">{{ auth()->user()->name }}</span>
+                        <form method="POST" action="{{ route('admin.logout') }}" class="admin-logout">
+                            @csrf
+                            <button type="submit" class="btn btn-outline">Déconnexion</button>
+                        </form>
+                    </div>
                 </nav>
 
-                <div class="admin-user">
+                <div class="admin-user admin-user-header">
                     <span class="admin-user-name">{{ auth()->user()->name }}</span>
                     <form method="POST" action="{{ route('admin.logout') }}" class="admin-logout">
                         @csrf
