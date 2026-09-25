@@ -25,7 +25,7 @@ if [ "$($PHP artisan tinker --execute 'echo App\Models\MenuItem::count();' 2>/de
     $PHP artisan db:seed --class=MenuItemSeeder --force --no-interaction
 fi
 
-if [ -n "${ADMIN_EMAIL:-}" ] && grep -q "^ADMIN_EMAIL=${ADMIN_EMAIL}" .env 2>/dev/null; then
+if grep -Eq '^ADMIN_EMAIL=.+' .env 2>/dev/null; then
     if [ "$($PHP artisan tinker --execute "echo App\Models\User::where('email', config('site.admin_email'))->exists() ? '1' : '0';" 2>/dev/null | tail -1)" = "0" ]; then
         $PHP artisan db:seed --class=AdminUserSeeder --force --no-interaction
     fi
