@@ -210,11 +210,12 @@
                 </header>
 
                 <div class="article-body">
-                    @foreach (preg_split('/\R{2,}/', trim((string) $event->content)) as $paragraph)
-                        @if (trim($paragraph) !== '')
-                            <p>{!! nl2br(e(trim($paragraph))) !!}</p>
-                        @endif
-                    @endforeach
+                    @php
+                        $cleanContent = preg_replace('#<(script|style|iframe|object|embed|form)\b[^>]*>.*?</\1>#is', '', (string) $event->content);
+                        $cleanContent = preg_replace('#\son\w+\s*=\s*"[^"]*"#i', '', $cleanContent);
+                        $cleanContent = preg_replace("#\son\w+\s*=\s*'[^']*'#i", '', $cleanContent);
+                    @endphp
+                    {!! $cleanContent !!}
                 </div>
             </article>
 
