@@ -187,4 +187,52 @@
             facade.replaceWith(iframe);
         });
     });
+
+    /* ---------- Rich editor ---------- */
+    document.querySelectorAll('[data-rich-editor]').forEach(function (editor) {
+        var content = editor.querySelector('.rich-editor-content');
+        var source = editor.querySelector('.rich-editor-source');
+        var toolbar = editor.querySelector('.rich-editor-toolbar');
+        if (!content || !source) return;
+
+        function updateSource() { source.value = content.innerHTML; }
+        function updateToolbar() {
+            if (!toolbar) return;
+            toolbar.querySelectorAll('button[data-command]').forEach(function (btn) {
+                var cmd = btn.dataset.command;
+                var val = btn.dataset.value;
+                var active = false;
+                try {
+                    active = document.queryCommandState(cmd) ||
+                        (val && document.queryCommandValue(cmd).toString().toLowerCase() === val.toLowerCase());
+                } catch (e) { active = false; }
+                btn.classList.toggle('is-active', active);
+            });
+        }
+
+        content.addEventListener('input', updateSource);
+        content.addEventListener('keyup', updateToolbar);
+        content.addEventListener('mouseup', updateToolbar);
+        content.addEventListener('click', updateToolbar);
+
+        toolbar.querySelectorAll('button[data-command]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                content.focus();
+                var cmd = btn.dataset.command;
+                var val = btn.dataset.value;
+                if (cmd === 'createLink') {
+                    var url = window.prompt(btn.dataset.prompt || 'URL', 'https://');
+                    if (url) document.execCommand(cmd, false, url);
+                } else if (cmd === 'formatBlock' && val) {
+                    document.execCommand(cmd, false, val);
+                } else {
+                    document.execCommand(cmd, false, null);
+                }
+                updateSource();
+                updateToolbar();
+            });
+        });
+
+        updateSource();
+    });
 })();

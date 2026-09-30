@@ -2930,6 +2930,75 @@ body.admin { overflow-x: hidden; }
     .reservation-submit-status { align-items: flex-start; font-size: 11px; }
 }
 
+/* ============ RICH EDITOR ============ */
+.rich-editor { display: flex; flex-direction: column; gap: 8px; }
+.rich-editor-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #59616e;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+.rich-editor-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 8px;
+    background: #f8f9fb;
+    border: 1px solid #e2e6ec;
+    border-radius: 6px 6px 0 0;
+}
+.rich-editor-toolbar button {
+    display: inline-grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: #4b5563;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.rich-editor-toolbar button:hover { background: #e2e6ec; color: #111827; }
+.rich-editor-toolbar button.is-active { background: #dbeafe; color: #1d4ed8; }
+.rich-editor-toolbar .rich-editor-sep {
+    width: 1px;
+    height: 24px;
+    margin: 4px 6px;
+    background: #e2e6ec;
+}
+.rich-editor-content {
+    min-height: 240px;
+    padding: 16px 18px;
+    background: #fff;
+    border: 1px solid #e2e6ec;
+    border-top: 0;
+    border-radius: 0 0 6px 6px;
+    color: #293142;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.75;
+    outline: none;
+    overflow-y: auto;
+    resize: vertical;
+}
+.rich-editor-content:empty::before {
+    content: attr(data-placeholder);
+    color: #9ca3af;
+    pointer-events: none;
+}
+.rich-editor-content:focus { border-color: #6583b8; box-shadow: 0 0 0 3px rgba(83,115,170,0.1); }
+.rich-editor-content h2 { font-size: 17px; font-weight: 700; color: #1f2937; margin: 18px 0 10px; }
+.rich-editor-content h3 { font-size: 15px; font-weight: 600; color: #1f2937; margin: 16px 0 8px; }
+.rich-editor-content p { margin: 0 0 10px; }
+.rich-editor-content ul, .rich-editor-content ol { margin: 0 0 10px 20px; padding-left: 14px; }
+.rich-editor-content li { margin-bottom: 4px; }
+.rich-editor-content a { color: #2563eb; text-decoration: underline; }
+.rich-editor-content blockquote { margin: 10px 0; padding-left: 14px; border-left: 3px solid #e5e7eb; color: #4b5563; }
+.rich-editor-source { display: none; }
+
 /* ============ ADMIN DARK MODE — dashboard & back-office ============ */
 :root {
     --adm-bg: #0b0d12;
@@ -3380,6 +3449,25 @@ body.admin-dark .reservation-card.status-confirmed { border-top-color: var(--adm
 body.admin-dark .reservation-card.status-cancelled { border-top-color: var(--adm-text-muted); }
 body.admin-dark .reservations-empty { background: var(--adm-surface-raised); border-style: solid; border-color: var(--adm-border); color: var(--adm-text-muted); }
 body.admin-dark .reservations-empty h3 { color: var(--adm-text); }
+
+/* Rich editor dark */
+body.admin-dark .rich-editor-toolbar { background: var(--adm-surface); border-color: var(--adm-border); }
+body.admin-dark .rich-editor-toolbar button { color: #d1d5db; }
+body.admin-dark .rich-editor-toolbar button:hover { background: rgba(255,255,255,0.08); color: #fff; }
+body.admin-dark .rich-editor-toolbar button.is-active { background: var(--adm-primary-soft); color: var(--adm-primary); }
+body.admin-dark .rich-editor-toolbar .rich-editor-sep { background: var(--adm-border); }
+body.admin-dark .rich-editor-label { color: #d1d5db; }
+body.admin-dark .rich-editor-content {
+    background: var(--adm-bg);
+    border-color: var(--adm-border);
+    color: var(--adm-text);
+}
+body.admin-dark .rich-editor-content:empty::before { color: var(--adm-text-dim); }
+body.admin-dark .rich-editor-content:focus { border-color: var(--adm-primary); box-shadow: 0 0 0 3px rgba(96,165,250,0.15); }
+body.admin-dark .rich-editor-content h2,
+body.admin-dark .rich-editor-content h3 { color: var(--adm-text); }
+body.admin-dark .rich-editor-content a { color: var(--adm-primary); }
+body.admin-dark .rich-editor-content blockquote { border-color: var(--adm-border); color: var(--adm-text-muted); }
 
 @media (max-width: 1024px) {
     body.admin-dark .admin-nav.is-open { background: var(--adm-surface); border-bottom: 1px solid var(--adm-border); }

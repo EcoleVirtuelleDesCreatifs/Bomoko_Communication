@@ -3,12 +3,15 @@
 @section('title', $event ? 'Modifier une actualité' : 'Nouvelle actualité')
 
 @section('content')
-    <div class="admin-container admin-container-narrow">
-        <div class="admin-page-header">
+    <div class="admin-container internal-editor-page internal-editor-events">
+        <header class="admin-page-header internal-editor-hero">
             <div>
+                <span class="dashboard-eyebrow">Espace éditorial</span>
                 <h1 class="admin-title">{{ $event ? 'Modifier une actualité' : 'Nouvelle actualité' }}</h1>
+                <p class="admin-subtitle">Composez une publication immersive avec ses informations, sa couverture et sa galerie.</p>
             </div>
-        </div>
+            <a href="{{ route('admin.events.index') }}" class="internal-editor-back">← Retour aux actualités</a>
+        </header>
 
         @if ($errors->any())
             <div class="alert alert-error" role="alert">
@@ -21,7 +24,7 @@
         @endif
 
         @if ($event && $event->images->isNotEmpty())
-            <section class="admin-section">
+            <section class="admin-section internal-editor-gallery">
                 <h2 class="admin-section-title">Galerie existante</h2>
                 <div class="admin-gallery-grid">
                     @foreach ($event->images as $image)
@@ -38,7 +41,7 @@
             </section>
         @endif
 
-        <form method="POST" action="{{ $event ? route('admin.events.update', $event) : route('admin.events.store') }}" class="admin-card-form" enctype="multipart/form-data">
+        <form method="POST" action="{{ $event ? route('admin.events.update', $event) : route('admin.events.store') }}" class="admin-card-form internal-editor-form" enctype="multipart/form-data">
             @csrf
             @if ($event)
                 @method('PUT')
@@ -54,10 +57,7 @@
                 <textarea id="summary" name="summary" rows="3">{{ old('summary', $event?->summary) }}</textarea>
             </div>
 
-            <div class="form-group">
-                <label for="content">Contenu</label>
-                <textarea id="content" name="content" rows="10">{{ old('content', $event?->content) }}</textarea>
-            </div>
+            <x-rich-editor name="content" id="content" :value="old('content', $event?->content)" label="Contenu" placeholder="Rédigez le contenu de l'actualité…" />
 
             <div class="form-row">
                 <div class="form-group">
