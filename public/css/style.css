@@ -587,6 +587,17 @@ figure { margin: 0; }
 .moments-inner .link-arrow { justify-content: center; }
 
 /* ============ GALERIE ============ */
+.galerie .section-head {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+.galerie .section-head .title {
+    color: var(--marron);
+    font-weight: 500;
+    text-shadow: none;
+}
+.galerie .section-head .surtitle { color: var(--dore); font-weight: 600; }
 .galerie-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
