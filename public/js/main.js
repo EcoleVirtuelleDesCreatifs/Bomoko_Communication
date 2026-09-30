@@ -8,10 +8,40 @@
 
     var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    /* ---------- Thème clair / sombre administration ---------- */
+    var themeToggle = document.getElementById('adminThemeToggle');
+    var themeMeta = document.querySelector('meta[name="theme-color"]');
+
+    function applyAdminTheme(theme) {
+        document.body.classList.toggle('admin-dark', theme === 'dark');
+        if (themeMeta) {
+            themeMeta.setAttribute('content', theme === 'dark' ? '#0f1218' : '#ffffff');
+        }
+        if (themeToggle) {
+            themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Activer le mode clair' : 'Activer le mode sombre');
+        }
+    }
+
+    var savedTheme = window.localStorage.getItem('adminTheme');
+    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var adminTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+    applyAdminTheme(adminTheme);
+
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function () {
+            var current = document.body.classList.contains('admin-dark') ? 'dark' : 'light';
+            var next = current === 'dark' ? 'light' : 'dark';
+            window.localStorage.setItem('adminTheme', next);
+            applyAdminTheme(next);
+        });
+    }
+
     /* ---------- Header : transparent -> opaque au scroll ---------- */
     var header = document.getElementById('siteHeader');
 
     function onScrollHeader() {
+        if (!header) return;
+
         if (window.scrollY > 60) {
             header.classList.add('scrolled');
         } else {
@@ -19,8 +49,10 @@
         }
     }
 
-    window.addEventListener('scroll', onScrollHeader, { passive: true });
-    onScrollHeader();
+    if (header) {
+        window.addEventListener('scroll', onScrollHeader, { passive: true });
+        onScrollHeader();
+    }
 
     /* ---------- Menu mobile ---------- */
     var toggle = document.getElementById('navToggle');
@@ -37,6 +69,31 @@
             adminToggle.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
         });
     }
+
+    document.querySelectorAll('[data-reservation-confirm], [data-reservation-update], [data-public-reservation]').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (form.dataset.submitting === 'true') {
+                event.preventDefault();
+                return;
+            }
+
+            var status = form.querySelector('[name="status"]');
+            if (form.hasAttribute('data-reservation-update') && (!status || status.value !== 'confirmed')) return;
+
+            var button = form.querySelector('button[type="submit"]');
+            if (!button) return;
+
+            form.dataset.submitting = 'true';
+            form.classList.add('is-submitting');
+            form.setAttribute('aria-busy', 'true');
+            button.disabled = true;
+            button.dataset.originalText = button.textContent;
+            button.textContent = button.dataset.loadingText || 'Confirmation en cours…';
+
+            var statusMessage = form.querySelector('.reservation-submit-status');
+            if (statusMessage) statusMessage.hidden = false;
+        });
+    });
 
     if (toggle && nav) {
     toggle.addEventListener('click', function () {
