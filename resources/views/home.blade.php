@@ -378,7 +378,7 @@
                 donner une autre saveur à votre moment.</p>
             <div class="reservation-cta reveal">
                 <a href="{{ $reservationUrl }}" class="btn btn-gold">Réserver une table</a>
-                <a href="{{ $contactUrl }}" class="btn btn-ghost-dark">Nous contacter</a>
+                <a href="{{ $contactUrl }}" class="btn btn-ghost">Nous contacter</a>
             </div>
         </div>
     </section>
