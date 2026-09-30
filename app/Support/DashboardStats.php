@@ -86,15 +86,17 @@ class DashboardStats
 
         $categories = [];
         $active = 0;
+        $total = 0;
 
         foreach ($rows as $row) {
             $categories[$row->category] = (int) $row->active_count;
             $active += (int) $row->active_count;
+            $total += (int) $row->total;
         }
 
         return [
             'active' => $active,
-            'inactive' => (int) $rows->sum('total') - $active,
+            'inactive' => $total - $active,
             'categories' => $categories,
         ];
     }
@@ -104,9 +106,13 @@ class DashboardStats
      */
     public function events(): array
     {
+        $totals = Event::query()
+            ->selectRaw('SUM(CASE WHEN is_published = 1 THEN 1 ELSE 0 END) as published, SUM(CASE WHEN is_published = 0 THEN 1 ELSE 0 END) as drafts')
+            ->first();
+
         return [
-            'published' => Event::where('is_published', true)->count(),
-            'drafts' => Event::where('is_published', false)->count(),
+            'published' => (int) ($totals->published ?? 0),
+            'drafts' => (int) ($totals->drafts ?? 0),
             'latest' => Event::where('is_published', true)->latest('event_date')->first(),
         ];
     }
