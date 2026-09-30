@@ -19,6 +19,14 @@
 </head>
 
 <body class="admin-body admin">
+    <script>
+        (function () {
+            var theme = window.localStorage.getItem('adminTheme');
+            if (theme === 'dark' || (!theme)) {
+                document.body.classList.add('admin-dark');
+            }
+        })();
+    </script>
     @auth
         <aside class="admin-sidebar" id="adminNav" aria-label="Navigation administration">
             <a href="{{ route('admin.dashboard') }}" class="admin-brand">
