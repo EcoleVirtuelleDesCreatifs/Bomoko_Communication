@@ -154,7 +154,7 @@
         </div>
     </section>
 
-    <section class="section" id="event">
+    <section class="section event-detail" id="event">
         <div class="container article-layout">
             <nav class="breadcrumb" aria-label="Fil d'Ariane">
                 <ol>
