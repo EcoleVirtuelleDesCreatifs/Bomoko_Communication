@@ -87,7 +87,7 @@
             <p class="hero-sub reveal">Une table. Une atmosphère.<br>Un moment qui n'appartient qu'à vous.</p>
             <div class="hero-cta reveal">
                 <a href="{{ $reservationUrl }}" class="btn btn-gold">Réserver une table</a>
-                <a href="#la-carte" class="btn btn-ghost-dark">Voir la carte</a>
+                <a href="#la-carte" class="btn btn-ghost">Voir la carte</a>
             </div>
         </div>
         <a href="#la-carte" class="scroll-hint" aria-label="Faire défiler">
