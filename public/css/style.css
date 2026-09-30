@@ -2930,7 +2930,29 @@ body.admin { overflow-x: hidden; }
     .reservation-submit-status { align-items: flex-start; font-size: 11px; }
 }
 
-/* ============ ADMIN DARK MODE ============ */
+/* ============ ADMIN DARK MODE — dashboard & back-office ============ */
+:root {
+    --adm-bg: #0b0d12;
+    --adm-surface: #11141c;
+    --adm-surface-raised: #181c27;
+    --adm-border: rgba(255,255,255,0.07);
+    --adm-text: #f0f2f6;
+    --adm-text-muted: #9ca3af;
+    --adm-text-dim: #6b7280;
+    --adm-primary: #60a5fa;
+    --adm-primary-soft: rgba(96,165,250,0.12);
+    --adm-gold: #e8c36d;
+    --adm-gold-soft: rgba(232,195,109,0.12);
+    --adm-success: #34d399;
+    --adm-success-soft: rgba(52,211,153,0.1);
+    --adm-warning: #fbbf24;
+    --adm-warning-soft: rgba(251,191,36,0.1);
+    --adm-danger: #f87171;
+    --adm-danger-soft: rgba(248,113,113,0.1);
+    --adm-shadow: 0 8px 24px rgba(0,0,0,0.32);
+    --adm-shadow-sm: 0 2px 8px rgba(0,0,0,0.22);
+}
+
 .admin-theme-toggle {
     display: inline-grid;
     width: 38px;
@@ -2946,7 +2968,7 @@ body.admin { overflow-x: hidden; }
 .admin-theme-toggle:hover { background: #e4e7ec; transform: scale(1.05); }
 .admin-theme-toggle .admin-theme-icon { display: none; }
 
-.admin-dark .admin-theme-toggle { background: #252a36; color: #e8c36d; }
+.admin-dark .admin-theme-toggle { background: #252a36; color: var(--adm-gold); }
 .admin-dark .admin-theme-toggle:hover { background: #2e3442; }
 
 body:not(.admin-dark) .admin-theme-icon-light,
@@ -2954,61 +2976,105 @@ body.admin-dark .admin-theme-icon-dark { display: block; }
 
 /* Dark base */
 body.admin-dark {
-    background: #0f1218;
-    color: #e3e6eb;
+    background: var(--adm-bg);
+    color: var(--adm-text);
 }
-body.admin-dark .admin-main { background: #0f1218; }
-body.admin-dark .admin-sidebar { background: #151925; border-right: 1px solid rgba(255,255,255,0.05); }
-body.admin-dark .admin-sidebar .admin-brand { border-color: rgba(255,255,255,0.06); }
+body.admin-dark .admin-main { background: var(--adm-bg); }
+
+/* Sidebar */
+body.admin-dark .admin-sidebar {
+    background: var(--adm-surface);
+    border-right: 1px solid var(--adm-border);
+    box-shadow: 2px 0 12px rgba(0,0,0,0.25);
+}
+body.admin-dark .admin-sidebar .admin-brand { border-color: var(--adm-border); }
 body.admin-dark .admin-brand-mark { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
-body.admin-dark .admin-nav-heading { color: #737a8d; }
-body.admin-dark .admin-sidebar .admin-nav a { color: #a5abb9; }
+body.admin-dark .admin-nav-heading { color: var(--adm-text-dim); }
+body.admin-dark .admin-sidebar .admin-nav a { color: #aeb4c7; }
 body.admin-dark .admin-sidebar .admin-nav a:hover,
-body.admin-dark .admin-sidebar .admin-nav a.is-active { background: rgba(59,130,246,0.12); color: #fff; }
-body.admin-dark .admin-sidebar .admin-nav a.is-active { box-shadow: inset 3px 0 #3b82f6; }
+body.admin-dark .admin-sidebar .admin-nav a.is-active { background: var(--adm-primary-soft); color: #fff; }
+body.admin-dark .admin-sidebar .admin-nav a.is-active { box-shadow: inset 3px 0 var(--adm-primary); }
 body.admin-dark .admin-nav-icon { color: #6b7280; }
-body.admin-dark .admin-sidebar .admin-nav a.is-active .admin-nav-icon { color: #60a5fa; }
+body.admin-dark .admin-sidebar .admin-nav a.is-active .admin-nav-icon { color: var(--adm-primary); }
 
+/* Header */
 body.admin-dark .admin-header {
-    background: #151925;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    background: rgba(17,20,28,0.92);
+    border-bottom: 1px solid var(--adm-border);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
-body.admin-dark .admin-header-search { color: #6b7280; }
-body.admin-dark .admin-header-search input { color: #e3e6eb; }
-body.admin-dark .admin-header-search input::placeholder { color: #5f6672; }
+body.admin-dark .admin-header-search { color: var(--adm-text-dim); }
+body.admin-dark .admin-header-search input { color: var(--adm-text); }
+body.admin-dark .admin-header-search input::placeholder { color: var(--adm-text-dim); }
 body.admin-dark .admin-user-avatar { background: linear-gradient(135deg, #2563eb, #7c3aed); color: #fff; }
-body.admin-dark .admin-user-copy strong { color: #f1f3f6; }
+body.admin-dark .admin-user-copy strong { color: var(--adm-text); }
 body.admin-dark .admin-user-copy small,
-body.admin-dark .admin-logout-button { color: #8a929f; }
-body.admin-dark .admin-logout-button:hover { color: #60a5fa; }
+body.admin-dark .admin-logout-button { color: var(--adm-text-muted); }
+body.admin-dark .admin-logout-button:hover { color: var(--adm-primary); }
 
-body.admin-dark .admin-title { color: #f1f3f6; }
-body.admin-dark .admin-subtitle { color: #9ca3af; }
+/* Typography */
+body.admin-dark .admin-title { color: var(--adm-text); }
+body.admin-dark .admin-subtitle { color: var(--adm-text-muted); }
+body.admin-dark .dashboard-eyebrow { color: #93c5fd; letter-spacing: 0.12em; }
+body.admin-dark .dashboard-section-kicker { color: var(--adm-primary); }
 
+/* Dashboard hero */
 body.admin-dark .dashboard-hero {
-    background: linear-gradient(120deg, #111827 0%, #1e3a8a 60%, #3b82f6 140%);
-    box-shadow: 0 14px 35px rgba(0,0,0,0.3);
+    background: linear-gradient(125deg, #0f172a 0%, #1e3a8a 55%, #3b82f6 130%);
+    box-shadow: var(--adm-shadow);
 }
-body.admin-dark .dashboard-hero .admin-subtitle { color: rgba(255,255,255,0.65); }
-body.admin-dark .dashboard-status-ok { color: #e3e6eb; border-color: rgba(255,255,255,0.18); }
-body.admin-dark .dashboard-date { color: rgba(255,255,255,0.7); }
+body.admin-dark .dashboard-hero .admin-subtitle { color: rgba(255,255,255,0.7); }
+body.admin-dark .dashboard-status-ok { color: #e3e6eb; border-color: rgba(255,255,255,0.2); }
+body.admin-dark .dashboard-date { color: rgba(255,255,255,0.75); }
+body.admin-dark .dashboard-hero .pill-alert {
+    background: #fff;
+    color: #111827;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.22);
+}
 
+/* Cards / sections */
 body.admin-dark .stat-card,
 body.admin-dark .admin-section,
 body.admin-dark .widget-card,
 body.admin-dark .todo-card,
 body.admin-dark .table-wrapper,
-body.admin-dark .service-list {
-    background: #161b26;
-    border-color: rgba(255,255,255,0.06);
-    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+body.admin-dark .service-list,
+body.admin-dark .reservations-control-panel,
+body.admin-dark .reservation-card,
+body.admin-dark .menu-category-card,
+body.admin-dark .events-admin-card,
+body.admin-dark .users-admin-card,
+body.admin-dark .menu-admin-stat,
+body.admin-dark .events-admin-stat,
+body.admin-dark .users-admin-stat,
+body.admin-dark .reservations-kpi {
+    background: var(--adm-surface-raised);
+    border-color: var(--adm-border);
+    box-shadow: var(--adm-shadow-sm);
 }
-body.admin-dark .stat-card:hover {
-    box-shadow: 0 8px 22px rgba(0,0,0,0.28);
+body.admin-dark .stat-card,
+body.admin-dark .reservation-card,
+body.admin-dark .events-admin-card,
+body.admin-dark .users-admin-card,
+body.admin-dark .menu-admin-stat,
+body.admin-dark .events-admin-stat,
+body.admin-dark .users-admin-stat,
+body.admin-dark .reservations-kpi {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
+body.admin-dark .stat-card:hover,
+body.admin-dark .reservation-card:hover,
+body.admin-dark .events-admin-card:hover,
+body.admin-dark .users-admin-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--adm-shadow);
+    border-color: rgba(255,255,255,0.12);
+}
+
 body.admin-dark .stat-card .stat-value,
-body.admin-dark .widget-stat { color: #f1f3f6; }
+body.admin-dark .widget-stat { color: var(--adm-text); }
 body.admin-dark .stat-card .stat-label,
 body.admin-dark .stat-sub,
 body.admin-dark .widget-meta,
@@ -3016,93 +3082,140 @@ body.admin-dark .widget-stat span,
 body.admin-dark .todo-meta,
 body.admin-dark .todo-note,
 body.admin-dark .service-guests,
-body.admin-dark .service-contact a { color: #9ca3af; }
-body.admin-dark .todo-card { border-left-color: #e8c36d; }
+body.admin-dark .service-contact a { color: var(--adm-text-muted); }
+body.admin-dark .todo-card { border-left: 3px solid var(--adm-gold); }
 body.admin-dark .todo-name,
 body.admin-dark .service-name strong,
-body.admin-dark .service-time { color: #f1f3f6; }
-body.admin-dark .todo-allergies { color: #fbbf24; }
-body.admin-dark .todo-when { background: #1f2532; color: #e3e6eb; }
+body.admin-dark .service-time { color: var(--adm-text); }
+body.admin-dark .todo-allergies { color: var(--adm-warning); }
+body.admin-dark .todo-when { background: var(--adm-surface); color: var(--adm-text); }
 
 body.admin-dark .admin-section-title,
-body.admin-dark .widget-title { color: #f1f3f6; }
-body.admin-dark .widget-title { border-color: rgba(255,255,255,0.06); }
+body.admin-dark .widget-title { color: var(--adm-text); }
+body.admin-dark .widget-title { border-color: var(--adm-border); }
 body.admin-dark .widget-list { color: #d1d5db; }
 body.admin-dark .widget-link,
 body.admin-dark .admin-table a,
-body.admin-dark .service-contact a { color: #60a5fa; }
+body.admin-dark .service-contact a,
+body.admin-dark .todo-edit,
+body.admin-dark .menu-category-add,
+body.admin-dark .events-admin-edit,
+body.admin-dark .users-admin-edit,
+body.admin-dark .reservation-card-actions > a { color: var(--adm-primary); }
 body.admin-dark .widget-link:hover,
 body.admin-dark .admin-table a:hover,
-body.admin-dark .service-contact a:hover { color: #93c5fd; }
+body.admin-dark .service-contact a:hover,
+body.admin-dark .todo-edit:hover,
+body.admin-dark .menu-category-add:hover,
+body.admin-dark .events-admin-edit:hover,
+body.admin-dark .users-admin-edit:hover,
+body.admin-dark .reservation-card-actions > a:hover { color: #93c5fd; }
 
-body.admin-dark .admin-table th { background: #1f2532; color: #9ca3af; }
-body.admin-dark .admin-table td { border-color: rgba(255,255,255,0.05); color: #d1d5db; }
-body.admin-dark .row-highlight { color: #f1f3f6; }
-body.admin-dark .row-meta { color: #9ca3af; }
+/* Tables */
+body.admin-dark .admin-table th { background: var(--adm-surface); color: var(--adm-text-muted); }
+body.admin-dark .admin-table td { border-color: var(--adm-border); color: #d1d5db; }
+body.admin-dark .admin-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
+body.admin-dark .row-highlight { color: var(--adm-text); }
+body.admin-dark .row-meta { color: var(--adm-text-muted); }
+body.admin-dark .cell-empty { color: var(--adm-text-muted); background: transparent; }
+body.admin-dark .dashboard-ok { color: var(--adm-success); }
 
+/* Filters */
 body.admin-dark .filter-bar,
-body.admin-dark .dashboard-reservations .filter-bar { background: #161b26; }
-body.admin-dark .filter-tab {
-    background: #1f2532;
-    border-color: rgba(255,255,255,0.08);
+body.admin-dark .dashboard-reservations .filter-bar,
+body.admin-dark .reservations-filters { background: var(--adm-surface-raised); border: 1px solid var(--adm-border); }
+body.admin-dark .filter-tab,
+body.admin-dark .reservations-tabs a {
+    background: var(--adm-surface);
+    border-color: var(--adm-border);
     color: #d1d5db;
 }
-body.admin-dark .filter-tab.is-active { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+body.admin-dark .filter-tab:hover,
+body.admin-dark .reservations-tabs a:hover { border-color: rgba(255,255,255,0.15); color: #fff; }
+body.admin-dark .filter-tab.is-active,
+body.admin-dark .reservations-tabs a.is-active { background: var(--adm-primary); border-color: var(--adm-primary); color: #fff; }
+body.admin-dark .filter-tab.is-active:hover,
+body.admin-dark .reservations-tabs a.is-active:hover { color: #fff; }
 body.admin-dark .filter-controls select,
-body.admin-dark .filter-controls input[type="search"] {
-    background: #0f1218;
-    border-color: rgba(255,255,255,0.1);
-    color: #e3e6eb;
+body.admin-dark .filter-controls input[type="search"],
+body.admin-dark .reservations-filter-fields select,
+body.admin-dark .reservations-filter-fields input {
+    background: var(--adm-bg);
+    border-color: var(--adm-border);
+    color: var(--adm-text);
 }
-body.admin-dark .filter-reset { color: #9ca3af; }
-body.admin-dark .filter-reset:hover { color: #60a5fa; }
+body.admin-dark .filter-controls select:focus,
+body.admin-dark .filter-controls input[type="search"]:focus,
+body.admin-dark .reservations-filter-fields select:focus,
+body.admin-dark .reservations-filter-fields input:focus { border-color: var(--adm-primary); }
+body.admin-dark .filter-reset { color: var(--adm-text-muted); }
+body.admin-dark .filter-reset:hover { color: var(--adm-primary); }
+body.admin-dark .reservations-filter-fields button { background: #4f46e5; }
+body.admin-dark .reservations-filter-fields button:hover { background: #4338ca; }
 
-body.admin-dark .status-badge { background: #1f2532; }
-body.admin-dark .status-pending { color: #fbbf24; background: rgba(251,191,36,0.1); }
-body.admin-dark .status-confirmed { color: #34d399; background: rgba(52,211,153,0.1); }
-body.admin-dark .status-cancelled { color: #9ca3af; background: rgba(156,163,175,0.1); }
+/* Badges & status */
+body.admin-dark .status-badge { background: var(--adm-surface); }
+body.admin-dark .status-pending { color: var(--adm-warning); background: var(--adm-warning-soft); }
+body.admin-dark .status-confirmed { color: var(--adm-success); background: var(--adm-success-soft); }
+body.admin-dark .status-cancelled { color: var(--adm-text-muted); background: rgba(156,163,175,0.1); }
+body.admin-dark .badge-guests { background: var(--adm-gold-soft); color: var(--adm-gold); }
+body.admin-dark .dashboard-section-count { background: var(--adm-primary-soft); color: #bfdbfe; }
 
-body.admin-dark .dashboard-section-count { background: #1e3a8a; color: #bfdbfe; }
-body.admin-dark .dashboard-section-kicker { color: #60a5fa; }
-
+/* Buttons */
 body.admin-dark .btn-edit {
-    border-color: #60a5fa;
-    color: #60a5fa;
+    border-color: var(--adm-primary);
+    color: var(--adm-primary);
 }
-body.admin-dark .btn-edit:hover { background: #60a5fa; color: #fff; }
+body.admin-dark .btn-edit:hover { background: var(--adm-primary); color: #fff; }
 body.admin-dark .btn-ghost-dark {
-    border-color: rgba(255,255,255,0.15);
+    border-color: var(--adm-border);
     color: #d1d5db;
 }
-body.admin-dark .btn-ghost-dark:hover { border-color: #60a5fa; color: #60a5fa; }
-body.admin-dark .btn-gold { background: #e8c36d; border-color: #e8c36d; color: #111827; }
-body.admin-dark .btn-gold:hover { background: transparent; color: #e8c36d; }
+body.admin-dark .btn-ghost-dark:hover { border-color: var(--adm-primary); color: var(--adm-primary); }
+body.admin-dark .btn-gold { background: var(--adm-gold); border-color: var(--adm-gold); color: #111827; }
+body.admin-dark .btn-gold:hover { background: transparent; color: var(--adm-gold); }
+body.admin-dark .btn-danger { color: var(--adm-danger); border-color: rgba(248,113,113,0.35); }
+body.admin-dark .btn-danger:hover { background: var(--adm-danger); color: #fff; border-color: var(--adm-danger); }
+body.admin-dark .reservation-confirm { background: var(--adm-success); }
+body.admin-dark .reservation-confirm:hover { background: #10b981; }
 
+/* Pagination */
 body.admin-dark .pagination a,
-body.admin-dark .pagination span { background: #161b26; border-color: rgba(255,255,255,0.08); color: #d1d5db; }
-body.admin-dark .pagination a:hover { border-color: #60a5fa; color: #60a5fa; }
-body.admin-dark .pagination .active span { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+body.admin-dark .pagination span { background: var(--adm-surface-raised); border-color: var(--adm-border); color: #d1d5db; }
+body.admin-dark .pagination a:hover { border-color: var(--adm-primary); color: var(--adm-primary); }
+body.admin-dark .pagination .active span { background: var(--adm-primary); border-color: var(--adm-primary); color: #fff; }
 
-body.admin-dark .alert-success { background: rgba(52,211,153,0.08); border-color: rgba(52,211,153,0.3); color: #34d399; }
-body.admin-dark .alert-error { background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.3); color: #f87171; }
+/* Alerts */
+body.admin-dark .alert-success { background: var(--adm-success-soft); border-color: rgba(52,211,153,0.25); color: var(--adm-success); }
+body.admin-dark .alert-error { background: var(--adm-danger-soft); border-color: rgba(248,113,113,0.25); color: var(--adm-danger); }
 
-body.admin-dark .cell-empty { color: #9ca3af; }
-body.admin-dark .dashboard-ok { color: #34d399; }
+/* Service list */
+body.admin-dark .service-title { color: var(--adm-gold); }
+body.admin-dark .service-row { border-color: var(--adm-border); }
 
-/* Form dark */
+/* Forms */
 body.admin-dark .admin-card-form,
 body.admin-dark .account-profile-card,
 body.admin-dark .account-admin-form,
 body.admin-dark .internal-editor-form,
 body.admin-dark .login-admin-box,
-body.admin-dark .login-admin-shell {
-    background: #161b26;
-    border-color: rgba(255,255,255,0.06);
+body.admin-dark .login-admin-shell,
+body.admin-dark .form-container,
+body.admin-dark .admin-empty,
+body.admin-dark .reservations-empty,
+body.admin-dark .menu-admin-empty,
+body.admin-dark .events-admin-empty,
+body.admin-dark .users-admin-empty {
+    background: var(--adm-surface-raised);
+    border-color: var(--adm-border);
 }
+body.admin-dark .account-profile-cover { background: linear-gradient(135deg, #1e293b, #475569); }
+body.admin-dark .account-profile-avatar { background: linear-gradient(135deg, #334155, #64748b); border-color: var(--adm-surface-raised); }
 body.admin-dark .form-group label,
 body.admin-dark .form-group legend,
 body.admin-dark .account-admin-form label,
-body.admin-dark .internal-editor-form label { color: #d1d5db; }
+body.admin-dark .internal-editor-form label,
+body.admin-dark .login-admin-form label { color: #d1d5db; }
 body.admin-dark .form-group input,
 body.admin-dark .form-group textarea,
 body.admin-dark .form-group select,
@@ -3113,14 +3226,14 @@ body.admin-dark .internal-editor-form textarea,
 body.admin-dark .login-admin-form input,
 body.admin-dark .status-select,
 body.admin-dark .radio-card {
-    background: #0f1218;
-    border-color: rgba(255,255,255,0.1);
-    color: #e3e6eb;
+    background: var(--adm-bg);
+    border-color: var(--adm-border);
+    color: var(--adm-text);
 }
 body.admin-dark .form-group input::placeholder,
 body.admin-dark .form-group textarea::placeholder,
 body.admin-dark .internal-editor-form input::placeholder,
-body.admin-dark .login-admin-form input::placeholder { color: #6b7280; }
+body.admin-dark .login-admin-form input::placeholder { color: var(--adm-text-dim); }
 body.admin-dark .form-group input:focus,
 body.admin-dark .form-group textarea:focus,
 body.admin-dark .form-group select:focus,
@@ -3129,35 +3242,152 @@ body.admin-dark .internal-editor-form input:focus,
 body.admin-dark .internal-editor-form select:focus,
 body.admin-dark .internal-editor-form textarea:focus,
 body.admin-dark .login-admin-form input:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+    border-color: var(--adm-primary);
+    box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    background: var(--adm-surface);
 }
+body.admin-dark .radio-card:hover { border-color: rgba(255,255,255,0.15); }
 body.admin-dark .radio-card:has(input:checked) {
-    border-color: #3b82f6;
-    background: rgba(59,130,246,0.1);
+    border-color: var(--adm-primary);
+    background: var(--adm-primary-soft);
 }
 body.admin-dark .radio-label { color: #d1d5db; }
 body.admin-dark .form-hint,
-body.admin-dark .label-optional { color: #9ca3af; }
+body.admin-dark .label-optional { color: var(--adm-text-muted); }
+body.admin-dark .form-checkbox label { color: #d1d5db; }
 
-body.admin-dark .admin-empty,
-body.admin-dark .cell-empty { background: #161b26; }
+body.admin-dark .account-section-number,
+body.admin-dark .menu-admin-stat-icon,
+body.admin-dark .events-admin-stat-icon,
+body.admin-dark .users-admin-stat-icon,
+body.admin-dark .menu-category-index,
+body.admin-dark .reservations-kpi-index,
+body.admin-dark .account-profile-avatar {
+    color: var(--adm-primary);
+    background: var(--adm-primary-soft);
+}
+body.admin-dark .menu-admin-stat-success .menu-admin-stat-icon,
+body.admin-dark .events-admin-stat-success .events-admin-stat-icon,
+body.admin-dark .users-admin-stat-success .users-admin-stat-icon,
+body.admin-dark .reservations-kpi.is-success .reservations-kpi-index { color: var(--adm-success); background: var(--adm-success-soft); }
+body.admin-dark .menu-admin-stat-warning .menu-admin-stat-icon,
+body.admin-dark .events-admin-stat-warning .events-admin-stat-icon,
+body.admin-dark .users-admin-stat-warning .users-admin-stat-icon { color: var(--adm-warning); background: var(--adm-warning-soft); }
+body.admin-dark .menu-admin-stat-purple .menu-admin-stat-icon,
+body.admin-dark .events-admin-stat-purple .events-admin-stat-icon,
+body.admin-dark .users-admin-stat-purple .users-admin-stat-icon { color: #c084fc; background: rgba(192,132,252,0.12); }
+
+body.admin-dark .menu-admin-toolbar h2,
+body.admin-dark .events-admin-toolbar h2,
+body.admin-dark .users-admin-toolbar h2,
+body.admin-dark .menu-category-title .admin-section-title,
+body.admin-dark .events-admin-card-body h2,
+body.admin-dark .users-admin-identity h2,
+body.admin-dark .menu-item-name,
+body.admin-dark .reservation-time-block strong,
+body.admin-dark .reservation-card-body h3,
+body.admin-dark .account-section-header h2,
+body.admin-dark .account-profile-content h2 { color: var(--adm-text); }
+
+body.admin-dark .menu-category-header,
+body.admin-dark .menu-item,
+body.admin-dark .events-admin-actions,
+body.admin-dark .users-admin-actions,
+body.admin-dark .users-admin-permissions,
+body.admin-dark .account-profile-details,
+body.admin-dark .account-security-section,
+body.admin-dark .account-form-actions,
+body.admin-dark .internal-editor-form > .form-group,
+body.admin-dark .internal-editor-form > .form-row,
+body.admin-dark .reservation-card-header,
+body.admin-dark .reservation-card-actions { border-color: var(--adm-border); }
+
+body.admin-dark .menu-section-tag,
+body.admin-dark .users-admin-permission-list span,
+body.admin-dark .events-admin-date small,
+body.admin-dark .events-admin-slug,
+body.admin-dark .users-admin-identity > a,
+body.admin-dark .users-admin-login,
+body.admin-dark .reservation-contact a,
+body.admin-dark .reservation-menu,
+body.admin-dark .reservation-alert,
+body.admin-dark .reservation-message,
+body.admin-dark .menu-item-price { color: var(--adm-text-muted); }
+
+body.admin-dark .events-admin-media,
+body.admin-dark .events-admin-placeholder { background: var(--adm-surface); }
+body.admin-dark .events-admin-card.is-draft { opacity: 0.75; }
+
+body.admin-dark .users-admin-state { background: var(--adm-success-soft); color: var(--adm-success); }
+body.admin-dark .users-admin-state.is-inactive { background: rgba(156,163,175,0.1); color: var(--adm-text-muted); }
+body.admin-dark .users-admin-you { background: var(--adm-primary-soft); color: var(--adm-primary); }
+body.admin-dark .role-super { background: var(--adm-surface-raised); color: var(--adm-gold); }
+body.admin-dark .role-manager { background: var(--adm-surface); color: var(--adm-text); border-color: var(--adm-border); }
+body.admin-dark .perm-card { background: var(--adm-surface); border-color: var(--adm-border); }
+body.admin-dark .perm-card:hover { border-color: rgba(255,255,255,0.12); }
+body.admin-dark .perm-card:has(input:checked) { border-color: var(--adm-success); background: rgba(52,211,153,0.08); }
+body.admin-dark .perm-label { color: var(--adm-text); }
+body.admin-dark .perm-desc { color: var(--adm-text-muted); }
+
+body.admin-dark .menu-admin-create,
+body.admin-dark .events-admin-create,
+body.admin-dark .users-admin-create,
+body.admin-dark .account-save-button,
+body.admin-dark .login-admin-submit { box-shadow: var(--adm-shadow-sm); }
+body.admin-dark .account-save-button { background: #4f46e5; }
+body.admin-dark .account-save-button:hover { background: #4338ca; }
+body.admin-dark .account-back-link { color: var(--adm-text-muted); }
+body.admin-dark .account-back-link:hover { color: var(--adm-primary); }
 
 /* Login dark */
-body.admin-dark .admin-login { background: #0f1218; }
-body.admin-dark .login-admin-page { background: #0f1218; }
+body.admin-dark .admin-login,
+body.admin-dark .login-admin-page { background: var(--adm-bg); }
+body.admin-dark .login-admin-visual { background: linear-gradient(145deg, #0f172a, #1e3a8a 65%, #334155); }
 body.admin-dark .login-admin-heading h2,
-body.admin-dark .login-admin-form-panel label { color: #f1f3f6; }
-body.admin-dark .login-admin-heading p { color: #9ca3af; }
+body.admin-dark .login-admin-form-panel label { color: var(--adm-text); }
+body.admin-dark .login-admin-heading p { color: var(--adm-text-muted); }
 
-body.admin-dark .admin-nav-toggle { border-color: rgba(255,255,255,0.15); }
+/* Mobile nav toggle */
+body.admin-dark .admin-nav-toggle { border-color: var(--adm-border); }
 body.admin-dark .admin-nav-toggle span { background: #d1d5db; }
 
+/* Heros spécifiques */
+body.admin-dark .menu-admin-hero { background: linear-gradient(120deg, #0f172a 0%, #1e40af 62%, #0e7490 125%); }
+body.admin-dark .events-admin-hero { background: linear-gradient(120deg, #1a103c 0%, #5b21b6 58%, #be185d 130%); }
+body.admin-dark .users-admin-hero { background: linear-gradient(120deg, #0f172a 0%, #164e63 58%, #0f766e 130%); }
+body.admin-dark .account-admin-hero { background: linear-gradient(120deg, #0f172a 0%, #312e81 60%, #6366f1 125%); }
+body.admin-dark .reservations-hero { background: linear-gradient(120deg, #1c1917 0%, #78350f 58%, #d97706 135%); }
+body.admin-dark .internal-editor-hero { background: linear-gradient(120deg, #0f172a, #1e40af 72%, #0e7490 130%); }
+body.admin-dark .menu-admin-hero .dashboard-eyebrow,
+body.admin-dark .events-admin-hero .dashboard-eyebrow,
+body.admin-dark .users-admin-hero .dashboard-eyebrow,
+body.admin-dark .account-admin-hero .dashboard-eyebrow,
+body.admin-dark .reservations-hero .dashboard-eyebrow { color: #bfdbfe; }
+
+body.admin-dark .reservations-hero-focus {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+body.admin-dark .reservations-panel-heading h2,
+body.admin-dark .reservations-kpi strong,
+body.admin-dark .reservation-date-block { color: var(--adm-text); }
+body.admin-dark .reservation-date-block { background: var(--adm-gold-soft); }
+body.admin-dark .reservation-card-header,
+body.admin-dark .reservation-card-actions { background: var(--adm-surface); }
+body.admin-dark .reservation-card.status-confirmed { border-top-color: var(--adm-success); }
+body.admin-dark .reservation-card.status-cancelled { border-top-color: var(--adm-text-muted); }
+body.admin-dark .reservations-empty { background: var(--adm-surface-raised); border-style: solid; border-color: var(--adm-border); color: var(--adm-text-muted); }
+body.admin-dark .reservations-empty h3 { color: var(--adm-text); }
+
 @media (max-width: 1024px) {
-    body.admin-dark .admin-nav.is-open { background: #151925; }
+    body.admin-dark .admin-nav.is-open { background: var(--adm-surface); border-bottom: 1px solid var(--adm-border); }
 }
 
 @media (max-width: 760px) {
-    body.admin-dark .admin-table-responsive tr { background: #161b26; border-color: rgba(255,255,255,0.06); }
-    body.admin-dark .admin-table-responsive td::before { color: #9ca3af; }
+    body.admin-dark .admin-table-responsive tr { background: var(--adm-surface-raised); border-color: var(--adm-border); }
+    body.admin-dark .admin-table-responsive td::before { color: var(--adm-text-muted); }
+    body.admin-dark .admin-section { padding: 16px; }
+    body.admin-dark .dashboard-hero { padding-bottom: 65px; }
 }

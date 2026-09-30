@@ -23,8 +23,7 @@
     }
 
     var savedTheme = window.localStorage.getItem('adminTheme');
-    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    var adminTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+    var adminTheme = savedTheme || 'dark';
     applyAdminTheme(adminTheme);
 
     if (themeToggle) {
