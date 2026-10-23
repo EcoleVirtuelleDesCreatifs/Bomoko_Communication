@@ -15,10 +15,14 @@ use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request, DashboardStats $stats): View
+    public function index(Request $request, DashboardStats $stats): View|RedirectResponse
     {
         $user = $request->user();
         $canReservations = $user->can('manage-reservations');
+
+        if ($canReservations && $request->hasAny(['status', 'period', 'q'])) {
+            return redirect()->route('admin.reservations.index', $request->only(['status', 'period', 'q']));
+        }
 
         $filters = [
             'status' => $request->query('status'),
@@ -69,6 +73,49 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function reservations(Request $request, DashboardStats $stats): View
+    {
+        $filters = [
+            'status' => $request->query('status'),
+            'period' => $request->query('period', 'upcoming'),
+            'q' => $request->query('q'),
+        ];
+
+        $counts = Reservation::query()
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $statusCounts = [
+            'pending' => (int) ($counts[Reservation::STATUS_PENDING] ?? 0),
+            'confirmed' => (int) ($counts[Reservation::STATUS_CONFIRMED] ?? 0),
+            'cancelled' => (int) ($counts[Reservation::STATUS_CANCELLED] ?? 0),
+        ];
+
+        $reservations = Reservation::query()
+            ->when($filters['status'], fn ($query) => $query->where('status', $filters['status']))
+            ->when($filters['period'] === 'upcoming', fn ($query) => $query->whereDate('date', '>=', now()->toDateString())->orderBy('date')->orderBy('time'))
+            ->when($filters['period'] === 'past', fn ($query) => $query->whereDate('date', '<', now()->toDateString())->orderByDesc('date')->orderByDesc('time'))
+            ->when($filters['period'] === 'all', fn ($query) => $query->orderByDesc('date')->orderByDesc('time'))
+            ->when($filters['q'], function ($query) use ($filters) {
+                $term = '%'.$filters['q'].'%';
+                $query->where(fn ($q) => $q
+                    ->where('name', 'like', $term)
+                    ->orWhere('email', 'like', $term)
+                    ->orWhere('phone', 'like', $term));
+            })
+            ->paginate(18)
+            ->withQueryString();
+
+        return view('admin.reservations.index', [
+            'stats' => $stats->reservations(),
+            'todayService' => $stats->todayService(),
+            'reservations' => $reservations,
+            'statusCounts' => $statusCounts,
+            'filters' => $filters,
+        ]);
+    }
+
     public function edit(Reservation $reservation): View
     {
         return view('admin.reservations.edit', compact('reservation'));
@@ -79,7 +126,7 @@ class DashboardController extends Controller
         $reservation->update($request->validated());
         $this->applyStatus($reservation, $reservation->status);
 
-        return redirect()->route('admin.dashboard')->with('success', 'La réservation a été mise à jour.');
+        return redirect()->route('admin.reservations.index')->with('success', 'La réservation a été mise à jour.');
     }
 
     public function updateStatus(Request $request, Reservation $reservation): RedirectResponse
@@ -97,7 +144,7 @@ class DashboardController extends Controller
             Reservation::STATUS_CANCELLED => 'annulée',
         ];
 
-        return redirect()->route('admin.dashboard')
+        return redirect()->route('admin.reservations.index')
             ->with('success', "La réservation de {$reservation->name} a été {$labels[$validated['status']]}.");
     }
 

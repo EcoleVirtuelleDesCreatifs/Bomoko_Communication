@@ -19,7 +19,9 @@
                 <a href="{{ route('menu') }}" class="btn btn-outline">Voir la carte</a>
                 <a href="{{ route('reservation') }}" class="link-arrow">Réserver une table</a>
             </div>
-            <p class="error-help">Besoin d'aide ? <a href="tel:{{ preg_replace('/\s+/', '', (string) config('site.phone')) }}">{{ config('site.phone') }}</a></p>
+            <p class="error-help">Besoin d'aide ? <a
+                    href="tel:{{ preg_replace('/\s+/', '', (string) config('site.phone')) }}">{{ config('site.phone') }}</a>
+            </p>
         </div>
     </section>
 @endsection

@@ -35,7 +35,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('reservation.store') }}" class="reservation-form" novalidate>
+            <form method="POST" action="{{ route('reservation.store') }}" class="reservation-form" data-public-reservation novalidate>
                 @csrf
 
                 <div class="form-row">
@@ -100,7 +100,11 @@
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-gold">Envoyer la demande</button>
+                    <button type="submit" class="btn btn-gold" data-loading-text="Envoi en cours…">Envoyer la demande</button>
+                    <div class="reservation-submit-status" role="status" aria-live="polite" hidden>
+                        <span class="reservation-submit-spinner" aria-hidden="true"></span>
+                        <span>Votre réservation et les e-mails de confirmation sont en cours d’envoi. Merci de patienter.</span>
+                    </div>
                     <p class="form-privacy">Les informations recueillies servent uniquement au traitement de votre réservation. <a href="{{ route('legal.privacy') }}">En savoir plus</a>.</p>
                     <a href="{{ route('home') }}" class="btn btn-ghost">Retour à l'accueil</a>
                 </div>

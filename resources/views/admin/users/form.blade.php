@@ -3,12 +3,15 @@
 @section('title', $user ? 'Modifier un administrateur' : 'Ajouter un administrateur')
 
 @section('content')
-    <div class="admin-container admin-container-narrow">
-        <div class="admin-page-header">
+    <div class="admin-container internal-editor-page internal-editor-users">
+        <header class="admin-page-header internal-editor-hero">
             <div>
+                <span class="dashboard-eyebrow">Gestion de l’équipe</span>
                 <h1 class="admin-title">{{ $user ? 'Modifier un administrateur' : 'Ajouter un administrateur' }}</h1>
+                <p class="admin-subtitle">Configurez l’identité, le rôle, les permissions et l’état de ce compte.</p>
             </div>
-        </div>
+            <a href="{{ route('admin.users.index') }}" class="internal-editor-back">← Retour aux administrateurs</a>
+        </header>
 
         @if ($errors->any())
             <div class="alert alert-error" role="alert">
@@ -20,7 +23,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ $user ? route('admin.users.update', $user) : route('admin.users.store') }}" class="admin-card-form">
+        <form method="POST" action="{{ $user ? route('admin.users.update', $user) : route('admin.users.store') }}" class="admin-card-form internal-editor-form">
             @csrf
             @if ($user)
                 @method('PUT')

@@ -41,6 +41,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function (): void {
     Route::put('/compte', [AccountController::class, 'update'])->name('admin.account.update');
 
     Route::middleware('can:manage-reservations')->group(function (): void {
+        Route::get('/reservations', [DashboardController::class, 'reservations'])->name('admin.reservations.index');
         Route::get('/reservations/{reservation}/edit', [DashboardController::class, 'edit'])->name('admin.reservations.edit');
         Route::put('/reservations/{reservation}', [DashboardController::class, 'update'])->name('admin.reservations.update');
         Route::patch('/reservations/{reservation}/status', [DashboardController::class, 'updateStatus'])->name('admin.reservations.status');

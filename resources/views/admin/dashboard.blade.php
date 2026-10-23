@@ -36,35 +36,6 @@
             </div>
         @endif
 
-        @if ($menuStats || $eventStats || $userStats)
-            <div class="quick-actions-grid">
-                @can('manage-menu')
-                    <a href="{{ route('admin.menu.index') }}" class="quick-action-card">
-                        <span class="quick-action-icon">≡</span>
-                        <span class="quick-action-label">La Carte</span>
-                    </a>
-                @endcan
-                @can('manage-events')
-                    <a href="{{ route('admin.events.create') }}" class="quick-action-card">
-                        <span class="quick-action-icon">+</span>
-                        <span class="quick-action-label">Nouvelle actualité</span>
-                    </a>
-                @endcan
-                @can('manage-reservations')
-                    <a href="{{ route('admin.reservations.index', ['status' => 'pending', 'period' => 'upcoming']) }}" class="quick-action-card">
-                        <span class="quick-action-icon">▤</span>
-                        <span class="quick-action-label">Réservations</span>
-                    </a>
-                @endcan
-                @can('manage-users')
-                    <a href="{{ route('admin.users.index') }}" class="quick-action-card">
-                        <span class="quick-action-icon">◎</span>
-                        <span class="quick-action-label">Administrateurs</span>
-                    </a>
-                @endcan
-            </div>
-        @endif
-
         @can('manage-reservations')
             <div class="stats-grid dashboard-stats">
                 <a href="{{ route('admin.dashboard', ['status' => 'confirmed', 'period' => 'upcoming']) }}" class="stat-card stat-card-primary">
@@ -328,6 +299,33 @@
         @endcan
 
         @if ($menuStats || $eventStats || $userStats)
+            <div class="quick-actions-grid">
+                @can('manage-menu')
+                    <a href="{{ route('admin.menu.index') }}" class="quick-action-card">
+                        <span class="quick-action-icon">≡</span>
+                        <span class="quick-action-label">La Carte</span>
+                    </a>
+                @endcan
+                @can('manage-events')
+                    <a href="{{ route('admin.events.create') }}" class="quick-action-card">
+                        <span class="quick-action-icon">+</span>
+                        <span class="quick-action-label">Nouvelle actualité</span>
+                    </a>
+                @endcan
+                @can('manage-reservations')
+                    <a href="{{ route('admin.reservations.index', ['status' => 'pending', 'period' => 'upcoming']) }}" class="quick-action-card">
+                        <span class="quick-action-icon">▤</span>
+                        <span class="quick-action-label">Réservations</span>
+                    </a>
+                @endcan
+                @can('manage-users')
+                    <a href="{{ route('admin.users.index') }}" class="quick-action-card">
+                        <span class="quick-action-icon">◎</span>
+                        <span class="quick-action-label">Administrateurs</span>
+                    </a>
+                @endcan
+            </div>
+
             <div class="widget-grid">
                 @if ($menuStats)
                     <section class="widget-card widget-card-linked">

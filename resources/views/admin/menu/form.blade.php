@@ -3,12 +3,15 @@
 @section('title', $item ? 'Modifier un plat' : 'Ajouter un plat')
 
 @section('content')
-    <div class="admin-container admin-container-narrow">
-        <div class="admin-page-header">
+    <div class="admin-container internal-editor-page internal-editor-menu">
+        <header class="admin-page-header internal-editor-hero">
             <div>
+                <span class="dashboard-eyebrow">Gestion de la carte</span>
                 <h1 class="admin-title">{{ $item ? 'Modifier un plat' : 'Ajouter un plat' }}</h1>
+                <p class="admin-subtitle">Renseignez les informations, le tarif et la position de cette proposition sur la carte.</p>
             </div>
-        </div>
+            <a href="{{ route('admin.menu.index') }}" class="internal-editor-back">← Retour à la carte</a>
+        </header>
 
         @if ($errors->any())
             <div class="alert alert-error" role="alert">
@@ -20,7 +23,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ $item ? route('admin.menu.update', $item) : route('admin.menu.store') }}" class="admin-card-form">
+        <form method="POST" action="{{ $item ? route('admin.menu.update', $item) : route('admin.menu.store') }}" class="admin-card-form internal-editor-form">
             @csrf
             @if ($item)
                 @method('PUT')

@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AdminPermission;
 use App\Http\Requests\StoreReservationRequest;
+use App\Mail\NewReservationAdminNotification;
+use App\Mail\ReservationReceived;
 use App\Models\Reservation;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class ReservationController extends Controller
@@ -16,7 +21,16 @@ class ReservationController extends Controller
 
     public function store(StoreReservationRequest $request): RedirectResponse
     {
-        Reservation::create($request->validated());
+        $reservation = Reservation::create($request->validated());
+
+        Mail::to($reservation->email)->send(new ReservationReceived($reservation));
+
+        User::query()
+            ->where('is_admin', true)
+            ->where('is_active', true)
+            ->get()
+            ->filter(fn (User $user): bool => $user->hasPermission(AdminPermission::Reservations))
+            ->each(fn (User $user) => Mail::to($user->email)->send(new NewReservationAdminNotification($reservation)));
 
         return redirect()
             ->route('reservation')

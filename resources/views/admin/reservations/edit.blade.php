@@ -3,13 +3,15 @@
 @section('title', 'Modifier la réservation')
 
 @section('content')
-    <div class="admin-container admin-container-narrow">
-        <div class="admin-page-header">
+    <div class="admin-container internal-editor-page internal-editor-reservation">
+        <header class="admin-page-header internal-editor-hero">
             <div>
+                <span class="dashboard-eyebrow">Suivi des réservations</span>
                 <h1 class="admin-title">Modifier la réservation</h1>
-                <p class="admin-subtitle">Client : {{ $reservation->name }}</p>
+                <p class="admin-subtitle">Mettez à jour les coordonnées, le service et les demandes de {{ $reservation->name }}.</p>
             </div>
-        </div>
+            <a href="{{ route('admin.reservations.index', ['status' => 'pending', 'period' => 'upcoming']) }}" class="internal-editor-back">← Retour aux réservations</a>
+        </header>
 
         @if ($errors->any())
             <div class="alert alert-error" role="alert">
@@ -21,7 +23,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('admin.reservations.update', $reservation) }}" class="admin-card-form">
+        <form method="POST" action="{{ route('admin.reservations.update', $reservation) }}" class="admin-card-form internal-editor-form" data-reservation-update>
             @csrf
             @method('PUT')
 

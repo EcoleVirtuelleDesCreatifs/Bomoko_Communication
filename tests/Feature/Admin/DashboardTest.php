@@ -50,6 +50,29 @@ class DashboardTest extends TestCase
             ->assertSee('Toutes les réservations', false);
     }
 
+    public function test_reservations_sidebar_badge_shows_upcoming_pending_count(): void
+    {
+        $admin = $this->adminUser();
+        Reservation::factory()->count(2)->create([
+            'status' => Reservation::STATUS_PENDING,
+            'date' => now()->addDay()->toDateString(),
+        ]);
+        Reservation::factory()->create([
+            'status' => Reservation::STATUS_PENDING,
+            'date' => now()->subDay()->toDateString(),
+        ]);
+        Reservation::factory()->create([
+            'status' => Reservation::STATUS_CONFIRMED,
+            'date' => now()->addDay()->toDateString(),
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.dashboard'));
+
+        $response->assertOk()
+            ->assertSee('Réservations')
+            ->assertSee('2 réservations en attente');
+    }
+
     public function test_admin_can_edit_a_reservation(): void
     {
         $admin = $this->adminUser();
@@ -68,7 +91,7 @@ class DashboardTest extends TestCase
             'status' => Reservation::STATUS_PENDING,
         ]);
 
-        $response->assertRedirect(route('admin.dashboard'))
+        $response->assertRedirect(route('admin.reservations.index'))
             ->assertSessionHas('success');
 
         $this->assertDatabaseHas('reservations', [
@@ -94,7 +117,7 @@ class DashboardTest extends TestCase
             'status' => Reservation::STATUS_CONFIRMED,
         ]);
 
-        $response->assertRedirect(route('admin.dashboard'));
+        $response->assertRedirect(route('admin.reservations.index'));
         Mail::assertSent(ReservationConfirmed::class, fn ($mail) => $mail->hasTo($reservation->email));
     }
 
@@ -163,28 +186,43 @@ class DashboardTest extends TestCase
             ->assertSeeInOrder(['stat-value', '5', 'Ce mois', '1 annulées'], false);
     }
 
-    public function test_dashboard_filters_reservations_by_status(): void
+    public function test_dashboard_reservation_filters_redirect_to_dedicated_page(): void
+    {
+        $admin = $this->adminUser();
+
+        $response = $this->actingAs($admin)->get(route('admin.dashboard', [
+            'status' => Reservation::STATUS_PENDING,
+            'period' => 'upcoming',
+        ]));
+
+        $response->assertRedirect(route('admin.reservations.index', [
+            'status' => Reservation::STATUS_PENDING,
+            'period' => 'upcoming',
+        ]));
+    }
+
+    public function test_reservations_page_filters_by_status(): void
     {
         $admin = $this->adminUser();
 
         Reservation::factory()->create(['name' => 'EnAttente Unique', 'status' => Reservation::STATUS_PENDING, 'date' => now()->addDay()->toDateString()]);
         Reservation::factory()->create(['name' => 'Confirmee Unique', 'status' => Reservation::STATUS_CONFIRMED, 'date' => now()->addDay()->toDateString()]);
 
-        $response = $this->actingAs($admin)->get(route('admin.dashboard', ['status' => 'pending']));
+        $response = $this->actingAs($admin)->get(route('admin.reservations.index', ['status' => 'pending']));
 
         $response->assertOk()
             ->assertSee('EnAttente Unique')
             ->assertDontSee('Confirmee Unique');
     }
 
-    public function test_dashboard_search_matches_name(): void
+    public function test_reservations_page_search_matches_name(): void
     {
         $admin = $this->adminUser();
 
         Reservation::factory()->create(['name' => 'Recherche Trouve', 'status' => Reservation::STATUS_CONFIRMED, 'date' => now()->addDay()->toDateString()]);
         Reservation::factory()->create(['name' => 'Autre Personne', 'status' => Reservation::STATUS_CONFIRMED, 'date' => now()->addDays(2)->toDateString()]);
 
-        $response = $this->actingAs($admin)->get(route('admin.dashboard', ['q' => 'Recherche']));
+        $response = $this->actingAs($admin)->get(route('admin.reservations.index', ['q' => 'Recherche']));
 
         $response->assertOk()
             ->assertSee('Recherche Trouve')
@@ -201,7 +239,7 @@ class DashboardTest extends TestCase
             'status' => Reservation::STATUS_CONFIRMED,
         ]);
 
-        $response->assertRedirect(route('admin.dashboard'))
+        $response->assertRedirect(route('admin.reservations.index'))
             ->assertSessionHas('success');
 
         $this->assertSame(Reservation::STATUS_CONFIRMED, $reservation->fresh()->status);
