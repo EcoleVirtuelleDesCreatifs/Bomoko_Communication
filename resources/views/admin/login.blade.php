@@ -46,7 +46,7 @@
 
                     <div class="form-group">
                         <label for="email">Adresse e-mail</label>
-                        <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="nom@lecercle.ci" required autofocus>
+                        <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="info@cercle-abidjan.com" required autofocus>
                     </div>
 
                     <div class="form-group">

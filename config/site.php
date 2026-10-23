@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'contact_email' => env('SITE_CONTACT_EMAIL'),
+    'contact_email' => env('SITE_CONTACT_EMAIL', 'info@cercle-abidjan.com'),
     'phone' => env('SITE_PHONE', '+225 07 47 04 47 04'),
     'opening_hours' => env('SITE_OPENING_HOURS', 'Lun. – Ven. dès 11h · Sam. soir uniquement · Dim. fermé'),
     'address_line' => env('SITE_ADDRESS_LINE', 'II Plateaux Vallons, Rue J97, Îlot 2552'),
@@ -23,6 +23,6 @@ return [
         'director' => env('SITE_LEGAL_DIRECTOR'),
         'host_name' => env('SITE_HOST_NAME'),
         'host_address' => env('SITE_HOST_ADDRESS'),
-        'dpo_email' => env('SITE_DPO_EMAIL'),
+        'dpo_email' => env('SITE_DPO_EMAIL', 'info@cercle-abidjan.com'),
     ],
 ];
