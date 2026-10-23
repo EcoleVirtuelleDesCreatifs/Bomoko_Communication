@@ -23,14 +23,18 @@ class ReservationController extends Controller
     {
         $reservation = Reservation::create($request->validated());
 
-        Mail::to($reservation->email)->send(new ReservationReceived($reservation));
+        try {
+            Mail::to($reservation->email)->send(new ReservationReceived($reservation));
 
-        User::query()
-            ->where('is_admin', true)
-            ->where('is_active', true)
-            ->get()
-            ->filter(fn (User $user): bool => $user->hasPermission(AdminPermission::Reservations))
-            ->each(fn (User $user) => Mail::to($user->email)->send(new NewReservationAdminNotification($reservation)));
+            User::query()
+                ->where('is_admin', true)
+                ->where('is_active', true)
+                ->get()
+                ->filter(fn (User $user): bool => $user->hasPermission(AdminPermission::Reservations))
+                ->each(fn (User $user) => Mail::to($user->email)->send(new NewReservationAdminNotification($reservation)));
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         return redirect()
             ->route('reservation')

@@ -151,7 +151,11 @@ class DashboardController extends Controller
     private function applyStatus(Reservation $reservation, string $newStatus): void
     {
         if ($newStatus === Reservation::STATUS_CONFIRMED && $reservation->wasChanged('status')) {
-            Mail::to($reservation->email)->send(new ReservationConfirmed($reservation));
+            try {
+                Mail::to($reservation->email)->send(new ReservationConfirmed($reservation));
+            } catch (\Throwable $e) {
+                report($e);
+            }
         }
     }
 }

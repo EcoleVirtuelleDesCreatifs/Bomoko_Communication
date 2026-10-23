@@ -45,6 +45,12 @@
             </div>
         @endif
 
+        @if (session('warning'))
+            <div class="alert alert-warning" role="alert">
+                {{ session('warning') }}
+            </div>
+        @endif
+
         @if ($errors->any())
             <div class="alert alert-error" role="alert">
                 <ul>

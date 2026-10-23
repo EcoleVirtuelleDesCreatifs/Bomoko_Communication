@@ -53,10 +53,18 @@ class UserController extends Controller
         ]);
 
         if ($request->boolean('send_credentials')) {
-            Mail::to($user->email)->send(new AdminAccountCreated($user, $password));
+            try {
+                Mail::to($user->email)->send(new AdminAccountCreated($user, $password));
 
-            return redirect()->route('admin.users.index')
-                ->with('success', "Le compte de {$user->name} a été créé et les identifiants envoyés par e-mail.");
+                return redirect()->route('admin.users.index')
+                    ->with('success', "Le compte de {$user->name} a été créé et les identifiants envoyés par e-mail.");
+            } catch (\Throwable $e) {
+                report($e);
+
+                return redirect()->route('admin.users.index')
+                    ->with('warning', "Le compte de {$user->name} a été créé mais l'e-mail n'a pas pu être envoyé."
+                        .($generatePassword ? " Mot de passe généré (à communiquer une seule fois) : {$password}" : ''));
+            }
         }
 
         $message = "Le compte de {$user->name} a été créé.";

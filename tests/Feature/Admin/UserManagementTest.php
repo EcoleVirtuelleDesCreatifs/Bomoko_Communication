@@ -187,6 +187,46 @@ class UserManagementTest extends TestCase
         $response->assertSessionHasErrors('current_password');
     }
 
+    public function test_duplicate_email_shows_french_validation_message(): void
+    {
+        app()->setLocale('fr');
+        $admin = $this->superAdmin();
+        User::factory()->create(['email' => 'existant@lecercle.ci']);
+
+        $response = $this->actingAs($admin)->post(route('admin.users.store'), [
+            'name' => 'Doublon',
+            'email' => 'existant@lecercle.ci',
+            'role' => 'manager',
+            'password' => 'motdepasse123',
+            'password_confirmation' => 'motdepasse123',
+        ]);
+
+        $response->assertSessionHasErrors('email');
+        $this->assertStringContainsString('déjà', session('errors')->get('email')[0]);
+    }
+
+    public function test_user_is_created_even_when_credentials_email_fails(): void
+    {
+        $admin = $this->superAdmin();
+
+        Mail::shouldReceive('to')->andThrow(new \RuntimeException('smtp down'));
+
+        $response = $this->actingAs($admin)->post(route('admin.users.store'), [
+            'name' => 'Mail En Echec',
+            'email' => 'echec@lecercle.ci',
+            'role' => 'manager',
+            'permissions' => [AdminPermission::Menu->value],
+            'password' => 'motdepasse123',
+            'password_confirmation' => 'motdepasse123',
+            'send_credentials' => true,
+        ]);
+
+        $response->assertRedirect(route('admin.users.index'))
+            ->assertSessionHas('warning');
+
+        $this->assertDatabaseHas('users', ['email' => 'echec@lecercle.ci']);
+    }
+
     public function test_admin_can_change_password_via_account_page(): void
     {
         $admin = $this->superAdmin();

@@ -1095,6 +1095,13 @@ figure { margin: 0; }
     border: 1px solid rgba(180, 80, 60, 0.3);
     color: #8a3a2a;
 }
+.alert-warning {
+    background: rgba(199, 141, 42, 0.1);
+    border: 1px solid rgba(199, 141, 42, 0.4);
+    color: #7a5410;
+    padding: 18px 24px;
+    border-radius: 8px;
+}
 .alert ul { list-style: disc inside; }
 
 /* ============ ADMINISTRATION ============ */

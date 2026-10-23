@@ -45,6 +45,28 @@ class ReservationTest extends TestCase
         Mail::assertSent(ReservationReceived::class, fn (ReservationReceived $mail) => $mail->hasTo('jean@example.com'));
     }
 
+    public function test_reservation_is_created_even_when_emails_fail(): void
+    {
+        Mail::shouldReceive('to')->andThrow(new \RuntimeException('smtp down'));
+
+        $response = $this->post(route('reservation.store'), [
+            'name' => 'Marie Smtp',
+            'email' => 'marie@example.com',
+            'phone' => '+225 01 23 45 67',
+            'date' => now()->addDay()->format('Y-m-d'),
+            'time' => '20:00',
+            'guests' => 2,
+        ]);
+
+        $response->assertRedirect(route('reservation'))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('reservations', [
+            'name' => 'Marie Smtp',
+            'status' => Reservation::STATUS_PENDING,
+        ]);
+    }
+
     public function test_authorized_active_admins_receive_new_reservation_notifications(): void
     {
         Mail::fake();
