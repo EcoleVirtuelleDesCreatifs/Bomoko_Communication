@@ -124,7 +124,7 @@
             <div class="menu-note">
                 <h3 class="menu-note-title">Bon à savoir</h3>
                 <p>Prix en FCFA, service compris. Les pièces du boucher sont servies avec un accompagnement libre ; accompagnements supplémentaires 4 000 FCFA.</p>
-                <p>{{ config('site.opening_hours') }} — <a href="tel:{{ preg_replace('/\s+/', '', (string) config('site.phone')) }}">{{ config('site.phone') }}</a></p>
+                <p>{{ config('site.opening_hours') }} — <a href="tel:{{ preg_replace('/\s+/', '', (string) config('site.phone')) }}">{{ config('site.phone') }}</a> — <a href="mailto:{{ config('site.contact_email') }}">{{ config('site.contact_email') }}</a></p>
             </div>
 
             <div class="section-foot reveal">

@@ -49,7 +49,8 @@
             <p>À très bientôt,<br>L’équipe du Cercle</p>
         </div>
         <div class="footer">
-            {{ config('site.address_line') }} — {{ config('site.city') }}
+            {{ config('site.address_line') }} — {{ config('site.city') }}<br>
+            {{ config('site.phone') }} · <a href="mailto:{{ config('site.contact_email') }}" style="color:#8a7f72;">{{ config('site.contact_email') }}</a>
         </div>
     </div>
 </body>

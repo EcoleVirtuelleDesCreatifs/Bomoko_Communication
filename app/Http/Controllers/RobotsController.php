@@ -61,6 +61,7 @@ class RobotsController extends Controller
             '',
             '- Adresse : '.config('site.address_line').', '.config('site.city'),
             '- Téléphone : '.config('site.phone'),
+            '- E-mail : '.config('site.contact_email'),
             '- Horaires : '.config('site.opening_hours'),
             '',
             '## Pages',

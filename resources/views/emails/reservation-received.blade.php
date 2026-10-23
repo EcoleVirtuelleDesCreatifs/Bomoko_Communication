@@ -46,7 +46,8 @@
                     </tr>
                     <tr>
                         <td style="padding:20px 36px;border-top:1px solid #efe9dd;color:#8a7f72;font-size:12px;text-align:center;">
-                            {{ config('site.address_line') }} — {{ config('site.city') }}
+                            {{ config('site.address_line') }} — {{ config('site.city') }}<br>
+                            {{ config('site.phone') }} · <a href="mailto:{{ config('site.contact_email') }}" style="color:#8a7f72;">{{ config('site.contact_email') }}</a>
                         </td>
                     </tr>
                 </table>

@@ -21,6 +21,7 @@
             </div>
             <p class="error-help">Besoin d'aide ? <a
                     href="tel:{{ preg_replace('/\s+/', '', (string) config('site.phone')) }}">{{ config('site.phone') }}</a>
+                · <a href="mailto:{{ config('site.contact_email') }}">{{ config('site.contact_email') }}</a>
             </p>
         </div>
     </section>
