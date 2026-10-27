@@ -6,6 +6,16 @@ set -euo pipefail
 PHP=${PHP:-php}
 cd "$(dirname "$0")/.."
 
+if [ -d .git ] && [ "${SKIP_GIT:-0}" != "1" ]; then
+    BRANCH=${BRANCH:-Cercle-Restaurant}
+    echo "==> Code : alignement sur origin/${BRANCH}"
+    git fetch origin "$BRANCH"
+    git checkout -q -B "$BRANCH" "origin/$BRANCH"
+    git reset -q --hard "origin/$BRANCH"
+    echo "    $(git log -1 --format='%h %s')"
+    echo "    public/css/style.css : $(git log -1 --format=%h -- public/css/style.css)"
+fi
+
 echo "==> Composer install (prod)"
 composer install --no-dev --optimize-autoloader --no-interaction
 
