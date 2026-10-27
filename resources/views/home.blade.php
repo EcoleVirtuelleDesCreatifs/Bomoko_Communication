@@ -173,9 +173,9 @@
 
             <div class="espaces-grid espaces-grid-5">
                 @foreach ([
-                    ['section/res01.jpg', 'La salle Bistrot', 'Le cœur de la maison. Un cadre élégant et feutré, pour savourer toute la carte.', 'La salle Bistrot du restaurant Le Cercle'],
+                    ['section/res03.jpg', 'La salle Bistrot', 'Le cœur de la maison. Un cadre élégant et feutré, pour savourer toute la carte.', 'La salle Bistrot du restaurant Le Cercle'],
                     ['galerie/3.jpg', 'La pergola', 'Un coin privilégié, à l\'écart du tumulte. Les tapas et planches à partager en tête-à-tête, l\'intimité en plus, la magie en héritage.', 'La pergola du restaurant Le Cercle'],
-                    ['section/res03.jpg', 'Au bord de la piscine', 'Un écrin de détente, pour prolonger l\'après-midi ou ouvrir la soirée, les pieds presque dans l\'eau.', 'La piscine du restaurant Le Cercle'],
+                    ['section/res01.jpg', 'Au bord de la piscine', 'Un écrin de détente, pour prolonger l\'après-midi ou ouvrir la soirée, les pieds presque dans l\'eau.', 'La piscine du restaurant Le Cercle'],
                     ['section/res02.jpg', 'La scène en plein air', 'À la nuit tombée, la musique prend le relais. Des artistes choisis avec exigence se produisent en live, pour des soirées où l\'on dîne, l\'on écoute et l\'on se retrouve.', 'La scène en plein air du restaurant Le Cercle'],
                     ['galerie/8.jpg', 'Le Pavillon', 'Notre lieu d\'exception. Sous sa charpente de bois et son lustre de lumière, face au jardin, il accueille les dîners qui comptent : une célébration, un repas d\'affaires, une soirée entre proches. Un espace à part, pour des moments à leur image.', 'Le Pavillon du restaurant Le Cercle'],
                 ] as [$image, $name, $description, $alt])
