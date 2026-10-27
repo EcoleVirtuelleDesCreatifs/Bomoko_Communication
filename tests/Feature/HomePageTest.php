@@ -15,7 +15,12 @@ class HomePageTest extends TestCase
 
         $response->assertOk()
             ->assertSee('Entrez dans', false)
-            ->assertSee('Menu du Restaurant', false)
+            ->assertSee('Les Signatures', false)
+            ->assertSee('Royal curry de langoustes', false)
+            ->assertSee('Le Pavillon', false)
+            ->assertSee('id="notre-histoire"', false)
+            ->assertSee('Bienvenue dans le Cercle.', false)
+            ->assertSeeInOrder(['La salle Bistrot', 'La pergola', 'Au bord de la piscine', 'La scène en plein air', 'Le Pavillon'], false)
             ->assertSee('id="la-carte"', false)
             ->assertSee('id="contact"', false)
             ->assertSee('id="reservation"', false)

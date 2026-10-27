@@ -79,7 +79,7 @@
         <div class="hero-content">
             <p class="surtitle reveal">Notre Carte</p>
             <h1 class="hero-title reveal">La carte.</h1>
-            <p class="hero-sub reveal">Une cuisine précise, créative et sincère.</p>
+            <p class="hero-sub reveal">Une cuisine précise, généreuse et sincère.</p>
         </div>
     </section>
 

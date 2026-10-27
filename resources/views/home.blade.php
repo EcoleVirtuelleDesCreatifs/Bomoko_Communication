@@ -29,14 +29,14 @@
             [
                 '@type' => 'OpeningHoursSpecification',
                 'dayOfWeek' => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-                'opens' => '11:00',
-                'closes' => '23:59',
+                'opens' => '11:30',
+                'closes' => '02:00',
             ],
             [
                 '@type' => 'OpeningHoursSpecification',
                 'dayOfWeek' => 'Saturday',
                 'opens' => '18:00',
-                'closes' => '23:59',
+                'closes' => '02:00',
             ],
         ],
         'potentialAction' => [
@@ -119,10 +119,10 @@
             </figure>
             <div class="cuisine-text">
                 <p class="surtitle reveal">La Cuisine</p>
-                <h2 class="title reveal">L'émotion commence<br>dans l'assiette.</h2>
-                <p class="text reveal">Des classiques français réinterprétés, des influences venues d'ailleurs
-                    et des produits choisis avec exigence.</p>
-                <p class="text reveal">Une cuisine précise, créative et sincère.</p>
+                <h2 class="title reveal">D'ici et d'ailleurs,<br>l'émotion commence dans l'assiette.</h2>
+                <p class="text reveal">Saint-Jacques de Bretagne, saumon de Norvège, bœuf d'exception : les plus beaux
+                    produits servent ici les grands classiques français, revisités aux saveurs du monde.</p>
+                <p class="text reveal">Une cuisine précise, généreuse et sincère.</p>
                 <a href="#menu" class="link-arrow reveal">Voir les plats</a>
             </div>
         </div>
@@ -131,34 +131,30 @@
             <div id="menu" class="menu-block">
                 <div class="section-head reveal">
                     <p class="surtitle light">Notre Carte</p>
-                    <h2 class="title">Menu du Restaurant</h2>
-                    <p class="text">Une sélection de plats signatures qui racontent notre histoire culinaire.</p>
+                    <h2 class="title">Les Signatures</h2>
+                    <p class="text">Quelques assiettes qui racontent notre cuisine.</p>
+                    <p class="text signature-intro">De la France à l'océan Indien, en passant par l'Afrique : chaque carte a ses
+                        incontournables. Les nôtres disent la rigueur de la cuisine française, l'amour des beaux produits
+                        et une curiosité qui voyage.</p>
                 </div>
 
-                <div class="menu-grid">
-                    @foreach (['starters' => 'Entrées', 'mains' => 'Plats Principaux', 'desserts' => 'Desserts'] as $key => $label)
-                        <div class="menu-category reveal">
-                            <h3 class="menu-category-title">{{ $label }}</h3>
-                            <div class="menu-items">
-                                @forelse ($menuItems->get($key, collect())->take(4) as $item)
-                                    <div class="menu-item">
-                                        <div class="menu-item-header">
-                                            <h4 class="menu-item-name">{{ $item->name }}</h4>
-                                            <span class="menu-item-price">{{ $item->formattedPrice() }}</span>
-                                        </div>
-                                        @if ($item->description)
-                                            <p class="menu-item-desc">{{ $item->description }}</p>
-                                        @endif
-                                    </div>
-                                @empty
-                                    <p class="menu-item-desc">La carte sera bientôt mise à jour.</p>
-                                @endforelse
-                            </div>
-                        </div>
+                <div class="signature-grid">
+                    @foreach ([
+                        ['Quenelles de poisson de nos côtes', 'La bouillabaisse marseillaise, revisitée en entrée : une gelée infusée au thym citronné, des croûtons croustillants, une rouille d\'anchois. Toute la profondeur du plat d\'origine, en quelques bouchées.'],
+                        ['Saint-Jacques de Bretagne & caviar', 'Un carpaccio de noix de Saint-Jacques, l\'éclat iodé du caviar, le croquant des endives. La rencontre de deux produits d\'exception.'],
+                        ['Royal curry de langoustes & gambas', 'Les épices et la douceur des îles de l\'océan Indien, un riz blanc à la coriandre, un chutney de tomates. Le voyage, sans quitter sa table.'],
+                        ['Cigare au chocolat de Côte d\'Ivoire', 'Notre création autour d\'un cacao d\'exception. Une dernière note qui rappelle d\'où nous venons.'],
+                    ] as [$name, $description])
+                        <article class="signature-item reveal">
+                            <h3 class="signature-name">{{ $name }}</h3>
+                            <p class="signature-desc">{{ $description }}</p>
+                        </article>
                     @endforeach
                 </div>
 
                 <div class="section-foot reveal">
+                    <p class="text signature-outro">Et bien d'autres assiettes vous attendent : des classiques revisités du ndolé royal,
+                        jusqu'aux plus belles pièces du boucher, venues des quatre coins du monde.</p>
                     <a href="{{ $menuUrl }}" class="link-arrow">Voir la carte complète</a>
                 </div>
             </div>
@@ -171,38 +167,28 @@
             <div class="section-head">
                 <p class="surtitle reveal">Nos Espaces</p>
                 <h2 class="title reveal">À chaque moment,<br>son atmosphère.</h2>
-                <p class="text reveal">À l'intérieur ou au jardin, autour de la piscine ou dans une atmosphère
-                    plus intime, Le Cercle se découvre différemment au fil de vos envies.</p>
+                <p class="text reveal">Un déjeuner au soleil, un verre au bord de l'eau, un dîner qui se prolonge :
+                    Le Cercle se vit différemment selon l'heure et l'envie.</p>
             </div>
 
-            <div class="espaces-grid">
-                <a href="#galerie" class="espace reveal">
-                    <figure>
-                        <x-picture src="section/res01.jpg" alt="La salle du restaurant Le Cercle" sizes="(max-width: 900px) 100vw, 33vw" />
-                    </figure>
-                    <div class="espace-caption">
-                        <h3>La Salle</h3>
-                        <p>Élégante &amp; intimiste.</p>
-                    </div>
-                </a>
-                <a href="#galerie" class="espace reveal">
-                    <figure>
-                        <x-picture src="section/res02.jpg" alt="Le jardin du restaurant Le Cercle" sizes="(max-width: 900px) 100vw, 33vw" />
-                    </figure>
-                    <div class="espace-caption">
-                        <h3>Le Jardin</h3>
-                        <p>Respirer. Partager. Profiter.</p>
-                    </div>
-                </a>
-                <a href="#galerie" class="espace reveal">
-                    <figure>
-                        <x-picture src="section/res03.jpg" alt="La piscine du restaurant Le Cercle" sizes="(max-width: 900px) 100vw, 33vw" />
-                    </figure>
-                    <div class="espace-caption">
-                        <h3>La Piscine</h3>
-                        <p>Une autre façon de vivre Le Cercle.</p>
-                    </div>
-                </a>
+            <div class="espaces-grid espaces-grid-5">
+                @foreach ([
+                    ['section/res01.jpg', 'La salle Bistrot', 'Le cœur de la maison. Un cadre élégant et feutré, pour savourer toute la carte.', 'La salle Bistrot du restaurant Le Cercle'],
+                    ['galerie/3.jpg', 'La pergola', 'Un coin privilégié, à l\'écart du tumulte. Les tapas et planches à partager en tête-à-tête, l\'intimité en plus, la magie en héritage.', 'La pergola du restaurant Le Cercle'],
+                    ['section/res03.jpg', 'Au bord de la piscine', 'Un écrin de détente, pour prolonger l\'après-midi ou ouvrir la soirée, les pieds presque dans l\'eau.', 'La piscine du restaurant Le Cercle'],
+                    ['section/res02.jpg', 'La scène en plein air', 'À la nuit tombée, la musique prend le relais. Des artistes choisis avec exigence se produisent en live, pour des soirées où l\'on dîne, l\'on écoute et l\'on se retrouve.', 'La scène en plein air du restaurant Le Cercle'],
+                    ['galerie/8.jpg', 'Le Pavillon', 'Notre lieu d\'exception. Sous sa charpente de bois et son lustre de lumière, face au jardin, il accueille les dîners qui comptent : une célébration, un repas d\'affaires, une soirée entre proches. Un espace à part, pour des moments à leur image.', 'Le Pavillon du restaurant Le Cercle'],
+                ] as [$image, $name, $description, $alt])
+                    <a href="#galerie" class="espace reveal">
+                        <figure>
+                            <x-picture :src="$image" :alt="$alt" sizes="(max-width: 900px) 100vw, 40vw" />
+                        </figure>
+                        <div class="espace-caption">
+                            <h3>{{ $name }}</h3>
+                            <p>{{ $description }}</p>
+                        </div>
+                    </a>
+                @endforeach
             </div>
 
             <div class="section-foot reveal">
@@ -216,7 +202,7 @@
         <div class="container">
             <div class="section-head">
                 <p class="surtitle reveal">Instants du Cercle</p>
-                <h2 class="title reveal">Quelques images.<br>Une seule envie : y être.</h2>
+                <h2 class="title reveal">Un avant-goût.<br>Une seule envie : y être.</h2>
             </div>
         </div>
         <div class="galerie-grid">
@@ -238,9 +224,10 @@
             <div class="intro-text">
                 <p class="surtitle reveal">Le Cercle</p>
                 <h2 class="title reveal">Certaines adresses<br>se découvrent.<br><em>D'autres se vivent.</em></h2>
-                <p class="text reveal">Au cœur des Deux Plateaux Vallons, Le Cercle cultive l'art de recevoir
-                    dans une atmosphère confidentielle, chaleureuse et raffinée.</p>
-                <a href="#experience" class="link-arrow reveal">Notre histoire</a>
+                <p class="text reveal">Au cœur des Deux Plateaux Vallons, Le Cercle cultive le plaisir de recevoir
+                    et l'art de se retrouver : une table française ouverte sur le monde, un jardin, une scène sous
+                    les étoiles, et ce sentiment rare d'être attendu.</p>
+                <a href="#notre-histoire" class="link-arrow reveal">Notre histoire</a>
             </div>
             <figure class="intro-media reveal">
                 <x-picture src="section/about.jpg" alt="Intérieur élégant du restaurant Le Cercle" sizes="(max-width: 900px) 100vw, 50vw" />
@@ -248,13 +235,35 @@
         </div>
     </section>
 
+    <!-- ============ NOTRE HISTOIRE ============ -->
+    <section class="section histoire" id="notre-histoire">
+        <div class="container histoire-inner">
+            <p class="surtitle reveal">Notre histoire</p>
+            <h2 class="title reveal">Il y a des lieux qu'on traverse.<br><em>Et des lieux qui nous retiennent.</em></h2>
+            <div class="histoire-text reveal">
+                <p>Cette maison a déjà vécu. Elle a connu d'autres soirs, d'autres rires, un autre nom. Nous ne l'avons
+                    pas effacée. Nous l'avons réveillée.</p>
+                <p>Nous l'avons appelée Le Cercle.</p>
+                <p>Parce que les plus beaux moments de la vie se passent rarement seuls. Ils se passent autour d'une
+                    table, entre ceux qu'on aime, ceux qu'on célèbre, ceux qu'on rencontre pour la première fois et
+                    qu'on reverra.</p>
+                <p>Un cercle n'a pas de bout de table. Personne n'y est au fond, personne n'y est à part. Chacun y a
+                    sa place.</p>
+                <p>C'est cela que nous voulons offrir. Pas seulement un repas. Le sentiment d'être attendu, reconnu,
+                    accueilli comme chez des amis qui auraient le goût des belles choses.</p>
+                <p class="histoire-statement">Le plaisir de recevoir.<br>L'art de se retrouver.</p>
+                <p class="histoire-signature">Bienvenue dans le Cercle.<br><span>Stéphanie &amp; toute l'équipe</span></p>
+            </div>
+        </div>
+    </section>
+
     <!-- ============ SIGNATURE DU CHEF ============ -->
     <section class="section chef">
         <div class="container chef-grid">
             <div class="chef-text">
-                <p class="surtitle reveal">La Signature</p>
-                <h2 class="title reveal">Derrière chaque assiette,<br>une intention.</h2>
-                <p class="text reveal">Créer l'équilibre.<br>Révéler le produit.<br>Surprendre sans jamais en faire trop.</p>
+                <p class="surtitle reveal">L'Esprit du Chef</p>
+                <h2 class="title reveal">Rien n'est laissé au hasard.<br>Tout est laissé au goût.</h2>
+                <p class="text reveal">Respecter le produit.<br>Chercher l'équilibre juste.<br>Surprendre, sans jamais en faire trop.</p>
                 <a href="#la-carte" class="link-arrow reveal">Découvrir notre cuisine</a>
             </div>
             <figure class="chef-media reveal">
@@ -273,8 +282,8 @@
         <div class="container experience-content">
             <p class="surtitle light reveal">L'Expérience</p>
             <h2 class="title light reveal">Ici, le temps<br>change de rythme.</h2>
-            <p class="text light reveal">Une lumière douce.<br>Une table soigneusement dressée.<br>
-                Un verre servi.<br>Une assiette qui arrive.</p>
+            <p class="text light reveal">La lumière décline sur le jardin.<br>Une table vous attend.<br>
+                Un verre se remplit.<br>La musique commence.</p>
             <p class="experience-statement reveal">Et le reste peut attendre.</p>
         </div>
     </section>
@@ -284,9 +293,9 @@
         <div class="container moments-inner">
             <p class="surtitle reveal">Vos Moments</p>
             <h2 class="title reveal">Il y a toujours une raison<br>de se retrouver.</h2>
-            <p class="text reveal">Un déjeuner d'affaires.<br>Un dîner à deux.<br>Une célébration.<br>
-                Ou simplement l'envie de bien manger.</p>
-            <p class="moments-statement reveal">Le Cercle s'occupe du reste.</p>
+            <p class="text reveal">Un anniversaire qu'on n'oubliera pas.<br>Un déjeuner qui scelle un accord.<br>
+                Un dîner à deux, loin du monde.<br>Une soirée qui réunit tous ceux qu'on aime.</p>
+            <p class="moments-statement reveal">Vous choisissez l'occasion. Nous en faisons un souvenir.</p>
             <a href="{{ $reservationUrl }}" class="link-arrow reveal">Organiser votre moment</a>
         </div>
     </section>
@@ -329,7 +338,7 @@
                 </div>
                 <div class="info-card reveal">
                     <h3>Horaires</h3>
-                    <p>Lundi – Vendredi : à partir de 11h<br>Samedi : le soir uniquement<br>Dimanche : fermé</p>
+                    <p>Lundi – Vendredi : 11h30 – 02h00<br>Samedi : 18h00 – 02h00<br>Dimanche : fermé</p>
                 </div>
                 <div class="info-card reveal">
                     <h3>Contact</h3>

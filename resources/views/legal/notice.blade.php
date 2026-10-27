@@ -13,7 +13,6 @@
 @section('legal_toc')
     <li><a href="#editeur">Éditeur du site</a></li>
     <li><a href="#hebergement">Hébergement</a></li>
-    <li><a href="#realisation">Conception et réalisation</a></li>
     <li><a href="#propriete">Propriété intellectuelle</a></li>
     <li><a href="#reservations">Réservations</a></li>
     <li><a href="#responsabilite">Responsabilité et liens externes</a></li>
@@ -25,6 +24,7 @@
     <h2 id="editeur">Éditeur du site</h2>
     <p>
         Le présent site est édité par <strong>{{ config('site.legal.company_name') }}</strong>,
+        exploitant le restaurant sous le nom commercial « Le Cercle »,
         {!! $field(config('site.legal.legal_form') ? 'société de forme ' . config('site.legal.legal_form') : null) !!},
         au capital de {!! $field(config('site.legal.capital')) !!},
         immatriculée au RCCM sous le numéro {!! $field(config('site.legal.rccm')) !!},
@@ -43,14 +43,6 @@
     <p>
         Hébergeur : {!! $field(config('site.legal.host_name')) !!}<br>
         Adresse : {!! $field(config('site.legal.host_address')) !!}
-    </p>
-
-    <h2 id="realisation">Conception et réalisation</h2>
-    <p>
-        Ce site a été conçu et réalisé par <strong>BOMOKO COMMUNICATION</strong>, agence de communication
-        à Abidjan, pour le compte du restaurant Le Cercle. BOMOKO COMMUNICATION intervient en qualité de
-        prestataire technique et n'est pas l'éditeur du site : le contenu publié (textes, carte, photographies,
-        actualités) relève de la seule responsabilité de Le Cercle.
     </p>
 
     <h2 id="propriete">Propriété intellectuelle</h2>

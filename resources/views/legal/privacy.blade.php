@@ -24,7 +24,7 @@
     <h2 id="responsable">Responsable du traitement</h2>
     <p>
         Le responsable du traitement des données collectées via ce site est
-        <strong>{{ config('site.legal.company_name') }}</strong>, {{ config('site.address_line') }},
+        <strong>{{ config('site.legal.company_name') }}</strong> (nom commercial « Le Cercle »), {{ config('site.address_line') }},
         {{ config('site.city') }} — <a href="tel:{{ preg_replace('/\s+/', '', (string) config('site.phone')) }}">{{ config('site.phone') }}</a>.
     </p>
 

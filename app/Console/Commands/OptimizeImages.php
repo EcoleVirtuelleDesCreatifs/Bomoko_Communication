@@ -13,6 +13,8 @@ class OptimizeImages extends Command
 {
     private const IMAGES = [
         'logo/logo.png',
+        'galerie/3.jpg',
+        'galerie/8.jpg',
         'section/about.jpg',
         'section/bg-location.jpg',
         'section/booking.jpg',

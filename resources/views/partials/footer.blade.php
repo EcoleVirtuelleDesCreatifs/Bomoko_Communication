@@ -36,7 +36,7 @@
         </div>
     </div>
     <div class="container footer-bottom">
-        <p>© {{ date('Y') }} Le Cercle. Tous droits réservés. Developpé par BOMOKO COMMUNICATION</p>
+        <p>© {{ date('Y') }} Le Cercle. Tous droits réservés.</p>
         <ul class="footer-legal">
             <li><a href="{{ $legalNoticeUrl }}">Mentions légales</a></li>
             <li><a href="{{ $privacyPolicyUrl }}">Politique de confidentialité</a></li>

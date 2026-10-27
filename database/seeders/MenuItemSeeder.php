@@ -83,14 +83,14 @@ class MenuItemSeeder extends Seeder
             ],
             MenuItem::CATEGORY_DESSERTS => [
                 'Nos délices sucrés' => [
-                    ['Parfait mousse au chocolat', 'Imbibé au rhum et au café.', 9500],
-                    ['Tapioca au lait de coco et aux fruits de la passion', null, 8000],
-                    ['Cigare de poires pochées au vin rouge', 'Génoise aux noisettes concassées, gel de citron et caramel.', 10000],
+                    ['Parfait mousse au chocolat', 'Imbibé au rhum et au café.', 15000],
+                    ['Tapioca au lait de coco et aux fruits de la passion', null, 15000],
+                    ['Cigare de poires pochées au vin rouge', 'Génoise aux noisettes concassées, gel de citron et caramel.', 15000],
                 ],
                 'Les classiques' => [
-                    ['Fondant au chocolat et sa glace à la vanille', 'Option : liqueur de cacao.', 9000],
-                    ['Baba au rhum', 'Sorbet citron.', 9000],
-                    ['Délice du manguier', 'Glace à la mangue, biscuit à la mangue (option : liqueur de mangue).', 9000],
+                    ['Fondant au chocolat et sa glace à la vanille', 'Option : liqueur de cacao.', 10000],
+                    ['Baba au rhum', 'Sorbet citron.', 10000],
+                    ['Délice du manguier', 'Glace à la mangue, biscuit à la mangue (option : liqueur de mangue).', 10000],
                 ],
             ],
         ];

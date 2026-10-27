@@ -466,7 +466,49 @@ figure { margin: 0; }
     margin-top: 44px;
 }
 
+/* ============ NOTRE HISTOIRE ============ */
+.histoire { background: var(--ivoire-soft); }
+.histoire-inner { max-width: 760px; }
+.histoire-text { margin-top: clamp(28px, 4vw, 44px); }
+.histoire-text p {
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 1.95;
+    color: var(--marron-soft);
+    margin: 0 0 20px;
+}
+.histoire-statement {
+    font-size: 20px !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.02em;
+    color: var(--marron) !important;
+    margin: 36px 0 28px !important;
+    padding-left: 22px;
+    border-left: 1px solid var(--dore);
+}
+.histoire-signature { color: var(--marron) !important; }
+.histoire-signature span {
+    display: inline-block;
+    margin-top: 6px;
+    font-family: var(--font-script);
+    font-size: 30px;
+    line-height: 1.1;
+    color: var(--dore);
+}
+
 /* ============ ESPACES ============ */
+.espaces-grid-5 { grid-template-columns: repeat(6, 1fr); }
+.espaces-grid-5 .espace { grid-column: span 2; }
+.espaces-grid-5 .espace:nth-child(n+4) { grid-column: span 3; }
+.espaces-grid-5 .espace:nth-child(n+4) figure { aspect-ratio: 16 / 10; }
+.espaces-grid-5 .espace::after {
+    background: linear-gradient(to top,
+        rgba(43, 33, 24, 0.9) 0%,
+        rgba(43, 33, 24, 0.45) 45%,
+        transparent 100%);
+}
+.espaces-grid-5 .espace-caption p { line-height: 1.7; max-width: 46ch; }
+
 .espaces-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -683,6 +725,41 @@ figure { margin: 0; }
     margin: 0;
 }
 
+/* Signatures (accueil) */
+.menu-block .section-head { max-width: 720px; }
+.signature-intro { margin-top: 18px; }
+
+.signature-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(24px, 3vw, 40px);
+}
+
+.signature-item {
+    background: rgba(245, 240, 232, 0.06);
+    border: 1px solid rgba(184, 150, 90, 0.18);
+    border-radius: 16px;
+    padding: clamp(26px, 3.5vw, 40px);
+}
+
+.signature-name {
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: var(--dore-light);
+    margin-bottom: 14px;
+}
+
+.signature-desc {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.8;
+    color: rgba(245, 240, 232, 0.8);
+    margin: 0;
+}
+
+.signature-outro { max-width: 720px; margin-bottom: 24px; }
+
 /* ============ RÉSERVATION ============ */
 .reservation {
     position: relative;
@@ -759,7 +836,7 @@ figure { margin: 0; }
     margin-bottom: 18px;
 }
 
-.footer-contact { margin-top: 10px; font-size: 0.9rem; }
+.footer-contact { margin-top: 10px; font-size: 0.9rem; text-transform: none !important; letter-spacing: 0.04em !important; line-height: 1.9; font-weight: 300; }
 .footer-contact a { color: inherit; text-decoration: none; }
 .footer-contact a:hover { color: var(--dore); }
 .footer-address {
@@ -841,6 +918,10 @@ figure { margin: 0; }
     .main-nav ul { gap: 20px; }
     .main-nav a { font-size: 10px; letter-spacing: 0.2em; }
     .espaces-grid { grid-template-columns: repeat(3, 1fr); }
+    .espaces-grid-5 { grid-template-columns: repeat(2, 1fr); }
+    .espaces-grid-5 .espace, .espaces-grid-5 .espace:nth-child(n+4) { grid-column: span 1; }
+    .espaces-grid-5 .espace:last-child { grid-column: span 2; }
+    .espaces-grid-5 .espace figure { aspect-ratio: 4 / 3; }
     .galerie-grid { grid-template-columns: repeat(3, 1fr); grid-auto-rows: 220px; }
 }
 
@@ -882,7 +963,8 @@ figure { margin: 0; }
 
     .cuisine-media { order: -1; }
 
-    .espaces-grid { grid-template-columns: 1fr; }
+    .espaces-grid, .espaces-grid-5 { grid-template-columns: 1fr; }
+    .espaces-grid-5 .espace, .espaces-grid-5 .espace:last-child { grid-column: span 1; }
     .espace figure { aspect-ratio: 4 / 3; border-radius: 8px; }
 
     .galerie-grid {
@@ -890,7 +972,7 @@ figure { margin: 0; }
         grid-auto-rows: 200px;
     }
 
-    .menu-grid { grid-template-columns: 1fr; }
+    .menu-grid, .signature-grid { grid-template-columns: 1fr; }
 
     .footer-grid { grid-template-columns: 1fr; gap: 44px; }
     .footer-bottom { flex-direction: column; text-align: center; }

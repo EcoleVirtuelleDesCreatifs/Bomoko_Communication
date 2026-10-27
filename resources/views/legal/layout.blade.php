@@ -38,7 +38,7 @@
 
     <section class="section">
         <article class="legal-content container">
-            <p class="legal-updated">Dernière mise à jour : 26 septembre 2026.</p>
+            <p class="legal-updated">Dernière mise à jour : {{ config('site.legal.updated_at') }}.</p>
 
             <nav class="legal-toc" aria-label="Sommaire">
                 <ul>

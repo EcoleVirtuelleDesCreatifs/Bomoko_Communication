@@ -3,7 +3,7 @@
 return [
     'contact_email' => env('SITE_CONTACT_EMAIL') ?: 'info@cercle-abidjan.com',
     'phone' => env('SITE_PHONE', '+225 07 47 04 47 04'),
-    'opening_hours' => env('SITE_OPENING_HOURS', 'Lun. – Ven. dès 11h · Sam. soir uniquement · Dim. fermé'),
+    'opening_hours' => env('SITE_OPENING_HOURS', 'Lun. – Ven. 11h30 – 02h00 · Sam. 18h00 – 02h00 · Dim. fermé'),
     'address_line' => env('SITE_ADDRESS_LINE', 'II Plateaux Vallons, Rue J97, Îlot 2552'),
     'city' => env('SITE_CITY', 'Abidjan, Côte d’Ivoire'),
     'reservation_url' => env('SITE_RESERVATION_URL'),
@@ -15,7 +15,7 @@ return [
     'privacy_policy_url' => env('SITE_PRIVACY_POLICY_URL'),
     'admin_email' => env('ADMIN_EMAIL'),
     'legal' => [
-        'company_name' => env('SITE_LEGAL_COMPANY_NAME', 'Le Cercle'),
+        'company_name' => env('SITE_LEGAL_COMPANY_NAME') ?: 'SYNELPIS',
         'legal_form' => env('SITE_LEGAL_FORM'),
         'capital' => env('SITE_LEGAL_CAPITAL'),
         'rccm' => env('SITE_LEGAL_RCCM'),
@@ -23,6 +23,7 @@ return [
         'director' => env('SITE_LEGAL_DIRECTOR'),
         'host_name' => env('SITE_HOST_NAME'),
         'host_address' => env('SITE_HOST_ADDRESS'),
+        'updated_at' => env('SITE_LEGAL_UPDATED_AT') ?: '27 octobre 2026',
         'dpo_email' => env('SITE_DPO_EMAIL') ?: env('SITE_CONTACT_EMAIL') ?: 'info@cercle-abidjan.com',
     ],
 ];
