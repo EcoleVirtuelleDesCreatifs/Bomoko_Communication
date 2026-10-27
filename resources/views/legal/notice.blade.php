@@ -4,8 +4,14 @@
 @section('meta_description', 'Mentions légales du site du restaurant Le Cercle, aux II Plateaux Vallons, Abidjan : éditeur, hébergement, propriété intellectuelle, réservations.')
 
 @php
-    $field = fn ($value) => $value ?: '<span class="legal-todo">À compléter</span>';
+    $legal = config('site.legal');
     $contactEmail = config('site.contact_email') ?: config('site.admin_email');
+    $identity = array_filter([
+        $legal['legal_form'] ? 'société de forme '.$legal['legal_form'] : null,
+        $legal['capital'] ? 'au capital de '.$legal['capital'] : null,
+        $legal['rccm'] ? 'immatriculée au RCCM sous le numéro '.$legal['rccm'] : null,
+        $legal['tax_id'] ? 'numéro de compte contribuable '.$legal['tax_id'] : null,
+    ]);
 @endphp
 
 @section('legal_title', 'Mentions légales')
@@ -23,26 +29,22 @@
 @section('legal_content')
     <h2 id="editeur">Éditeur du site</h2>
     <p>
-        Le présent site est édité par <strong>{{ config('site.legal.company_name') }}</strong>,
-        exploitant le restaurant sous le nom commercial « Le Cercle »,
-        {!! $field(config('site.legal.legal_form') ? 'société de forme ' . config('site.legal.legal_form') : null) !!},
-        au capital de {!! $field(config('site.legal.capital')) !!},
-        immatriculée au RCCM sous le numéro {!! $field(config('site.legal.rccm')) !!},
-        numéro de contribuable {!! $field(config('site.legal.tax_id')) !!}.
+        Le présent site est édité par <strong>{{ $legal['company_name'] }}</strong>,
+        société exploitant le restaurant sous le nom commercial « Le Cercle »{{ $identity ? ', '.implode(', ', $identity) : '' }}.
     </p>
     <ul>
-        <li>Siège : {{ config('site.address_line') }}, {{ config('site.city') }}</li>
+        <li>Siège social : {{ config('site.address_line') }}, {{ config('site.city') }}</li>
         <li>Téléphone : <a href="tel:{{ preg_replace('/\s+/', '', (string) config('site.phone')) }}">{{ config('site.phone') }}</a></li>
         @if ($contactEmail)
             <li>E-mail : <a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a></li>
         @endif
-        <li>Directeur de la publication : {!! $field(config('site.legal.director')) !!}</li>
+        <li>Directeur de la publication : {{ $legal['director'] ?: 'la gérance de '.$legal['company_name'] }}</li>
     </ul>
 
     <h2 id="hebergement">Hébergement</h2>
     <p>
-        Hébergeur : {!! $field(config('site.legal.host_name')) !!}<br>
-        Adresse : {!! $field(config('site.legal.host_address')) !!}
+        Le site est hébergé par <strong>{{ $legal['host_name'] }}</strong><br>
+        {{ $legal['host_address'] }}
     </p>
 
     <h2 id="propriete">Propriété intellectuelle</h2>
