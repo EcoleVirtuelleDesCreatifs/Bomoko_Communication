@@ -14,7 +14,7 @@
             <span class="brand-script">Le Cercle</span>
             <p>Restaurant Bistronomique</p>
             <p class="footer-address">{{ config('site.address_line') }}<br>{{ config('site.city') }}</p>
-            <p class="footer-contact"><a href="tel:{{ preg_replace('/\s+/', '', (string) config('site.phone')) }}">{{ config('site.phone') }}</a><br><a href="mailto:{{ config('site.contact_email') }}">{{ config('site.contact_email') }}</a></p>
+            <p class="footer-contact" style="text-transform: none; letter-spacing: 0.04em;"><a href="tel:{{ preg_replace('/\s+/', '', (string) config('site.phone')) }}">{{ config('site.phone') }}</a><br><a href="mailto:{{ config('site.contact_email') }}">{{ config('site.contact_email') }}</a></p>
         </div>
         <nav class="footer-nav" aria-label="Navigation pied de page">
             <ul>
