@@ -6,7 +6,7 @@
 @section('content')
     <section class="error-page">
         <div class="error-media" aria-hidden="true">
-            <x-picture src="slider/img_slider_2.jpg" alt="" loading="eager" fetchpriority="high" sizes="100vw" />
+            <x-picture src="cercle/table-partage.jpg" alt="" loading="eager" fetchpriority="high" sizes="100vw" />
             <div class="hero-overlay"></div>
         </div>
         <div class="error-content">

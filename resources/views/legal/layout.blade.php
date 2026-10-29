@@ -27,7 +27,7 @@
 @section('content')
     <section class="page-hero page-hero-small" id="hero">
         <div class="hero-media">
-            <x-picture src="section/menu4.jpg" alt="Le restaurant Le Cercle" loading="eager" fetchpriority="high" sizes="100vw" />
+            <x-picture src="cercle/assiette-jardin.jpg" alt="Le restaurant Le Cercle" loading="eager" fetchpriority="high" sizes="100vw" />
             <div class="hero-overlay"></div>
         </div>
         <div class="hero-content">

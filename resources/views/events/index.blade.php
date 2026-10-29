@@ -31,7 +31,7 @@
 @section('content')
     <section class="page-hero page-hero-small" id="hero">
         <div class="hero-media">
-            <x-picture src="section/booking.jpg" alt="Ambiance d'un événement au Cercle" loading="eager" fetchpriority="high" sizes="100vw" />
+            <x-picture src="cercle/degustation.jpg" alt="Ambiance d'un événement au Cercle" loading="eager" fetchpriority="high" sizes="100vw" />
             <div class="hero-overlay"></div>
         </div>
         <div class="hero-content">

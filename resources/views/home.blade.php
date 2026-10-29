@@ -22,7 +22,7 @@
         ],
         'servesCuisine' => ['Française', 'Bistronomie'],
         'priceRange' => '$$$',
-        'image' => asset('assets/images/slider/img_slider_1.jpg'),
+        'image' => asset('assets/images/cercle/salle-hero.jpg'),
         'acceptsReservations' => route('reservation'),
         'hasMenu' => route('menu'),
         'openingHoursSpecification' => [
@@ -71,14 +71,14 @@
 @endphp
 
 @push('preload')
-<x-preload-image src="slider/img_slider_1.jpg" sizes="100vw" />
+<x-preload-image src="cercle/salle-hero.jpg" sizes="100vw" />
 @endpush
 
 @section('content')
     <!-- ============ HERO ============ -->
     <section class="hero" id="hero">
         <div class="hero-media">
-            <x-picture src="slider/img_slider_1.jpg" alt="Salle du restaurant Le Cercle, ambiance feutrée" loading="eager" fetchpriority="high" sizes="100vw" />
+            <x-picture src="cercle/salle-hero.jpg" alt="Salle du restaurant Le Cercle, ambiance feutrée" loading="eager" fetchpriority="high" sizes="100vw" />
             <div class="hero-overlay"></div>
         </div>
         <div class="hero-content">
@@ -115,7 +115,7 @@
     <section class="section cuisine" id="la-carte">
         <div class="container cuisine-grid">
             <figure class="cuisine-media reveal">
-                <x-picture src="section/menu4.jpg" alt="Assiette gastronomique dressée au restaurant Le Cercle" sizes="(max-width: 900px) 100vw, 50vw" />
+                <x-picture src="cercle/dressage.jpg" alt="Assiette gastronomique dressée au restaurant Le Cercle" sizes="(max-width: 900px) 100vw, 50vw" />
             </figure>
             <div class="cuisine-text">
                 <p class="surtitle reveal">La Cuisine</p>
@@ -175,11 +175,11 @@
 
             <div class="espaces-grid espaces-grid-5">
                 @foreach ([
-                    ['section/res03.jpg', 'La salle Bistrot', 'Le cœur de la maison. Un cadre élégant et feutré, pour savourer toute la carte.', 'La salle Bistrot du restaurant Le Cercle'],
-                    ['galerie/3.jpg', 'La pergola', 'Un coin privilégié, à l\'écart du tumulte. Les tapas et planches à partager en tête-à-tête, l\'intimité en plus, la magie en héritage.', 'La pergola du restaurant Le Cercle'],
-                    ['section/res01.jpg', 'Au bord de la piscine', 'Un écrin de détente, pour prolonger l\'après-midi ou ouvrir la soirée, les pieds presque dans l\'eau.', 'La piscine du restaurant Le Cercle'],
-                    ['section/res02.jpg', 'La scène en plein air', 'À la nuit tombée, la musique prend le relais. Des artistes choisis avec exigence se produisent en live, pour des soirées où l\'on dîne, l\'on écoute et l\'on se retrouve.', 'La scène en plein air du restaurant Le Cercle'],
-                    ['galerie/8.jpg', 'Le Pavillon', 'Notre lieu d\'exception. Sous sa charpente de bois et son lustre de lumière, face au jardin, il accueille les dîners qui comptent : une célébration, un repas d\'affaires, une soirée entre proches. Un espace à part, pour des moments à leur image.', 'Le Pavillon du restaurant Le Cercle'],
+                    ['cercle/salle.jpg', 'La salle Bistrot', 'Le cœur de la maison. Un cadre élégant et feutré, pour savourer toute la carte.', 'La salle Bistrot du restaurant Le Cercle'],
+                    ['cercle/pergola.jpg', 'La pergola', 'Un coin privilégié, à l\'écart du tumulte. Les tapas et planches à partager en tête-à-tête, l\'intimité en plus, la magie en héritage.', 'La pergola du restaurant Le Cercle'],
+                    ['cercle/table-piscine.jpg', 'Au bord de la piscine', 'Un écrin de détente, pour prolonger l\'après-midi ou ouvrir la soirée, les pieds presque dans l\'eau.', 'La piscine du restaurant Le Cercle'],
+                    ['cercle/jardin-verre.jpg', 'La scène en plein air', 'À la nuit tombée, la musique prend le relais. Des artistes choisis avec exigence se produisent en live, pour des soirées où l\'on dîne, l\'on écoute et l\'on se retrouve.', 'La scène en plein air du restaurant Le Cercle'],
+                    ['cercle/pavillon.jpg', 'Le Pavillon', 'Notre lieu d\'exception. Sous sa charpente de bois et son lustre de lumière, face au jardin, il accueille les dîners qui comptent : une célébration, un repas d\'affaires, une soirée entre proches. Un espace à part, pour des moments à leur image.', 'Le Pavillon du restaurant Le Cercle'],
                 ] as [$image, $name, $description, $alt])
                     <a href="#galerie" class="espace reveal">
                         <figure>
@@ -208,12 +208,12 @@
             </div>
         </div>
         <div class="galerie-grid">
-            <figure class="g-item g-large reveal"><x-picture src="slider/img_slider_2.jpg" alt="Ambiance du restaurant Le Cercle" sizes="(max-width: 900px) 100vw, 66vw" /></figure>
-            <figure class="g-item g-tall reveal"><x-picture src="section/gallery-5.jpg" alt="Détail gastronomique" sizes="(max-width: 900px) 50vw, 33vw" /></figure>
-            <figure class="g-item reveal"><x-picture src="section/gallery-1.jpg" alt="Assiette signature" sizes="(max-width: 900px) 50vw, 33vw" /></figure>
-            <figure class="g-item g-tall reveal"><x-picture src="section/gallery-9.jpg" alt="Service en salle" sizes="(max-width: 900px) 50vw, 33vw" /></figure>
-            <figure class="g-item reveal"><x-picture src="section/gallery-13.jpg" alt="Détail de table" sizes="(max-width: 900px) 50vw, 33vw" /></figure>
-            <figure class="g-item g-large reveal"><x-picture src="section/video.jpg" alt="Le restaurant Le Cercle en soirée" sizes="(max-width: 900px) 100vw, 66vw" /></figure>
+            <figure class="g-item g-large reveal"><x-picture src="cercle/table-partage.jpg" alt="Grande table partagée au restaurant Le Cercle" sizes="(max-width: 900px) 100vw, 66vw" /></figure>
+            <figure class="g-item g-tall reveal"><x-picture src="cercle/tartare-betterave.jpg" alt="Tartare de betterave" sizes="(max-width: 900px) 50vw, 33vw" /></figure>
+            <figure class="g-item reveal"><x-picture src="cercle/cigare-chocolat.jpg" alt="Cigare au chocolat de Côte d’Ivoire" sizes="(max-width: 900px) 50vw, 33vw" /></figure>
+            <figure class="g-item g-tall reveal"><x-picture src="cercle/chef-dressage.jpg" alt="Le chef au dressage" sizes="(max-width: 900px) 50vw, 33vw" /></figure>
+            <figure class="g-item reveal"><x-picture src="cercle/verres-vin.jpg" alt="Accord mets et vins" sizes="(max-width: 900px) 50vw, 33vw" /></figure>
+            <figure class="g-item g-large reveal"><x-picture src="cercle/flambe.jpg" alt="Flambage en cuisine" sizes="(max-width: 900px) 100vw, 66vw" /></figure>
         </div>
         <div class="container section-foot reveal">
             <a href="{{ $galleryUrl }}" class="link-arrow">Découvrir la galerie</a>
@@ -232,7 +232,7 @@
                 <a href="#notre-histoire" class="link-arrow reveal">Notre histoire</a>
             </div>
             <figure class="intro-media reveal">
-                <x-picture src="section/about.jpg" alt="Intérieur élégant du restaurant Le Cercle" sizes="(max-width: 900px) 100vw, 50vw" />
+                <x-picture src="cercle/table-jardin.jpg" alt="Table dressée dans le jardin du restaurant Le Cercle" sizes="(max-width: 900px) 100vw, 50vw" />
             </figure>
         </div>
     </section>
@@ -270,7 +270,7 @@
             </div>
             <figure class="chef-media reveal">
                 <!-- [PHOTO_CHEF] : emplacement réservé au portrait du Chef -->
-                <x-picture src="section/chef1.jpg" alt="Le Chef du restaurant Le Cercle en cuisine" sizes="(max-width: 900px) 100vw, 50vw" />
+                <x-picture src="cercle/chef.jpg" alt="Le Chef du restaurant Le Cercle en cuisine" sizes="(max-width: 900px) 100vw, 50vw" />
             </figure>
         </div>
     </section>
@@ -278,7 +278,7 @@
     <!-- ============ L'EXPÉRIENCE ============ -->
     <section class="section experience" id="experience">
         <div class="experience-media" aria-hidden="true">
-            <x-picture src="slider/img_slider_3.jpg" alt="Atmosphère feutrée du restaurant Le Cercle" sizes="100vw" />
+            <x-picture src="cercle/jardin-verre.jpg" alt="Verre de vin dans le jardin du restaurant Le Cercle" sizes="100vw" />
             <div class="experience-overlay"></div>
         </div>
         <div class="container experience-content">
@@ -379,7 +379,7 @@
     <!-- ============ RÉSERVATION ============ -->
     <section class="section reservation" id="reservation">
         <div class="reservation-media" aria-hidden="true">
-            <x-picture src="section/booking.jpg" alt="Table dressée au restaurant Le Cercle" sizes="100vw" />
+            <x-picture src="cercle/degustation.jpg" alt="Table dressée au restaurant Le Cercle" sizes="100vw" />
             <div class="reservation-overlay"></div>
         </div>
         <div class="container reservation-content">

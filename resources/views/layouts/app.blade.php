@@ -25,7 +25,7 @@
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:title" content="@yield('og_title', 'Le Cercle — Restaurant Bistronomique, Abidjan')">
     <meta property="og:description" content="@yield('og_description', 'Une table. Une atmosphère. Un moment qui n\'appartient qu\'à vous.')">
-    <meta property="og:image" content="@yield('og_image', asset('assets/images/slider/img_slider_1.jpg'))">
+    <meta property="og:image" content="@yield('og_image', asset('assets/images/cercle/salle-hero.jpg'))">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:locale" content="fr_CI">
 
@@ -33,7 +33,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="@yield('og_title', 'Le Cercle — Restaurant Bistronomique, Abidjan')">
     <meta name="twitter:description" content="@yield('og_description', 'Une table. Une atmosphère. Un moment qui n\'appartient qu\'à vous.')">
-    <meta name="twitter:image" content="@yield('og_image', asset('assets/images/slider/img_slider_1.jpg'))">
+    <meta name="twitter:image" content="@yield('og_image', asset('assets/images/cercle/salle-hero.jpg'))">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32.png') }}">

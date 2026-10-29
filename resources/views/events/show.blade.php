@@ -136,7 +136,7 @@
             @if ($coverUrl)
                 <img src="{{ $coverUrl }}" alt="{{ $event->title }}" fetchpriority="high" decoding="async">
             @else
-                <x-picture src="section/booking.jpg" alt="{{ $event->title }}" loading="eager" fetchpriority="high"
+                <x-picture src="cercle/degustation.jpg" alt="{{ $event->title }}" loading="eager" fetchpriority="high"
                     sizes="100vw" />
             @endif
             <div class="hero-overlay"></div>
