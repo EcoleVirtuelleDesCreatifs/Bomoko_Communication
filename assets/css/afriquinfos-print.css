@@ -1,0 +1,16 @@
+/* Impression : l'article seul, lisible, sans menus ni publicités */
+@page { margin: 18mm 16mm; }
+.aq-top, .aq-head__row > :not(.aq-head__brand), .aq-mainnav, .offcanvas, .aq-flashbar, .aq-tools, .aq-ad, .aq-newsletter,
+.aq-footer .row, .aq-footer .aq-social, .aq-footer__bottom, aside, .aq-prevnext, .aq-progress, .aq-skip, .aq-slider__nav, .aq-loadmore,
+.aq-filters, .aq-section--related, .aq-demo, .aq-toast { display: none !important; }
+html, body { background: #fff !important; color: #000 !important; }
+.aq-below { content-visibility: visible !important; }
+.aq-logo--dark { display: none !important; }
+.aq-logo--light { display: block !important; }
+.aq-head__brand img { height: 48px !important; }
+.col-lg-8 { width: 100% !important; }
+.aq-prose { max-width: none; font-size: 11.5pt; line-height: 1.55; }
+.aq-prose a::after { content: " (" attr(href) ")"; font-size: .85em; }
+.aq-article__title { font-size: 24pt; }
+h2, h3, blockquote, figure { break-inside: avoid; }
+.aq-section--ink, .aq-section--orange, .aq-hero { background: #fff !important; color: #000 !important; }

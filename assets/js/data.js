@@ -1,0 +1,439 @@
+/* =========================================================
+   Afriquinfos — données de la maquette
+   Tous les contenus sont des CONTENUS DE DÉMONSTRATION :
+   en production, ils viennent du CMS (WordPress, API…).
+   Format du corps d'article : "## " = intertitre, "> " = citation.
+   ========================================================= */
+window.AQ_DATA = {
+
+  rubriques: {
+    politique: { label: 'Politique', tagline: 'Les arcanes de la politique africaine' },
+    economie:  { label: 'Économie', tagline: "L'information économique panafricaine de référence" },
+    sports:    { label: 'Sports', tagline: 'La passion du sport africain est contagieuse' },
+    societe:   { label: 'Société', tagline: 'La société africaine en mouvement' },
+    culture:   { label: 'Culture', tagline: 'Vivez au rythme de la culture africaine' },
+    opinion:   { label: 'Opinion', tagline: 'Afriquinfos vous invite au débat' },
+    tips:      { label: 'Tips', tagline: 'Conseils pratiques pour voyager, entreprendre et mieux vivre' },
+    portraits: { label: 'Portraits', tagline: "Celles et ceux qui font l'Afrique d'aujourd'hui" }
+  },
+
+  // ordre du menu « Les Afriques », comme sur le site actuel
+  regions: {
+    'afrique-australe':   'Afrique australe',
+    'afrique-centrale':   'Afrique centrale',
+    'afrique-de-l-est':   "Afrique de l'Est",
+    'ocean-indien':       'Océan Indien',
+    'afrique-du-nord':    'Afrique du Nord',
+    'afrique-de-l-ouest': "Afrique de l'Ouest"
+  },
+
+  // chaque flash renvoie vers un article ; le texte reprend son titre
+  flash: [
+    { id: 'cedeao-sommet-securite', text: 'Cédéao : un sommet extraordinaire consacré à la sécurité régionale' },
+    { id: 'togo-loi-de-finances-2027', text: 'Togo : la loi de finances 2027 fait le choix de la sécurité et de la cohésion sociale' },
+    { id: 'can-qualifications-cles', text: 'CAN : les clés d’une phase de qualification très serrée' },
+    { id: 'sadc-transition-energetique', text: 'SADC : un sommet consacré à la transition énergétique' },
+    { id: 'nairobi-fintech-paiement-transfrontalier', text: 'Nairobi : les fintech misent sur le paiement transfrontalier' }
+  ],
+
+  articles: [
+    /* ------------------------- ÉCONOMIE ------------------------- */
+    {
+      id: 'togo-loi-de-finances-2027', rub: 'economie', region: 'afrique-de-l-ouest', country: 'Togo',
+      une: true, ph: 'ink', img: 'Conseil des ministres à Lomé', views: 9800,
+      title: 'Togo : la loi de finances 2027 fait le choix de la sécurité et de la cohésion sociale',
+      chapo: "Le projet de budget présenté par le gouvernement assume des arbitrages douloureux : priorité à la sécurité et aux dépenses sociales, au prix d'un effort sur l'investissement.",
+      author: 'Awa Koné', date: '2026-10-26T08:10:00Z', read: 6, tags: ['Budget', 'Sécurité', 'Togo'],
+      body: [
+        "Le gouvernement togolais a adopté en Conseil des ministres le projet de loi de finances pour l'exercice 2027. Le texte, désormais transmis à l'Assemblée nationale, se distingue par une orientation claire : renforcer la sécurité et préserver la cohésion sociale dans un contexte régional tendu.",
+        "## Des arbitrages assumés",
+        "Les crédits consacrés à la défense et à la sécurité intérieure progressent, tout comme ceux des programmes sociaux destinés aux régions du Nord. Pour tenir l'équilibre, plusieurs projets d'infrastructures sont étalés dans le temps.",
+        "> Un budget se juge à ses priorités. Celui-ci dit clairement ce qui passe en premier.",
+        "Les partenaires techniques et financiers suivent de près la trajectoire du déficit, que l'exécutif s'engage à contenir. Les débats parlementaires, attendus dans les prochaines semaines, diront si ces choix font consensus.",
+        "## Ce qu'il faut surveiller",
+        "L'évolution des recettes fiscales, la soutenabilité de la dette et l'exécution effective des dépenses sociales seront les trois indicateurs clés de l'année budgétaire."
+      ]
+    },
+    {
+      id: 'cameroon-business-forum-douala', rub: 'economie', region: 'afrique-centrale', country: 'Cameroun',
+      ph: 'orange', img: "Forum d'affaires à Douala", views: 7200,
+      title: '12e Cameroon Business Forum : Douala veut doper l’économie locale',
+      chapo: "Décideurs publics et chefs d'entreprise se retrouvent à Douala pour lever les freins à l'investissement et améliorer le climat des affaires.",
+      author: 'Jean-Baptiste Mbarga', date: '2026-10-25T14:00:00Z', read: 5, tags: ['Investissement', 'Cameroun', 'Climat des affaires'],
+      body: [
+        "Pour sa douzième édition, le Cameroon Business Forum s'installe à Douala, capitale économique du pays. Le rendez-vous réunit administrations, organisations patronales et investisseurs autour d'un même objectif : simplifier la vie des entreprises.",
+        "## Des réformes concrètes attendues",
+        "Délais de création d'entreprise, fiscalité locale, accès au foncier et au crédit : les participants passent en revue les réformes engagées et celles qui restent à mener.",
+        "> Les entreprises ne demandent pas de faveurs, elles demandent de la visibilité.",
+        "Les recommandations issues des ateliers doivent être transmises au gouvernement, avec un calendrier de suivi."
+      ]
+    },
+    {
+      id: 'burkina-atoms4food-riz', rub: 'economie', region: 'afrique-de-l-ouest', country: 'Burkina Faso',
+      ph: 'savane', img: 'Rizière au Burkina Faso', views: 6100,
+      title: 'Burkina Faso : le nucléaire au service de la production de riz avec Atoms4Food',
+      chapo: "Grâce aux techniques nucléaires appliquées à l'agriculture, des chercheurs travaillent à des variétés de riz plus résistantes et plus productives.",
+      author: 'Moussa Diop', date: '2026-10-24T09:30:00Z', read: 4, tags: ['Agriculture', 'Recherche', 'Burkina Faso'],
+      body: [
+        "L'initiative Atoms4Food mobilise les techniques nucléaires au service de la sécurité alimentaire. Au Burkina Faso, elle accompagne les chercheurs dans l'amélioration des variétés de riz.",
+        "## Des semences plus robustes",
+        "Sélection de variétés tolérantes à la sécheresse, analyse des sols, suivi de l'eau : les outils issus de la recherche nucléaire aident à produire davantage sur les mêmes surfaces.",
+        "L'enjeu est de taille pour un pays qui importe encore une part importante du riz qu'il consomme."
+      ]
+    },
+    {
+      id: 'nairobi-fintech-paiement-transfrontalier', rub: 'economie', region: 'afrique-de-l-est', country: 'Kenya',
+      ph: 'lagune', img: 'Développeurs dans un incubateur à Nairobi', views: 5400,
+      title: 'Nairobi : les fintech misent sur le paiement transfrontalier',
+      chapo: "Les start-up kényanes veulent permettre aux commerçants de vendre dans toute la région sans frais de change prohibitifs.",
+      author: 'Nadia Benali', date: '2026-10-23T11:00:00Z', read: 5, tags: ['Fintech', 'Paiement mobile', 'Kenya'],
+      body: [
+        "Le paiement mobile a transformé le quotidien des Kényans. La nouvelle frontière se trouve désormais de l'autre côté des frontières : payer et être payé partout dans la région.",
+        "## L'interopérabilité, nerf de la guerre",
+        "Les jeunes pousses de Nairobi multiplient les partenariats avec des opérateurs voisins pour relier leurs portefeuilles électroniques.",
+        "Pour les petits commerçants, la promesse est simple : vendre en ligne à un client de Kampala ou de Dar es Salaam aussi facilement qu'à un voisin."
+      ]
+    },
+
+    /* ------------------------- POLITIQUE ------------------------- */
+    {
+      id: 'cedeao-sommet-securite', rub: 'politique', region: 'afrique-de-l-ouest', country: 'Cédéao',
+      ph: 'ink', img: 'Salle de réunion de la Cédéao', views: 8900,
+      title: 'Cédéao : un sommet extraordinaire consacré à la sécurité régionale',
+      chapo: "Les chefs d'État de la communauté se réunissent pour coordonner leur réponse aux menaces qui pèsent sur la région.",
+      author: 'Moussa Diop', date: '2026-10-26T06:30:00Z', read: 5, tags: ['Cédéao', 'Sécurité', 'Sahel'],
+      body: [
+        "Réunis en session extraordinaire, les dirigeants ouest-africains ont inscrit la sécurité régionale en tête de leur agenda.",
+        "## Mutualiser les moyens",
+        "Partage du renseignement, financement d'une force en attente, contrôle des frontières : plusieurs pistes sont sur la table.",
+        "> La sécurité de l'un est la sécurité de tous.",
+        "Les conclusions du sommet seront suivies par un conseil des ministres chargé de leur mise en œuvre."
+      ]
+    },
+    {
+      id: 'ceeac-libre-circulation', rub: 'politique', region: 'afrique-centrale', country: 'CEEAC',
+      ph: 'rust', img: "Poste-frontière en Afrique centrale", views: 4100,
+      title: 'Afrique centrale : la CEEAC relance le chantier de la libre circulation',
+      chapo: "Visas, contrôles, documents de voyage : les États membres veulent faciliter les déplacements des personnes et des marchandises.",
+      author: 'Jean-Baptiste Mbarga', date: '2026-10-22T10:00:00Z', read: 4, tags: ['CEEAC', 'Intégration régionale'],
+      body: [
+        "La libre circulation reste l'un des chantiers les plus attendus de l'intégration en Afrique centrale.",
+        "## Des engagements à concrétiser",
+        "Les textes existent ; leur application varie encore d'un poste-frontière à l'autre. Les ministres veulent harmoniser les pratiques.",
+        "Commerçants et transporteurs, premiers concernés, attendent des résultats visibles sur le terrain."
+      ]
+    },
+    {
+      id: 'sadc-transition-energetique', rub: 'politique', region: 'afrique-australe', country: 'SADC',
+      ph: 'savane', img: 'Centrale solaire en Afrique australe', views: 3900,
+      title: 'SADC : un sommet consacré à la transition énergétique',
+      chapo: "Les pays d'Afrique australe cherchent à concilier accès à l'électricité, industrie minière et engagements climatiques.",
+      author: 'Fatou Ndiaye', date: '2026-10-21T13:00:00Z', read: 5, tags: ['SADC', 'Énergie', 'Climat'],
+      body: [
+        "Délestages, dépendance au charbon, potentiel solaire immense : l'Afrique australe vit la transition énergétique dans toutes ses contradictions.",
+        "## Un marché régional de l'électricité",
+        "Le renforcement des interconnexions doit permettre aux pays excédentaires de vendre leur production à leurs voisins.",
+        "Les financements internationaux promis restent la clé d'une transition qui ne pénalise pas les plus pauvres."
+      ]
+    },
+    {
+      id: 'ocean-indien-fonds-climat', rub: 'politique', region: 'ocean-indien', country: 'Océan Indien',
+      ph: 'lagune', img: 'Littoral dans l’océan Indien', views: 3200,
+      title: 'Océan Indien : les États insulaires plaident pour un fonds climat commun',
+      chapo: "Montée des eaux, cyclones, érosion : les îles de la région veulent parler d'une seule voix dans les négociations internationales.",
+      author: 'Nadia Benali', date: '2026-10-20T08:00:00Z', read: 4, tags: ['Climat', 'Océan Indien'],
+      body: [
+        "Pour les États insulaires de l'océan Indien, le changement climatique n'est pas une projection : c'est une réalité quotidienne.",
+        "## Une voix commune",
+        "Les responsables de la région proposent un mécanisme de financement mutualisé pour l'adaptation des littoraux.",
+        "Le projet doit être présenté lors des prochaines négociations internationales sur le climat."
+      ]
+    },
+
+    /* ------------------------- SOCIÉTÉ ------------------------- */
+    {
+      id: 'violence-numerique-afrique-australe', rub: 'societe', region: 'afrique-australe', country: 'Afrique australe',
+      ph: 'lagune', img: 'Jeunes militantes avec leurs téléphones', views: 7600,
+      title: "Violence numérique : le coût caché de l'engagement politique des femmes et des jeunes",
+      chapo: "Harcèlement en ligne, campagnes de dénigrement, menaces : en Afrique australe, s'engager en politique a un prix que beaucoup découvrent sur les réseaux sociaux.",
+      author: 'Fatou Ndiaye', date: '2026-10-25T16:20:00Z', read: 7, tags: ['Numérique', 'Femmes', 'Jeunesse'],
+      body: [
+        "Elles sont candidates, militantes ou simples citoyennes engagées. Toutes racontent la même chose : la violence qu'elles subissent en ligne est devenue un frein à leur participation.",
+        "## Un phénomène sous-estimé",
+        "Les attaques visent souvent la vie privée et l'apparence plutôt que les idées. Beaucoup finissent par se retirer du débat public.",
+        "> On ne m'a jamais contredite sur mon programme. On m'a insultée sur tout le reste.",
+        "Associations et plateformes appellent à de meilleurs mécanismes de signalement et à une réponse judiciaire plus rapide."
+      ]
+    },
+    {
+      id: 'madagascar-fait-divers-reseaux-sociaux', rub: 'societe', region: 'ocean-indien', country: 'Madagascar',
+      ph: 'rust', img: "Rue d'Antananarivo", views: 6800,
+      title: "Madagascar : quand un fait divers devient, par les réseaux sociaux, le symptôme d'une insécurité nationale",
+      chapo: "Partagée des milliers de fois, une affaire locale a cristallisé les inquiétudes de toute une population.",
+      author: 'Rédaction Afriquinfos', date: '2026-10-24T18:00:00Z', read: 6, tags: ['Sécurité', 'Réseaux sociaux', 'Madagascar'],
+      body: [
+        "Tout est parti d'un fait divers dans un quartier de la capitale. En quelques heures, vidéos et témoignages ont envahi les réseaux sociaux.",
+        "## De l'émotion au débat national",
+        "Au-delà de l'affaire elle-même, c'est le sentiment d'insécurité qui s'exprime, et la défiance envers les institutions chargées d'y répondre.",
+        "Les autorités ont annoncé des mesures, tout en appelant à la prudence face aux fausses informations."
+      ]
+    },
+    {
+      id: 'medias-contestations-etudiantes', rub: 'societe', region: null, country: 'Afrique',
+      ph: 'night', img: 'Étudiants en manifestation', views: 5900,
+      title: "Des médias d'Afrique commentent les contestations estudiantines en cours",
+      chapo: "Revue de presse : comment les journaux du continent analysent les mobilisations d'étudiants qui se multiplient.",
+      author: 'Rédaction Afriquinfos', date: '2026-10-26T07:00:00Z', read: 5, tags: ['Jeunesse', 'Université', 'Revue de presse'],
+      body: [
+        "Bourses, conditions d'études, débouchés : les revendications étudiantes trouvent un large écho dans la presse africaine.",
+        "## Des lectures contrastées",
+        "Certains éditorialistes y voient le signe d'une jeunesse politisée et exigeante ; d'autres s'inquiètent de dérives violentes.",
+        "Tous s'accordent sur un point : la question de l'emploi des jeunes diplômés reste entière."
+      ]
+    },
+
+    /* ------------------------- SPORTS ------------------------- */
+    {
+      id: 'can-qualifications-cles', rub: 'sports', region: null, country: 'Football',
+      ph: 'stadium', img: 'Stade plein un soir de match', views: 8700,
+      title: 'CAN : les clés d’une phase de qualification très serrée',
+      chapo: "Groupes relevés, calendrier chargé, surprises en série : notre analyse avant les matches décisifs.",
+      author: 'Moussa Diop', date: '2026-10-25T20:00:00Z', read: 5, tags: ['Football', 'CAN'],
+      body: [
+        "À l'approche des dernières journées, plusieurs grandes nations du football africain jouent déjà gros.",
+        "## La régularité avant tout",
+        "Dans des groupes aussi serrés, chaque point compte, à domicile comme à l'extérieur.",
+        "Les sélectionneurs misent sur l'expérience de leurs cadres et la fraîcheur des jeunes évoluant en Europe."
+      ]
+    },
+    {
+      id: 'marathon-afrique-de-l-est', rub: 'sports', region: 'afrique-de-l-est', country: 'Athlétisme',
+      ph: 'sable', img: 'Coureurs de marathon', views: 4300,
+      title: "Athlétisme : l'Afrique de l'Est domine encore le marathon",
+      chapo: "Kényans et Éthiopiens trustent les podiums. Les secrets d'une suprématie qui dure.",
+      author: 'Nadia Benali', date: '2026-10-22T07:30:00Z', read: 4, tags: ['Athlétisme', 'Marathon'],
+      body: [
+        "Altitude, culture de la course, structures d'entraînement : la domination est-africaine sur le marathon repose sur plusieurs piliers.",
+        "## Une relève assurée",
+        "Les centres de formation des hauts plateaux continuent de révéler de jeunes talents chaque saison.",
+        "La concurrence s'organise pourtant, notamment en Afrique du Nord et en Afrique australe."
+      ]
+    },
+    {
+      id: 'basket-bal-saison-2027', rub: 'sports', region: null, country: 'Basket-ball',
+      ph: 'orange', img: 'Match de basket-ball', views: 3600,
+      title: 'Basket : la Basketball Africa League prépare sa saison 2027',
+      chapo: "Nouveaux clubs, nouvelles villes : la ligue continentale poursuit son expansion.",
+      author: 'Jean-Baptiste Mbarga', date: '2026-10-20T19:00:00Z', read: 3, tags: ['Basket-ball', 'BAL'],
+      body: [
+        "La Basketball Africa League s'est imposée comme la vitrine du basket africain.",
+        "## Des clubs mieux structurés",
+        "Les franchises investissent dans la formation et dans l'accueil du public.",
+        "Les tournois qualificatifs régionaux désigneront bientôt les équipes de la prochaine saison."
+      ]
+    },
+
+    /* ------------------------- CULTURE ------------------------- */
+    {
+      id: 'festival-musique-abidjan', rub: 'culture', region: 'afrique-de-l-ouest', country: "Côte d'Ivoire",
+      ph: 'sable', img: 'Concert en plein air à Abidjan', views: 5200,
+      title: 'Musique : le festival qui fait danser Abidjan',
+      chapo: "Coupé-décalé, afrobeats, rumba : trois soirs de concerts pour une scène panafricaine en pleine effervescence.",
+      author: 'Awa Koné', date: '2026-10-24T21:00:00Z', read: 4, tags: ['Musique', 'Festival', 'Abidjan'],
+      body: [
+        "Abidjan confirme son statut de capitale musicale de l'Afrique de l'Ouest.",
+        "## Une affiche panafricaine",
+        "Artistes confirmés et jeunes talents se partagent la scène, avec une forte présence des musiques urbaines.",
+        "Au-delà de la fête, le festival fait vivre toute une économie : techniciens, restaurateurs, transporteurs."
+      ]
+    },
+    {
+      id: 'fespaco-selection', rub: 'culture', region: 'afrique-de-l-ouest', country: 'Burkina Faso',
+      ph: 'night', img: 'Salle de cinéma', views: 4800,
+      title: 'Cinéma : la sélection africaine du prochain Fespaco se dessine',
+      chapo: "Premiers films, documentaires engagés, séries : le cinéma africain arrive avec une nouvelle génération.",
+      author: 'Fatou Ndiaye', date: '2026-10-23T17:00:00Z', read: 4, tags: ['Cinéma', 'Fespaco'],
+      body: [
+        "À quelques mois du festival de Ouagadougou, les comités de sélection visionnent des centaines d'œuvres.",
+        "## Les plateformes changent la donne",
+        "Le streaming offre de nouveaux débouchés aux réalisateurs, mais pose la question de la diffusion en salle.",
+        "La sélection officielle sera dévoilée dans les prochaines semaines."
+      ]
+    },
+    {
+      id: 'biennale-art-le-caire', rub: 'culture', region: 'afrique-du-nord', country: 'Égypte',
+      ph: 'lagune', img: "Galerie d'art contemporain", views: 3100,
+      title: "Arts : Le Caire accueille une biennale d'art contemporain africain",
+      chapo: "Peinture, installations, photographie : une exposition qui fait dialoguer le Nord et le Sud du continent.",
+      author: 'Nadia Benali', date: '2026-10-21T15:00:00Z', read: 3, tags: ['Arts', 'Exposition'],
+      body: [
+        "Le Caire réunit des artistes venus de tout le continent pour une biennale très attendue.",
+        "## Un dialogue continental",
+        "Les commissaires ont voulu montrer ce qui relie les scènes artistiques africaines, au-delà des frontières.",
+        "L'exposition se poursuit jusqu'à la fin de l'année."
+      ]
+    },
+
+    /* ------------------------- OPINION ------------------------- */
+    {
+      id: 'opinion-souverainete-numerique', rub: 'opinion', region: null, country: 'Tribune',
+      ph: 'ink', img: 'Centre de données', views: 4600,
+      title: 'La souveraineté numérique commence par nos données',
+      chapo: "Tribune. Tant que nos données seront stockées et exploitées ailleurs, notre souveraineté numérique restera un slogan.",
+      author: 'Aïcha Koné, chercheuse en cybersécurité', date: '2026-10-25T09:00:00Z', read: 5, tags: ['Numérique', 'Tribune'],
+      body: [
+        "Chaque jour, des millions d'Africains produisent des données qui alimentent des services conçus et hébergés hors du continent.",
+        "## Héberger, protéger, valoriser",
+        "Centres de données locaux, lois de protection effectives, formation d'ingénieurs : les leviers sont connus.",
+        "> La souveraineté ne se proclame pas, elle s'héberge.",
+        "Il est temps d'en faire une priorité budgétaire, et pas seulement un thème de discours."
+      ]
+    },
+    {
+      id: 'opinion-villes-urbanisme', rub: 'opinion', region: null, country: 'Tribune',
+      ph: 'rust', img: 'Vue aérienne d’une ville africaine', views: 3800,
+      title: "Nos villes grandissent plus vite que nos plans d'urbanisme",
+      chapo: "Tribune. Il faut inverser la course : planifier avant de construire, et non régulariser après coup.",
+      author: 'Jean-Marc Mbeki, architecte urbaniste', date: '2026-10-22T09:00:00Z', read: 5, tags: ['Villes', 'Tribune'],
+      body: [
+        "Les villes africaines accueillent chaque année des millions de nouveaux habitants.",
+        "## Planifier, enfin",
+        "Réserver le foncier pour les transports et les services publics avant que la ville ne s'étende est moins coûteux que de démolir ensuite.",
+        "Les solutions existent ; il manque souvent la continuité politique pour les appliquer."
+      ]
+    },
+    {
+      id: 'opinion-integration-frontieres', rub: 'opinion', region: null, country: 'Tribune',
+      ph: 'orange', img: 'Poste-frontière', views: 3500,
+      title: "L'intégration régionale se construit aux frontières",
+      chapo: "Tribune. Les sommets produisent des déclarations ; ce sont les postes-frontières qui disent si elles sont appliquées.",
+      author: 'Fatoumata Ndiaye, économiste', date: '2026-10-19T09:00:00Z', read: 4, tags: ['Intégration', 'Tribune'],
+      body: [
+        "Demandez à une commerçante qui traverse une frontière chaque semaine ce qu'elle pense de l'intégration régionale.",
+        "## Mesurer ce qui compte",
+        "Temps de passage, nombre de contrôles, coûts informels : ces indicateurs devraient être publiés et suivis.",
+        "C'est à ce prix que l'intégration deviendra une réalité vécue."
+      ]
+    },
+
+    /* ------------------------- TIPS ------------------------- */
+    {
+      id: 'tips-voyager-afrique-de-l-ouest', rub: 'tips', region: 'afrique-de-l-ouest', country: 'Voyage',
+      ph: 'sable', icon: 'bi-airplane', img: 'Voyageurs à un poste-frontière', views: 6400,
+      title: "Voyager en Afrique de l'Ouest : 7 conseils pour passer les frontières sereinement",
+      chapo: "Documents, vaccins, monnaie, transport : la check-list pour voyager sans mauvaise surprise.",
+      author: 'Rédaction Afriquinfos', date: '2026-10-24T10:00:00Z', read: 4, tags: ['Voyage', 'Pratique'],
+      body: [
+        "Voyager dans l'espace Cédéao est plus simple qu'il n'y paraît, à condition de bien se préparer.",
+        "## Avant le départ",
+        "Vérifiez la validité de votre pièce d'identité, votre carnet de vaccination et les conditions d'entrée du pays visité.",
+        "## Sur la route",
+        "Gardez des copies de vos documents, privilégiez les transports agréés et renseignez-vous sur les horaires des postes-frontières."
+      ]
+    },
+    {
+      id: 'tips-securiser-paiement-mobile', rub: 'tips', region: null, country: 'Numérique',
+      ph: 'lagune', icon: 'bi-shield-lock', img: 'Téléphone portable', views: 7100,
+      title: 'Paiement mobile : 5 réflexes pour sécuriser votre compte',
+      chapo: "Code secret, arnaques par SMS, faux agents : les gestes simples qui protègent votre argent.",
+      author: 'Rédaction Afriquinfos', date: '2026-10-21T10:00:00Z', read: 3, tags: ['Paiement mobile', 'Sécurité'],
+      body: [
+        "Le paiement mobile est pratique, mais il attire aussi les escrocs.",
+        "## Les bons réflexes",
+        "Ne communiquez jamais votre code secret, même à un prétendu agent ; méfiez-vous des messages qui annoncent un gain inattendu ; activez toutes les protections proposées par votre opérateur.",
+        "En cas de doute, appelez le service client depuis le numéro officiel."
+      ]
+    },
+    {
+      id: 'tips-creer-entreprise-ohada', rub: 'tips', region: null, country: 'Entreprendre',
+      ph: 'savane', icon: 'bi-briefcase', img: "Bureau d'une jeune entreprise", views: 5600,
+      title: 'Créer son entreprise en zone OHADA : les étapes clés',
+      chapo: "Choisir son statut, s'immatriculer, ouvrir un compte : le parcours du créateur, étape par étape.",
+      author: 'Rédaction Afriquinfos', date: '2026-10-18T10:00:00Z', read: 5, tags: ['Entreprendre', 'OHADA'],
+      body: [
+        "Le droit OHADA harmonise les règles des affaires dans dix-sept pays africains.",
+        "## Les étapes",
+        "Choisir la forme juridique adaptée, rédiger les statuts, s'immatriculer au registre du commerce, puis ouvrir un compte professionnel.",
+        "Les guichets uniques de création d'entreprise permettent souvent d'accomplir ces démarches en quelques jours."
+      ]
+    },
+
+    /* ------------------------- PORTRAITS ------------------------- */
+    {
+      id: 'portrait-aminata-diallo', rub: 'portraits', region: 'afrique-de-l-ouest', country: 'Guinée',
+      ph: 'savane', img: 'Portrait d’Aminata Diallo', views: 5000,
+      person: { name: 'Aminata Diallo', initials: 'AD', role: 'Ingénieure en environnement', city: 'Conakry', field: 'Recyclage', since: 2019 },
+      title: "Aminata Diallo, l'ingénieure qui donne une seconde vie aux déchets plastiques de Conakry",
+      chapo: "Son entreprise transforme les bouteilles abandonnées en pavés et en mobilier urbain. Rencontre avec une pionnière de l'économie circulaire.",
+      author: 'Awa Koné', date: '2026-10-25T07:00:00Z', read: 6, tags: ['Portrait', 'Environnement'],
+      body: [
+        "Dans son atelier de la banlieue de Conakry, Aminata Diallo montre fièrement un pavé coloré : « Ce sont des bouteilles qui finissaient dans la mer. »",
+        "## Une idée née dans la rue",
+        "Ingénieure de formation, elle a lancé son projet après avoir vu les caniveaux de son quartier obstrués par le plastique.",
+        "> Le déchet n'existe pas, il n'y a que des matières mal rangées.",
+        "Aujourd'hui, son entreprise emploie des jeunes du quartier et collabore avec plusieurs communes."
+      ]
+    },
+    {
+      id: 'portrait-kwame-mensah', rub: 'portraits', region: 'afrique-de-l-ouest', country: 'Ghana',
+      ph: 'orange', img: 'Portrait de Kwame Mensah', views: 4200,
+      person: { name: 'Kwame Mensah', initials: 'KM', role: 'Chef cuisinier', city: 'Accra', field: 'Gastronomie', since: 2015 },
+      title: 'Kwame Mensah, le chef qui réinvente la cuisine ghanéenne',
+      chapo: "Produits locaux, recettes de famille et techniques modernes : à Accra, sa table attire les gourmets du monde entier.",
+      author: 'Moussa Diop', date: '2026-10-22T07:00:00Z', read: 5, tags: ['Portrait', 'Gastronomie'],
+      body: [
+        "Kwame Mensah a appris à cuisiner auprès de sa grand-mère avant de se former dans de grandes maisons à l'étranger.",
+        "## Le retour aux sources",
+        "De retour à Accra, il a choisi de travailler exclusivement avec des producteurs ghanéens.",
+        "Sa cuisine raconte une histoire : celle d'un patrimoine culinaire longtemps sous-estimé."
+      ]
+    },
+    {
+      id: 'portrait-nadia-el-amrani', rub: 'portraits', region: 'afrique-du-nord', country: 'Maroc',
+      ph: 'sable', img: "Portrait de Nadia El Amrani", views: 3700,
+      person: { name: 'Nadia El Amrani', initials: 'NE', role: 'Biologiste', city: 'Errachidia', field: 'Écologie des oasis', since: 2012 },
+      title: 'Nadia El Amrani, la biologiste qui veut sauver les oasis',
+      chapo: "Face à la sécheresse, elle mobilise chercheurs et agriculteurs pour préserver un écosystème millénaire.",
+      author: 'Nadia Benali', date: '2026-10-20T07:00:00Z', read: 5, tags: ['Portrait', 'Environnement'],
+      body: [
+        "Les oasis du sud marocain sont menacées par la baisse des nappes phréatiques et l'avancée du désert.",
+        "## La science avec les paysans",
+        "Nadia El Amrani a fait le choix de travailler directement avec les agriculteurs pour tester des techniques d'irrigation économes.",
+        "Son ambition : faire des oasis un laboratoire de l'adaptation au climat."
+      ]
+    },
+    {
+      id: 'portrait-joseph-mukendi', rub: 'portraits', region: 'afrique-centrale', country: 'RD Congo',
+      ph: 'ink', img: 'Portrait de Joseph Mukendi', views: 3300,
+      person: { name: 'Joseph Mukendi', initials: 'JM', role: 'Développeur', city: 'Kinshasa', field: 'Intelligence artificielle', since: 2020 },
+      title: 'Joseph Mukendi, le développeur qui apprend le lingala aux machines',
+      chapo: "À Kinshasa, il construit des outils de traduction et de reconnaissance vocale pour les langues africaines.",
+      author: 'Jean-Baptiste Mbarga', date: '2026-10-18T07:00:00Z', read: 5, tags: ['Portrait', 'Tech'],
+      body: [
+        "Pour Joseph Mukendi, l'intelligence artificielle ne doit pas parler seulement anglais ou français.",
+        "## Des données à construire",
+        "Avec une communauté de bénévoles, il enregistre et annote des milliers de phrases en lingala.",
+        "Son objectif : que chacun puisse utiliser les services numériques dans sa propre langue."
+      ]
+    }
+  ],
+
+  debat: {
+    question: "Faut-il une monnaie unique pour toute l'Afrique de l'Ouest ?",
+    pour: { text: "Une monnaie commune, c'est un marché de 400 millions de consommateurs qui parle enfin d'une seule voix.", who: 'Fatoumata Ndiaye, économiste' },
+    contre: { text: "Sans convergence des économies, une monnaie unique ferait payer aux plus fragiles les chocs des plus forts.", who: 'Ibrahim Sow, ancien ministre des Finances' },
+    base: { pour: 58, contre: 42 }
+  },
+
+  // dates de démonstration
+  agenda: [
+    { id: 'forum-investir-abidjan', date: '2026-11-05', end: '2026-11-06', title: 'Forum Investir en Afrique', city: 'Abidjan', country: "Côte d'Ivoire", cat: 'Économie', desc: "Deux jours de rencontres entre investisseurs, banques et porteurs de projets." },
+    { id: 'festival-musiques-urbaines-dakar', date: '2026-11-12', end: '2026-11-15', title: 'Festival des musiques urbaines', city: 'Dakar', country: 'Sénégal', cat: 'Culture', desc: 'Concerts, ateliers et rencontres professionnelles autour des musiques urbaines africaines.' },
+    { id: 'conference-energie-johannesburg', date: '2026-11-20', end: '2026-11-21', title: 'Conférence sur la transition énergétique', city: 'Johannesburg', country: 'Afrique du Sud', cat: 'Économie', desc: "Acteurs publics et privés débattent de l'avenir énergétique de l'Afrique australe." },
+    { id: 'marathon-addis', date: '2026-11-29', end: '2026-11-29', title: 'Marathon international', city: 'Addis-Abeba', country: 'Éthiopie', cat: 'Sports', desc: 'La grande course populaire des hauts plateaux éthiopiens.' },
+    { id: 'sommet-securite-sahel', date: '2026-12-03', end: '2026-12-04', title: 'Sommet régional sur la sécurité au Sahel', city: 'Niamey', country: 'Niger', cat: 'Politique', desc: 'Les ministres de la région se réunissent sur la coopération sécuritaire.' },
+    { id: 'biennale-le-caire', date: '2026-12-10', end: '2027-01-31', title: "Biennale d'art contemporain africain", city: 'Le Caire', country: 'Égypte', cat: 'Culture', desc: 'Une exposition qui réunit des artistes de tout le continent.' },
+    { id: 'salon-agriculture-yaounde', date: '2027-01-15', end: '2027-01-19', title: "Salon de l'agriculture", city: 'Yaoundé', country: 'Cameroun', cat: 'Économie', desc: 'Producteurs, coopératives et industriels de l’agroalimentaire.' },
+    { id: 'forum-jeunesse-kigali', date: '2027-01-22', end: '2027-01-23', title: 'Forum de la jeunesse africaine', city: 'Kigali', country: 'Rwanda', cat: 'Société', desc: "Emploi, entrepreneuriat et participation citoyenne des jeunes." }
+  ]
+};

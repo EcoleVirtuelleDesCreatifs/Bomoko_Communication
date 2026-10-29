@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Afriquinfos — Administration</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#030304">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/favicon-32.png') }}">
+  <script>try{var t=localStorage.getItem('aq-admin-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{{ asset('assets/css/admin.css') }}" rel="stylesheet">
+</head>
+<body>
+  <a class="visually-hidden-focusable ad-skip" href="#view">Aller au contenu</a>
+
+  <!-- Connexion -->
+  <section class="ad-login" id="login" aria-labelledby="loginTitle">
+    <div class="ad-login__brand">
+      <img src="{{ asset('assets/img/logo-afriquinfos-negatif.png') }}" alt="Afriquinfos" width="320" height="114">
+      <p class="ad-login__claim">Ni totems, ni tabous.</p>
+      <p class="ad-login__sub">Espace de rédaction et d’administration</p>
+    </div>
+    <div class="ad-login__panel">
+      <form class="ad-login__form" id="loginForm" novalidate>
+        <h1 id="loginTitle">Connexion</h1>
+        <p class="ad-muted">Accès réservé à l’équipe d’Afriquinfos.</p>
+        <div class="ad-field"><label for="lgEmail">Adresse e-mail</label><input class="ad-input" id="lgEmail" type="email" autocomplete="username" required><p class="ad-error" id="lgEmailErr"></p></div>
+        <div class="ad-field"><label for="lgPass">Mot de passe</label><div class="ad-input-group"><input class="ad-input" id="lgPass" type="password" autocomplete="current-password" required><button type="button" class="ad-iconbtn" id="lgShow" aria-label="Afficher le mot de passe" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button></div><p class="ad-error" id="lgPassErr"></p></div>
+        <button class="ad-btn ad-btn--primary w-100" type="submit">Se connecter</button>
+        <p class="ad-demo-note">Accès protégé par la session du site. <a href="{{ route('admin.login') }}">Se reconnecter</a>.</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- Application -->
+  <div class="ad-app" id="app" hidden>
+    <aside class="ad-side" id="side" aria-label="Navigation de l’administration">
+      <div class="ad-side__head">
+        <a href="#tableau-de-bord" class="ad-side__logo"><img src="{{ asset('assets/img/logo-compact-negatif.png') }}" alt="Afriquinfos, administration" width="150" height="40"></a>
+        <button type="button" class="ad-iconbtn ad-iconbtn--light d-lg-none" id="sideClose" aria-label="Fermer le menu"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      </div>
+      <nav class="ad-nav" id="nav"></nav>
+      <div class="ad-side__user" id="sideUser"></div>
+    </aside>
+    <div class="ad-backdrop" id="backdrop" hidden></div>
+
+    <div class="ad-main">
+      <header class="ad-topbar">
+        <button type="button" class="ad-iconbtn d-lg-none" id="sideOpen" aria-label="Ouvrir le menu" aria-controls="side"><i class="bi bi-list" aria-hidden="true"></i></button>
+        <div class="ad-topbar__title"><p class="ad-crumb" id="crumb"></p></div>
+        <form class="ad-topsearch d-none d-md-flex" id="topSearch" role="search"><i class="bi bi-search" aria-hidden="true"></i><label class="visually-hidden" for="topQ">Rechercher un article</label><input id="topQ" type="search" placeholder="Rechercher un article…" autocomplete="off"></form>
+        <div class="ad-topbar__actions">
+          <a class="ad-iconbtn" href="/" target="_blank" rel="noopener" title="Voir le site" aria-label="Voir le site"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i></a>
+          <button type="button" class="ad-iconbtn" id="themeBtn" aria-label="Activer le mode sombre" aria-pressed="false"><i class="bi bi-moon-stars" aria-hidden="true"></i></button>
+          <a class="ad-btn ad-btn--primary ad-btn--sm d-none d-sm-inline-flex" href="#nouvel-article"><i class="bi bi-plus-lg" aria-hidden="true"></i>Nouvel article</a>
+        </div>
+      </header>
+      <main class="ad-view" id="view" tabindex="-1"></main>
+    </div>
+  </div>
+
+  <!-- Fenêtre de confirmation -->
+  <div class="modal fade ad-modal" id="confirmModal" tabindex="-1" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h2 class="ad-modal__title" id="confirmTitle">Confirmer</h2>
+          <p class="ad-modal__text" id="confirmText"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="ad-btn ad-btn--ghost" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="ad-btn ad-btn--danger" id="confirmOk">Confirmer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fenêtre générique (médiathèque, aperçu) -->
+  <div class="modal fade ad-modal" id="bigModal" tabindex="-1" aria-labelledby="bigTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header"><h2 class="ad-modal__title" id="bigTitle"></h2><button type="button" class="ad-iconbtn" data-bs-dismiss="modal" aria-label="Fermer"><i class="bi bi-x-lg" aria-hidden="true"></i></button></div>
+        <div class="modal-body" id="bigBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panneau latéral (formulaires) -->
+  <div class="offcanvas offcanvas-end ad-drawer" tabindex="-1" id="drawer" aria-labelledby="drawerTitle">
+    <div class="offcanvas-header"><h2 class="ad-modal__title" id="drawerTitle"></h2><button type="button" class="ad-iconbtn" data-bs-dismiss="offcanvas" aria-label="Fermer"><i class="bi bi-x-lg" aria-hidden="true"></i></button></div>
+    <div class="offcanvas-body" id="drawerBody"></div>
+  </div>
+
+  <div class="ad-toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    window.AQ_ASSET = @json(rtrim(asset(''), '/'));
+    window.AQ_STATE = @json($state);
+    window.AQ_USER = @json($me);
+    window.AQ_API = @json(url('/admin/api/state'));
+    window.AQ_LOGOUT = @json(route('admin.logout'));
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+  <script src="{{ asset('assets/js/data.js') }}" charset="utf-8" defer></script>
+  <script src="{{ asset('assets/js/admin.js') }}" charset="utf-8" defer></script>
+</body>
+</html>
