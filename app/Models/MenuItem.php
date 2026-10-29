@@ -81,9 +81,9 @@ class MenuItem extends Model
     public static function menus(): array
     {
         return [
-            self::MENU_CARTE => 'La Carte',
-            self::MENU_TAPAS => 'L’Esprit Terrasse',
-            self::MENU_BOISSONS => 'Vins & Boissons',
+            self::MENU_CARTE => 'La carte bistronomique',
+            self::MENU_TAPAS => 'La carte à tapas (en terrasse uniquement)',
+            self::MENU_BOISSONS => 'La carte des boissons',
         ];
     }
 

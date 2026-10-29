@@ -14,9 +14,9 @@ class MenuController extends Controller
     {
         return [
             MenuItem::MENU_CARTE => [
-                'title' => 'La Carte — Le Cercle',
+                'title' => 'La carte bistronomique — Le Cercle',
                 'surtitle' => 'Notre Carte',
-                'h1' => 'La carte.',
+                'h1' => 'La carte bistronomique.',
                 'subtitle' => 'Une cuisine précise, généreuse et sincère.',
                 'meta' => 'Découvrez la carte du restaurant Le Cercle : entrées, plats, desserts et boissons soigneusement sélectionnés.',
                 'image' => 'cercle/assiette-jardin.jpg',
@@ -24,20 +24,20 @@ class MenuController extends Controller
                 'note' => 'Prix en FCFA, service compris. Les pièces du boucher sont servies avec un accompagnement libre ; accompagnements supplémentaires 4 000 FCFA.',
             ],
             MenuItem::MENU_TAPAS => [
-                'title' => 'L’Esprit Terrasse — Tapas & planches — Le Cercle',
+                'title' => 'La carte à tapas (en terrasse uniquement) — Le Cercle',
                 'surtitle' => 'L’Esprit Terrasse',
-                'h1' => 'Tapas & planches.',
-                'subtitle' => 'Petites assiettes, grandes saveurs.',
-                'meta' => 'Tapas et planches à partager au restaurant Le Cercle : côté végétal, côté mer, côté terre, et grandes planches conçues pour deux.',
+                'h1' => 'La carte à tapas.',
+                'subtitle' => 'En terrasse uniquement — petites assiettes, grandes saveurs.',
+                'meta' => 'La carte à tapas du restaurant Le Cercle, servie en terrasse uniquement : côté végétal, côté mer, côté terre, et grandes planches conçues pour deux.',
                 'image' => 'cercle/tapas-palme.jpg',
                 'route' => 'menu.tapas',
-                'note' => 'Prix en FCFA, service compris. Les planches sont conçues pour deux personnes.',
+                'note' => 'Carte servie en terrasse uniquement. Prix en FCFA, service compris. Les planches sont conçues pour deux personnes.',
             ],
             MenuItem::MENU_BOISSONS => [
-                'title' => 'Carte des Vins & Boissons — Le Cercle',
-                'surtitle' => 'Carte des Vins',
-                'h1' => 'Vins, champagnes, spiritueux & boissons.',
-                'subtitle' => 'Une cave qui voyage, de la Bourgogne à l’Écosse.',
+                'title' => 'La carte des boissons — Le Cercle',
+                'surtitle' => 'Carte des Boissons',
+                'h1' => 'La carte des boissons.',
+                'subtitle' => 'Vins, champagnes, spiritueux, cocktails : une cave qui voyage, de la Bourgogne à l’Écosse.',
                 'meta' => 'La carte des vins du restaurant Le Cercle : champagnes, vins de France, whiskies, rhums, cognacs, cocktails et boissons.',
                 'image' => 'cercle/cave.jpg',
                 'route' => 'menu.drinks',
@@ -62,9 +62,9 @@ class MenuController extends Controller
             'page' => self::pages()[$menu],
             'menuKey' => $menu,
             'menuLinks' => [
-                MenuItem::MENU_CARTE => ['label' => 'La Carte', 'route' => route('menu')],
-                MenuItem::MENU_TAPAS => ['label' => 'Tapas & planches', 'route' => route('menu.tapas')],
-                MenuItem::MENU_BOISSONS => ['label' => 'Vins & boissons', 'route' => route('menu.drinks')],
+                MenuItem::MENU_CARTE => ['label' => 'La carte bistronomique', 'note' => null, 'route' => route('menu')],
+                MenuItem::MENU_TAPAS => ['label' => 'La carte à tapas', 'note' => 'En terrasse uniquement', 'route' => route('menu.tapas')],
+                MenuItem::MENU_BOISSONS => ['label' => 'La carte des boissons', 'note' => null, 'route' => route('menu.drinks')],
             ],
         ]);
     }

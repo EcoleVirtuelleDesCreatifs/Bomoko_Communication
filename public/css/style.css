@@ -223,6 +223,7 @@ figure { margin: 0; }
     font-weight: 400;
     letter-spacing: 0.26em;
     text-transform: uppercase;
+    white-space: nowrap;
     color: rgba(245, 240, 232, 0.85);
     position: relative;
     padding: 6px 0;
@@ -1054,11 +1055,13 @@ figure { margin: 0; }
 .menu-nav-switch ul { gap: 10px 18px; }
 .menu-nav-switch a {
     display: inline-block;
+    text-align: center;
     padding: 9px 20px;
     border: 1px solid rgba(184, 150, 90, 0.4);
     border-radius: 999px;
     color: var(--marron);
 }
+.menu-nav-switch a small { display: block; font-size: 9px; letter-spacing: 0.12em; opacity: 0.7; margin-top: 2px; text-transform: uppercase; }
 .menu-nav-switch a:hover,
 .menu-nav-switch a.is-active { background: var(--marron); border-color: var(--marron); color: var(--ivoire); }
 .menu-section { margin-top: 32px; }

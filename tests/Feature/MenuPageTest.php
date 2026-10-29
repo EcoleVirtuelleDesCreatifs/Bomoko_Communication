@@ -98,8 +98,8 @@ class MenuPageTest extends TestCase
 
         $this->get(route('menu.tapas'))
             ->assertOk()
-            ->assertSee('Tapas & planches.')
-            ->assertSee('L’Esprit Terrasse')
+            ->assertSee('La carte à tapas.')
+            ->assertSee('En terrasse uniquement')
             ->assertSee('Croustillants de mozzarella', false)
             ->assertDontSee('Fondant au chocolat', false);
     }
@@ -117,7 +117,7 @@ class MenuPageTest extends TestCase
 
         $this->get(route('menu.drinks'))
             ->assertOk()
-            ->assertSee('Vins, champagnes, spiritueux & boissons.')
+            ->assertSee('La carte des boissons.')
             ->assertSee('Glenmorangie Original 10 ans', false)
             ->assertDontSee('Fondant au chocolat', false);
     }

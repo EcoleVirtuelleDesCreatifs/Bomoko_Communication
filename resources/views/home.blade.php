@@ -155,9 +155,9 @@
                 <div class="section-foot reveal">
                     <p class="text signature-outro">Et bien d'autres assiettes vous attendent : des classiques revisités du ndolé royal,
                         jusqu'aux plus belles pièces du boucher, venues des quatre coins du monde.</p>
-                    <a href="{{ $menuUrl }}" class="link-arrow">Voir la carte complète</a>
-                    <a href="{{ route('menu.tapas') }}" class="link-arrow">Tapas & planches</a>
-                    <a href="{{ route('menu.drinks') }}" class="link-arrow">Carte des vins</a>
+                    <a href="{{ $menuUrl }}" class="link-arrow">La carte bistronomique</a>
+                    <a href="{{ route('menu.tapas') }}" class="link-arrow">La carte à tapas</a>
+                    <a href="{{ route('menu.drinks') }}" class="link-arrow">La carte des boissons</a>
                 </div>
             </div>
         </div>

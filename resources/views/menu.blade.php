@@ -88,7 +88,7 @@
             @foreach ($menuLinks as $key => $link)
                 <li>
                     <a href="{{ $link['route'] }}" @if ($key === $menuKey) aria-current="page" class="is-active" @endif>
-                        {{ $link['label'] }}
+                        {{ $link['label'] }}@if ($link['note'])<small>{{ $link['note'] }}</small>@endif
                     </a>
                 </li>
             @endforeach
