@@ -72,6 +72,28 @@ class MenuItemTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_create_a_menu_item_with_only_a_glass_price(): void
+    {
+        $admin = $this->adminUser();
+
+        $response = $this->actingAs($admin)->post(route('admin.menu.store'), [
+            'name' => 'Whisky au verre',
+            'price' => '',
+            'price_glass' => 45000,
+            'category' => MenuItem::CATEGORY_WHISKIES,
+            'is_active' => true,
+        ]);
+
+        $response->assertRedirect(route('admin.menu.index'))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('menu_items', [
+            'name' => 'Whisky au verre',
+            'price' => null,
+            'price_glass' => 45000,
+        ]);
+    }
+
     public function test_menu_item_requires_price_or_price_note(): void
     {
         $admin = $this->adminUser();

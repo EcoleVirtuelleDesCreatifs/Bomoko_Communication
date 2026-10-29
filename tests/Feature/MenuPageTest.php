@@ -67,4 +67,98 @@ class MenuPageTest extends TestCase
         $response->assertOk()
             ->assertDontSee('Plat invisible', false);
     }
+
+    public function test_main_menu_page_excludes_beverage_items(): void
+    {
+        MenuItem::factory()->create([
+            'name' => 'Fondant au chocolat',
+            'category' => MenuItem::CATEGORY_DESSERTS,
+        ]);
+        MenuItem::factory()->create([
+            'name' => 'Glenmorangie Original 10 ans',
+            'category' => MenuItem::CATEGORY_WHISKIES,
+        ]);
+
+        $this->get(route('menu'))
+            ->assertOk()
+            ->assertSee('Fondant au chocolat', false)
+            ->assertDontSee('Glenmorangie', false);
+    }
+
+    public function test_tapas_page_displays_only_tapas_items(): void
+    {
+        MenuItem::factory()->create([
+            'name' => 'Croustillants de mozzarella',
+            'category' => MenuItem::CATEGORY_TAPAS,
+        ]);
+        MenuItem::factory()->create([
+            'name' => 'Fondant au chocolat',
+            'category' => MenuItem::CATEGORY_DESSERTS,
+        ]);
+
+        $this->get(route('menu.tapas'))
+            ->assertOk()
+            ->assertSee('Tapas & planches.')
+            ->assertSee('L’Esprit Terrasse')
+            ->assertSee('Croustillants de mozzarella', false)
+            ->assertDontSee('Fondant au chocolat', false);
+    }
+
+    public function test_drinks_page_displays_only_beverage_items(): void
+    {
+        MenuItem::factory()->create([
+            'name' => 'Glenmorangie Original 10 ans',
+            'category' => MenuItem::CATEGORY_WHISKIES,
+        ]);
+        MenuItem::factory()->create([
+            'name' => 'Fondant au chocolat',
+            'category' => MenuItem::CATEGORY_DESSERTS,
+        ]);
+
+        $this->get(route('menu.drinks'))
+            ->assertOk()
+            ->assertSee('Vins, champagnes, spiritueux & boissons.')
+            ->assertSee('Glenmorangie Original 10 ans', false)
+            ->assertDontSee('Fondant au chocolat', false);
+    }
+
+    public function test_menu_pages_expose_the_three_menu_selector(): void
+    {
+        foreach (['menu', 'menu.tapas', 'menu.drinks'] as $routeName) {
+            $this->get(route($routeName))
+                ->assertOk()
+                ->assertSee('aria-current="page"', false)
+                ->assertSee(route('menu'), false)
+                ->assertSee(route('menu.tapas'), false)
+                ->assertSee(route('menu.drinks'), false);
+        }
+    }
+
+    public function test_drinks_page_displays_bottle_and_glass_prices(): void
+    {
+        MenuItem::factory()->create([
+            'name' => 'Château test',
+            'category' => MenuItem::CATEGORY_RED_WINES,
+            'price' => 80000,
+            'price_glass' => 8000,
+        ]);
+
+        $this->get(route('menu.drinks'))
+            ->assertOk()
+            ->assertSeeInOrder(['Bouteille 80 000 FCFA', 'Verre 8 000 FCFA']);
+    }
+
+    public function test_drinks_page_displays_glass_only_price(): void
+    {
+        MenuItem::factory()->create([
+            'name' => 'Verre test',
+            'category' => MenuItem::CATEGORY_COCKTAILS,
+            'price' => null,
+            'price_glass' => 45000,
+        ]);
+
+        $this->get(route('menu.drinks'))
+            ->assertOk()
+            ->assertSee('Verre 45 000 FCFA', false);
+    }
 }

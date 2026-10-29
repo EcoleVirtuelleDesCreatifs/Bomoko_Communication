@@ -19,7 +19,8 @@
 
         <nav class="main-nav" id="mainNav" aria-label="Navigation principale">
             <ul>
-                <li><a href="{{ $homeUrl }}#la-carte">La Carte</a></li>
+                <li><a href="{{ route('menu') }}">La Carte</a></li>
+                <li><a href="{{ route('menu.drinks') }}">Vins & Tapas</a></li>
                 <li><a href="{{ $homeUrl }}#espaces">Nos Espaces</a></li>
                 <li><a href="{{ $homeUrl }}#galerie">Galerie</a></li>
                 <li><a href="{{ $homeUrl }}#le-cercle">Le Cercle</a></li>

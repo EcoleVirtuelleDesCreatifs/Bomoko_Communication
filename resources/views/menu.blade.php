@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'La Carte — Le Cercle')
-@section('meta_description', 'Découvrez la carte du restaurant Le Cercle : entrées, plats, desserts et boissons soigneusement sélectionnés.')
+@section('title', $page['title'])
+@section('meta_description', $page['meta'])
 
 @php
     $visibleCategories = collect($categories)
@@ -23,8 +23,8 @@
             [
                 '@type' => 'ListItem',
                 'position' => 2,
-                'name' => 'La Carte',
-                'item' => route('menu'),
+                'name' => $page['surtitle'],
+                'item' => route($page['route']),
             ],
         ],
     ];
@@ -32,8 +32,8 @@
     $menuSchema = [
         '@context' => 'https://schema.org',
         '@type' => 'Menu',
-        'name' => 'La Carte — Le Cercle',
-        'url' => route('menu'),
+        'name' => $page['title'],
+        'url' => route($page['route']),
         'hasMenuSection' => $visibleCategories
             ->map(function ($label, $key) use ($menuItems) {
                 $items = $menuItems->get($key, collect());
@@ -50,9 +50,9 @@
                                     '@type' => 'MenuItem',
                                     'name' => $item->name,
                                     'description' => $item->description,
-                                    'offers' => $item->price !== null ? [
+                                    'offers' => ($item->price ?? $item->price_glass) !== null ? [
                                         '@type' => 'Offer',
-                                        'price' => $item->price,
+                                        'price' => $item->price ?? $item->price_glass,
                                         'priceCurrency' => 'XOF',
                                     ] : null,
                                 ]))->values()->all(),
@@ -73,15 +73,27 @@
 @section('content')
     <section class="page-hero page-hero-small" id="hero">
         <div class="hero-media">
-            <x-picture src="section/menu4.jpg" alt="Assiette gastronomique dressée au restaurant Le Cercle" loading="eager" fetchpriority="high" sizes="100vw" />
+            <x-picture src="{{ $page['image'] }}" alt="{{ $page['surtitle'] }} au restaurant Le Cercle" loading="eager" fetchpriority="high" sizes="100vw" />
             <div class="hero-overlay"></div>
         </div>
         <div class="hero-content">
-            <p class="surtitle reveal">Notre Carte</p>
-            <h1 class="hero-title reveal">La carte.</h1>
-            <p class="hero-sub reveal">Une cuisine précise, généreuse et sincère.</p>
+            <p class="surtitle reveal">{{ $page['surtitle'] }}</p>
+            <h1 class="hero-title reveal">{{ $page['h1'] }}</h1>
+            <p class="hero-sub reveal">{{ $page['subtitle'] }}</p>
         </div>
     </section>
+
+    <nav class="menu-nav menu-nav-switch" aria-label="Nos cartes">
+        <ul>
+            @foreach ($menuLinks as $key => $link)
+                <li>
+                    <a href="{{ $link['route'] }}" @if ($key === $menuKey) aria-current="page" class="is-active" @endif>
+                        {{ $link['label'] }}
+                    </a>
+                </li>
+            @endforeach
+        </ul>
+    </nav>
 
     <nav class="menu-nav" aria-label="Rubriques de la carte">
         <ul>
@@ -93,7 +105,7 @@
 
     <section class="section menu" id="la-carte">
         <div class="container">
-            <div class="menu-page-grid">
+            <div class="menu-page-grid {{ $menuKey === 'boissons' ? 'menu-page-grid-wide' : '' }}">
                 @foreach ($visibleCategories as $key => $categoryLabel)
                     <div class="menu-category reveal" id="cat-{{ $key }}">
                         <h3 class="menu-category-title">{{ $categoryLabel }}</h3>
@@ -107,7 +119,7 @@
                                         <div class="menu-item">
                                             <div class="menu-item-header">
                                                 <h4 class="menu-item-name">{{ $item->name }}</h4>
-                                                <span class="menu-item-price">{{ $item->formattedPrice() }}</span>
+                                                <span class="menu-item-price">{!! collect(explode(' · ', $item->formattedPrice()))->map(fn ($part) => '<span class="price-part">'.e($part).'</span>')->implode(' · ') !!}</span>
                                             </div>
                                             @if ($item->description)
                                                 <p class="menu-item-desc">{{ $item->description }}</p>
@@ -123,7 +135,7 @@
 
             <div class="menu-note">
                 <h3 class="menu-note-title">Bon à savoir</h3>
-                <p>Prix en FCFA, service compris. Les pièces du boucher sont servies avec un accompagnement libre ; accompagnements supplémentaires 4 000 FCFA.</p>
+                <p>{{ $page['note'] }}</p>
                 <p>{{ config('site.opening_hours') }} — <a href="tel:{{ preg_replace('/\s+/', '', (string) config('site.phone')) }}">{{ config('site.phone') }}</a> — <a href="mailto:{{ config('site.contact_email') }}">{{ config('site.contact_email') }}</a></p>
             </div>
 

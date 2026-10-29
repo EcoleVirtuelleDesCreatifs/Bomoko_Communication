@@ -1,13 +1,13 @@
 @extends('layouts.admin')
 
-@section('title', $item ? 'Modifier un plat' : 'Ajouter un plat')
+@section('title', $item ? 'Modifier un élément' : 'Ajouter un élément')
 
 @section('content')
     <div class="admin-container internal-editor-page internal-editor-menu">
         <header class="admin-page-header internal-editor-hero">
             <div>
                 <span class="dashboard-eyebrow">Gestion de la carte</span>
-                <h1 class="admin-title">{{ $item ? 'Modifier un plat' : 'Ajouter un plat' }}</h1>
+                <h1 class="admin-title">{{ $item ? 'Modifier un élément' : 'Ajouter un élément' }}</h1>
                 <p class="admin-subtitle">Renseignez les informations, le tarif et la position de cette proposition sur la carte.</p>
             </div>
             <a href="{{ route('admin.menu.index') }}" class="internal-editor-back">← Retour à la carte</a>
@@ -31,12 +31,16 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="name">Nom du plat</label>
+                    <label for="name">Nom de l’élément</label>
                     <input type="text" id="name" name="name" value="{{ old('name', $item?->name) }}" required>
                 </div>
                 <div class="form-group">
-                    <label for="price">Prix (FCFA) <span class="row-meta">— facultatif si une mention de prix est indiquée</span></label>
+                    <label for="price">Prix bouteille / assiette (FCFA)</label>
                     <input type="number" id="price" name="price" min="0" value="{{ old('price', $item?->price) }}">
+                </div>
+                <div class="form-group">
+                    <label for="price_glass">Prix au verre (FCFA) <span class="row-meta">— facultatif</span></label>
+                    <input type="number" id="price_glass" name="price_glass" min="0" value="{{ old('price_glass', $item?->price_glass) }}">
                 </div>
                 <div class="form-group">
                     <label for="price_note">Mention de prix</label>
@@ -48,10 +52,14 @@
                 <div class="form-group">
                     <label for="category">Catégorie</label>
                     <select id="category" name="category" required>
-                        @foreach ($categories as $key => $label)
-                            <option value="{{ $key }}" {{ old('category', $item?->category) === $key ? 'selected' : '' }}>
-                                {{ $label }}
-                            </option>
+                        @foreach ($menus as $menu => $menuLabel)
+                            <optgroup label="{{ $menuLabel }}">
+                                @foreach ($categoryGroups[$menu] as $key => $label)
+                                    <option value="{{ $key }}" {{ old('category', $item?->category) === $key ? 'selected' : '' }}>
+                                        {{ $label }}
+                                    </option>
+                                @endforeach
+                            </optgroup>
                         @endforeach
                     </select>
                 </div>

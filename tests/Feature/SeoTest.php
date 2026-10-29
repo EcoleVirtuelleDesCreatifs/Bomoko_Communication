@@ -30,6 +30,8 @@ class SeoTest extends TestCase
         $this->assertStringContainsString('text/xml', $response->headers->get('Content-Type'));
 
         $response->assertSee(route('menu'), false)
+            ->assertSee(route('menu.tapas'), false)
+            ->assertSee(route('menu.drinks'), false)
             ->assertSee(route('events.show', $event), false);
     }
 

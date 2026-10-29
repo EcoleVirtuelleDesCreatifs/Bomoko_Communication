@@ -20,7 +20,11 @@ class MenuItemController extends Controller
 
         return view('admin.menu.index', [
             'groupedItems' => $items,
-            'categories' => MenuItem::categories(),
+            'menus' => collect(MenuItem::menus())
+                ->mapWithKeys(fn (string $label, string $menu) => [
+                    $label => MenuItem::categoriesForMenu($menu),
+                ]),
+
         ]);
     }
 
@@ -28,7 +32,8 @@ class MenuItemController extends Controller
     {
         return view('admin.menu.form', [
             'item' => null,
-            'categories' => MenuItem::categories(),
+            'menus' => MenuItem::menus(),
+            'categoryGroups' => $this->categoryGroups(),
             'sections' => $this->existingSections(),
         ]);
     }
@@ -37,14 +42,15 @@ class MenuItemController extends Controller
     {
         MenuItem::create($request->validated());
 
-        return redirect()->route('admin.menu.index')->with('success', 'Le plat a été ajouté.');
+        return redirect()->route('admin.menu.index')->with('success', 'L’élément a été ajouté.');
     }
 
     public function edit(MenuItem $menu): View
     {
         return view('admin.menu.form', [
             'item' => $menu,
-            'categories' => MenuItem::categories(),
+            'menus' => MenuItem::menus(),
+            'categoryGroups' => $this->categoryGroups(),
             'sections' => $this->existingSections(),
         ]);
     }
@@ -53,14 +59,24 @@ class MenuItemController extends Controller
     {
         $menu->update($request->validated());
 
-        return redirect()->route('admin.menu.index')->with('success', 'Le plat a été mis à jour.');
+        return redirect()->route('admin.menu.index')->with('success', 'L’élément a été mis à jour.');
     }
 
     public function destroy(MenuItem $menu): RedirectResponse
     {
         $menu->delete();
 
-        return redirect()->route('admin.menu.index')->with('success', 'Le plat a été supprimé.');
+        return redirect()->route('admin.menu.index')->with('success', 'L’élément a été supprimé.');
+    }
+
+    /**
+     * @return array<string, array<string, string>>
+     */
+    private function categoryGroups(): array
+    {
+        return collect(MenuItem::menus())
+            ->mapWithKeys(fn (string $label, string $menu) => [$menu => MenuItem::categoriesForMenu($menu)])
+            ->all();
     }
 
     private function existingSections()

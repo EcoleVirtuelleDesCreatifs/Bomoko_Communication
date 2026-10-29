@@ -68,6 +68,8 @@ class RobotsController extends Controller
             '',
             '- [Accueil]('.route('home').')',
             '- [La Carte]('.route('menu').')',
+            '- [Tapas & planches — L’Esprit Terrasse]('.route('menu.tapas').')',
+            '- [Carte des Vins & Boissons]('.route('menu.drinks').')',
             '- [Événements & Actualités]('.route('events.index').')',
             '- [Réservation]('.route('reservation').')',
             '- [Mentions légales]('.route('legal.notice').')',

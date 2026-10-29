@@ -96,7 +96,17 @@ class MenuItemSeeder extends Seeder
         ];
 
         $sortOrder = 0;
+        $this->seedCarte($sections, $sortOrder);
+        $this->seedFromDefinitions(require database_path('seeders/data/tapas_and_drinks.php'), $sortOrder);
+    }
 
+    /**
+     * Insère les éléments au format [nom, description, prix, prix_note] (carte classique).
+     *
+     * @param  array<string, array<string, list<array<int, mixed>>>>  $sections
+     */
+    private function seedCarte(array $sections, int &$sortOrder): void
+    {
         foreach ($sections as $category => $sectionItems) {
             foreach ($sectionItems as $section => $items) {
                 foreach ($items as $item) {
@@ -106,6 +116,36 @@ class MenuItemSeeder extends Seeder
                         'name' => $name,
                         'description' => $description,
                         'price' => $price,
+                        'price_glass' => null,
+                        'price_note' => $priceNote,
+                        'category' => $category,
+                        'section' => $section,
+                        'sort_order' => $sortOrder += 10,
+                        'is_active' => true,
+                    ]);
+                }
+            }
+        }
+    }
+
+    /**
+     * Insère les éléments au format [nom, description, prix, prix_verre, prix_note].
+     * Réutilisable pour les cartes tapas & boissons.
+     *
+     * @param  array<string, array<string, list<array<int, mixed>>>>  $sections
+     */
+    public function seedFromDefinitions(array $sections, int &$sortOrder): void
+    {
+        foreach ($sections as $category => $sectionItems) {
+            foreach ($sectionItems as $section => $items) {
+                foreach ($items as $item) {
+                    [$name, $description, $price, $priceGlass, $priceNote] = array_pad($item, 5, null);
+
+                    MenuItem::create([
+                        'name' => $name,
+                        'description' => $description,
+                        'price' => $price,
+                        'price_glass' => $priceGlass,
                         'price_note' => $priceNote,
                         'category' => $category,
                         'section' => $section,

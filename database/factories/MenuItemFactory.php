@@ -21,6 +21,7 @@ class MenuItemFactory extends Factory
             'name' => fake()->words(3, true),
             'description' => fake()->sentence(),
             'price' => fake()->numberBetween(2500, 15000),
+            'price_glass' => null,
             'price_note' => null,
             'section' => null,
             'category' => fake()->randomElement([
