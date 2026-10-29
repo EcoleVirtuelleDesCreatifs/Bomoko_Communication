@@ -122,15 +122,38 @@ class MenuPageTest extends TestCase
             ->assertDontSee('Fondant au chocolat', false);
     }
 
-    public function test_menu_pages_expose_the_three_menu_selector(): void
+    public function test_cigares_page_displays_cigar_table(): void
     {
-        foreach (['menu', 'menu.tapas', 'menu.drinks'] as $routeName) {
+        MenuItem::factory()->create([
+            'name' => 'H. Upmann — Coronas Major',
+            'description' => 'Corona (AT) · Cuba',
+            'category' => MenuItem::CATEGORY_CIGARES,
+            'price' => 20000,
+        ]);
+        MenuItem::factory()->create([
+            'name' => 'Fondant au chocolat',
+            'category' => MenuItem::CATEGORY_DESSERTS,
+        ]);
+
+        $this->get(route('menu.cigares'))
+            ->assertOk()
+            ->assertSee('La cave à cigares.')
+            ->assertSee('H. Upmann — Coronas Major', false)
+            ->assertSee('Corona (AT) · Cuba', false)
+            ->assertSee('20 000 FCFA')
+            ->assertDontSee('Fondant au chocolat', false);
+    }
+
+    public function test_menu_pages_expose_the_four_menu_selector(): void
+    {
+        foreach (['menu', 'menu.tapas', 'menu.drinks', 'menu.cigares'] as $routeName) {
             $this->get(route($routeName))
                 ->assertOk()
                 ->assertSee('aria-current="page"', false)
                 ->assertSee(route('menu'), false)
                 ->assertSee(route('menu.tapas'), false)
-                ->assertSee(route('menu.drinks'), false);
+                ->assertSee(route('menu.drinks'), false)
+                ->assertSee(route('menu.cigares'), false);
         }
     }
 

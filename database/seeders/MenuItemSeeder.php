@@ -98,6 +98,7 @@ class MenuItemSeeder extends Seeder
         $sortOrder = 0;
         $this->seedCarte($sections, $sortOrder);
         $this->seedFromDefinitions(require database_path('seeders/data/tapas_and_drinks.php'), $sortOrder);
+        $this->seedFromDefinitions(require database_path('seeders/data/cigares.php'), $sortOrder);
     }
 
     /**

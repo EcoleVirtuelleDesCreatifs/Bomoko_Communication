@@ -2108,3 +2108,32 @@ fieldset.form-group legend {
     .admin-logout { width: 100%; text-align: center; }
     .admin-logout .btn-outline { width: 100%; }
 }
+
+/* Cave à cigares — tableau */
+.cigares-table { border-top: 1px solid rgba(184, 150, 90, 0.3); max-width: 960px; }
+.cigares-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.5fr) auto;
+    gap: 8px 28px;
+    align-items: baseline;
+    padding: 16px 4px;
+    border-bottom: 1px solid rgba(184, 150, 90, 0.15);
+}
+.cigares-head {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--dore-light);
+    padding: 12px 4px;
+    border-bottom-color: rgba(184, 150, 90, 0.4);
+}
+.cigares-name { font-size: 15px; font-weight: 500; letter-spacing: 0.08em; color: var(--ivoire); }
+.cigares-desc { font-size: 13px; font-weight: 300; color: rgba(245, 240, 232, 0.6); }
+.cigares-price { font-size: 14px; color: var(--dore-light); white-space: nowrap; text-align: right; }
+@media (max-width: 700px) {
+    .cigares-head { display: none; }
+    .cigares-row { grid-template-columns: 1fr auto; }
+    .cigares-desc { grid-column: 1 / -1; grid-row: 2; }
+    .cigares-price { grid-row: 1; }
+}

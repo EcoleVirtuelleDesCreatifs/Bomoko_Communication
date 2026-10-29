@@ -105,6 +105,34 @@
 
     <section class="section menu" id="la-carte">
         <div class="container">
+            @if ($menuKey === 'cigares')
+                @foreach ($visibleCategories as $key => $categoryLabel)
+                    <div class="menu-category reveal" id="cat-{{ $key }}">
+                        <h3 class="menu-category-title">{{ $categoryLabel }}</h3>
+                        @foreach ($menuItems->get($key, collect())->groupBy('section') as $section => $items)
+                            <div class="menu-section">
+                                @if ($section)
+                                    <h4 class="menu-section-title">{{ $section }}</h4>
+                                @endif
+                                <div class="cigares-table" role="table" aria-label="{{ $categoryLabel }}">
+                                    <div class="cigares-row cigares-head" role="row">
+                                        <span role="columnheader">Cigare</span>
+                                        <span role="columnheader">Série &amp; format · Origine</span>
+                                        <span role="columnheader">Prix / unité</span>
+                                    </div>
+                                    @foreach ($items as $item)
+                                        <div class="cigares-row" role="row">
+                                            <span class="cigares-name" role="cell">{{ $item->name }}</span>
+                                            <span class="cigares-desc" role="cell">{{ $item->description }}</span>
+                                            <span class="cigares-price" role="cell">{{ $item->formattedPrice() }}</span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endforeach
+            @else
             <div class="menu-page-grid {{ $menuKey === 'boissons' ? 'menu-page-grid-wide' : '' }}">
                 @foreach ($visibleCategories as $key => $categoryLabel)
                     <div class="menu-category reveal" id="cat-{{ $key }}">
@@ -132,6 +160,7 @@
                     </div>
                 @endforeach
             </div>
+            @endif
 
             <div class="menu-note">
                 <h3 class="menu-note-title">Bon à savoir</h3>

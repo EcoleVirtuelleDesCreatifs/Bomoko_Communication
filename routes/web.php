@@ -19,6 +19,7 @@ Route::get('/', HomeController::class)->name('home');
 Route::get('/carte', MenuController::class)->name('menu');
 Route::get('/tapas', MenuController::class)->defaults('menu', 'tapas')->name('menu.tapas');
 Route::get('/carte-des-vins', MenuController::class)->defaults('menu', 'boissons')->name('menu.drinks');
+Route::get('/cave-a-cigares', MenuController::class)->defaults('menu', 'cigares')->name('menu.cigares');
 Route::redirect('/galerie', '/#galerie')->name('gallery');
 
 Route::get('/evenements', [EventController::class, 'index'])->name('events.index');

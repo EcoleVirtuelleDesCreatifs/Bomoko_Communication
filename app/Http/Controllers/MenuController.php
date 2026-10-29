@@ -43,6 +43,16 @@ class MenuController extends Controller
                 'route' => 'menu.drinks',
                 'note' => 'Prix en FCFA, service compris. Prix bouteille et prix au verre indiqués lorsque disponibles. L’abus d’alcool est dangereux pour la santé, à consommer avec modération.',
             ],
+            MenuItem::MENU_CIGARES => [
+                'title' => 'La cave à cigares — Le Cercle',
+                'surtitle' => 'La Cave à Cigares',
+                'h1' => 'La cave à cigares.',
+                'subtitle' => 'Notre sélection — l’art de prendre le temps.',
+                'meta' => 'La cave à cigares du restaurant Le Cercle : une sélection de cigares du Nicaragua, du Honduras, de Cuba, de la République dominicaine et d’ailleurs.',
+                'image' => 'cercle/cave.jpg',
+                'route' => 'menu.cigares',
+                'note' => 'Prix par cigare, tarifs indiqués à l’unité, en FCFA. L’art de prendre le temps.',
+            ],
         ];
     }
 
@@ -65,6 +75,7 @@ class MenuController extends Controller
                 MenuItem::MENU_CARTE => ['label' => 'La carte bistronomique', 'note' => null, 'route' => route('menu')],
                 MenuItem::MENU_TAPAS => ['label' => 'La carte à tapas', 'note' => 'En terrasse uniquement', 'route' => route('menu.tapas')],
                 MenuItem::MENU_BOISSONS => ['label' => 'La carte des boissons', 'note' => null, 'route' => route('menu.drinks')],
+                MenuItem::MENU_CIGARES => ['label' => 'La cave à cigares', 'note' => null, 'route' => route('menu.cigares')],
             ],
         ]);
     }

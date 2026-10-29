@@ -22,6 +22,7 @@
                 <li><a href="{{ route('menu') }}">La carte bistronomique</a></li>
                 <li><a href="{{ route('menu.tapas') }}">La carte à tapas</a></li>
                 <li><a href="{{ route('menu.drinks') }}">La carte des boissons</a></li>
+                <li><a href="{{ route('menu.cigares') }}">La cave à cigares</a></li>
                 <li><a href="{{ $homeUrl }}#espaces">Nos Espaces</a></li>
                 <li><a href="{{ $homeUrl }}#galerie">Galerie</a></li>
                 <li><a href="{{ route('events.index') }}">Événements</a></li>

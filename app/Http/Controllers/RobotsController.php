@@ -70,6 +70,7 @@ class RobotsController extends Controller
             '- [La Carte]('.route('menu').')',
             '- [La carte à tapas (en terrasse uniquement)]('.route('menu.tapas').')',
             '- [La carte des boissons]('.route('menu.drinks').')',
+            '- [La cave à cigares]('.route('menu.cigares').')',
             '- [Événements & Actualités]('.route('events.index').')',
             '- [Réservation]('.route('reservation').')',
             '- [Mentions légales]('.route('legal.notice').')',

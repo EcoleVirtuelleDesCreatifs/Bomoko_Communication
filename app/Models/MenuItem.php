@@ -69,11 +69,15 @@ class MenuItem extends Model
 
     public const CATEGORY_DRINKS = 'drinks';
 
+    public const CATEGORY_CIGARES = 'cigares';
+
     public const MENU_CARTE = 'carte';
 
     public const MENU_TAPAS = 'tapas';
 
     public const MENU_BOISSONS = 'boissons';
+
+    public const MENU_CIGARES = 'cigares';
 
     /**
      * @return array<string, string>
@@ -84,6 +88,7 @@ class MenuItem extends Model
             self::MENU_CARTE => 'La carte bistronomique',
             self::MENU_TAPAS => 'La carte à tapas (en terrasse uniquement)',
             self::MENU_BOISSONS => 'La carte des boissons',
+            self::MENU_CIGARES => 'La cave à cigares',
         ];
     }
 
@@ -93,6 +98,9 @@ class MenuItem extends Model
     public static function categoriesForMenu(string $menu): array
     {
         return match ($menu) {
+            self::MENU_CIGARES => [
+                self::CATEGORY_CIGARES => 'Notre sélection',
+            ],
             self::MENU_TAPAS => [
                 self::CATEGORY_TAPAS => 'Les Tapas',
                 self::CATEGORY_BOARDS => 'Les Planches à partager',
@@ -140,6 +148,7 @@ class MenuItem extends Model
             self::categoriesForMenu(self::MENU_CARTE),
             self::categoriesForMenu(self::MENU_TAPAS),
             self::categoriesForMenu(self::MENU_BOISSONS),
+            self::categoriesForMenu(self::MENU_CIGARES),
         );
     }
 
