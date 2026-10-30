@@ -43,7 +43,7 @@
     const dark = cur ? cur === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
     root.setAttribute("data-theme", dark ? "light" : "dark"); store.set("cercle.theme", dark ? "light" : "dark");
   });
-  function netState() { const on = navigator.onLine !== false; const n = $("#net"); n.textContent = on ? "En ligne" : "Hors ligne"; n.classList.toggle("off", !on); }
+  function netState() { const on = navigator.onLine !== false; const n = $("#net"); if (!n) return; n.textContent = on ? "En ligne" : "Hors ligne"; n.classList.toggle("off", !on); }
   addEventListener("online", () => { netState(); flushQueue(); refreshMenu(); });
   addEventListener("offline", netState); netState();
 
@@ -58,7 +58,7 @@
     let removed = 0;
     Object.keys(cart).forEach((k) => { const [id, oi] = k.split("|"); const it = INDEX[id]; if (!it || it.x || !it.o[+oi]) { delete cart[k]; removed++; } });
     if (removed) { saveCart(); toast(removed > 1 ? `${removed} articles épuisés retirés` : "Un article épuisé a été retiré"); }
-    if (SET.nom) $("#brandName").textContent = SET.nom.replace(/\s+Abidjan$/i, "");
+    if (SET.nom && $("#brandName")) $("#brandName").textContent = SET.nom.replace(/\s+Abidjan$/i, "");
   }
   async function refreshMenu() {
     try {
