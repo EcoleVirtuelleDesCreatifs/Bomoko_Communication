@@ -14,7 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-  <link href="{{ asset('assets/css/admin.css') }}" rel="stylesheet">
+  <link href="{{ asset('assets/css/admin.css') }}?v={{ filemtime(public_path('assets/css/admin.css')) }}" rel="stylesheet">
 </head>
 <body>
   <a class="visually-hidden-focusable ad-skip" href="#view">Aller au contenu</a>
@@ -107,7 +107,7 @@
     window.AQ_LOGOUT = @json(route('admin.logout'));
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
-  <script src="{{ asset('assets/js/data.js') }}" charset="utf-8" defer></script>
-  <script src="{{ asset('assets/js/admin.js') }}" charset="utf-8" defer></script>
+  <script src="{{ asset('assets/js/data.js') }}?v={{ filemtime(public_path('assets/js/data.js')) }}" charset="utf-8" defer></script>
+  <script src="{{ asset('assets/js/admin.js') }}?v={{ filemtime(public_path('assets/js/admin.js')) }}" charset="utf-8" defer></script>
 </body>
 </html>
