@@ -172,7 +172,7 @@
   // les articles programmés dont l'heure est passée sont publiés
   S.articles.forEach(function (a) { if (a.status === 'programme' && new Date(a.date).getTime() <= Date.now()) a.status = 'publie'; });
   var saveTimer;
-  function save() { clearTimeout(saveTimer); saveTimer = setTimeout(function () { store(KEY, JSON.stringify(S)); if (window.AQ_API) { fetch(window.AQ_API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }, body: JSON.stringify(S), credentials: 'same-origin' }).catch(function () {}); } }, 400); }
+  function save() { clearTimeout(saveTimer); saveTimer = setTimeout(function () { store(KEY, JSON.stringify(S)); if (window.AQ_API) { fetch(window.AQ_API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }, body: JSON.stringify(S), credentials: 'same-origin' }).then(function (r) { return r.json().then(function (j) { if (!r.ok || j.ok === false) toast('Erreur serveur : ' + (j && j.error ? j.error : 'synchronisation impossible')); else if (j.warnings && j.warnings.length) j.warnings.forEach(function (w) { toast(w); }); }).catch(function () { if (!r.ok) toast('Erreur serveur : synchronisation impossible'); }); }).catch(function () { toast('Serveur injoignable : modifications non synchronisées'); }); } }, 400); }
   function log(what) { S.log.unshift({ at: new Date().toISOString(), who: ME ? ME.name : 'Système', what: what }); S.log = S.log.slice(0, 40); save(); }
 
   function art(id) { return S.articles.filter(function (a) { return a.id === id; })[0]; }

@@ -193,31 +193,40 @@ class AdminStateController extends Controller
     public function save(Request $request)
     {
         $s = $request->json()->all();
+        $this->warnings = [];
 
-        DB::transaction(function () use ($s, $request) {
-            $this->syncRubriques($s['rubriques'] ?? []);
-            $this->syncRegions($s['regions'] ?? []);
-            $this->syncArticles($s['articles'] ?? [], $s['medias'] ?? []);
-            $this->syncEvents($s['agenda'] ?? []);
-            $this->syncComments($s['comments'] ?? []);
-            $this->syncSubscribers($s['subscribers'] ?? []);
-            $this->syncMessages($s['messages'] ?? []);
-            $this->syncDebates($s['debats'] ?? []);
-            $this->syncUsers($s['users'] ?? [], $request->user());
+        try {
+            DB::transaction(function () use ($s, $request) {
+                $this->syncRubriques($s['rubriques'] ?? []);
+                $this->syncRegions($s['regions'] ?? []);
+                $this->syncArticles($s['articles'] ?? [], $s['medias'] ?? []);
+                $this->syncEvents($s['agenda'] ?? []);
+                $this->syncComments($s['comments'] ?? []);
+                $this->syncSubscribers($s['subscribers'] ?? []);
+                $this->syncMessages($s['messages'] ?? []);
+                $this->syncDebates($s['debats'] ?? []);
+                $this->syncUsers($s['users'] ?? [], $request->user());
 
-            foreach (self::BLOB_KEYS as $key) {
-                if (! array_key_exists($key, $s)) {
-                    continue;
+                foreach (self::BLOB_KEYS as $key) {
+                    if (! array_key_exists($key, $s)) {
+                        continue;
+                    }
+                    DB::table('admin_data')->updateOrInsert(
+                        ['key' => $key],
+                        ['value' => json_encode($s[$key], JSON_UNESCAPED_UNICODE), 'updated_at' => now()]
+                    );
                 }
-                DB::table('admin_data')->updateOrInsert(
-                    ['key' => $key],
-                    ['value' => json_encode($s[$key], JSON_UNESCAPED_UNICODE), 'updated_at' => now()]
-                );
-            }
-        });
+            });
+        } catch (\Throwable $e) {
+            report($e);
 
-        return response()->json(['ok' => true]);
+            return response()->json(['ok' => false, 'error' => $e->getMessage()], 500);
+        }
+
+        return response()->json(['ok' => true, 'warnings' => $this->warnings]);
     }
+
+    private array $warnings = [];
 
     private function syncRubriques(array $items): void
     {
@@ -435,16 +444,26 @@ class AdminStateController extends Controller
                 $row->update($data);
                 $kept[] = (int) $m[1];
             } elseif (! empty($data['email'])) {
-                $row = User::updateOrCreate(
-                    ['email' => $data['email']],
-                    $data + ['password' => Hash::make(Str::random(24))]
-                );
+                try {
+                    $row = User::updateOrCreate(
+                        ['email' => $data['email']],
+                        $data + ['password' => Hash::make(Str::random(24))]
+                    );
+                } catch (\Throwable $e) {
+                    report($e);
+                    $this->warnings[] = 'Création du compte '.$data['email'].' impossible : '.$e->getMessage();
+                    continue;
+                }
                 if ($row->wasRecentlyCreated || ($u['status'] ?? '') === 'invite') {
                     try {
                         \Illuminate\Support\Facades\Mail::to($row->email)
                             ->send(new \App\Mail\TeamInvitation($row));
                     } catch (\Throwable $e) {
                         report($e);
+                        $this->warnings[] = 'Invitation non envoyée à '.$row->email.' : '.$e->getMessage();
+                    }
+                    if (in_array(config('mail.default'), ['log', 'array'], true)) {
+                        $this->warnings[] = 'Le mailer est « '.config('mail.default').' » : configurez MAIL_MAILER=smtp dans le .env pour envoyer de vrais e-mails.';
                     }
                 }
                 $kept[] = $row->id;
