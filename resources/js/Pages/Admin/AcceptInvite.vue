@@ -7,7 +7,7 @@ const props = defineProps({ email: String, name: String });
 const form = useForm({ password: '', password_confirmation: '' });
 const show = ref(false);
 
-function submit() { form.post(location.pathname); }
+function submit() { form.post(location.pathname + location.search); }
 </script>
 
 <template>
