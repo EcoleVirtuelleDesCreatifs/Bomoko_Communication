@@ -1,7 +1,7 @@
 [
   {
     "id": "cuisine",
-    "label": "Cuisine",
+    "label": "Nos Plats",
     "groups": [
       {
         "id": "entrees",
