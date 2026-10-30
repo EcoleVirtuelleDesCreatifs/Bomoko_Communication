@@ -437,8 +437,16 @@ class AdminStateController extends Controller
             } elseif (! empty($data['email'])) {
                 $row = User::updateOrCreate(
                     ['email' => $data['email']],
-                    $data + ['password' => Hash::make(Str::random(16))]
+                    $data + ['password' => Hash::make(Str::random(24))]
                 );
+                if ($row->wasRecentlyCreated || ($u['status'] ?? '') === 'invite') {
+                    try {
+                        \Illuminate\Support\Facades\Mail::to($row->email)
+                            ->send(new \App\Mail\TeamInvitation($row));
+                    } catch (\Throwable $e) {
+                        report($e);
+                    }
+                }
                 $kept[] = $row->id;
             }
         }

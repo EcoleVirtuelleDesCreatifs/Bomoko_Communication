@@ -66,6 +66,31 @@ function asset(p) {
   const base = typeof document !== "undefined" && ((_a = document.querySelector('meta[name="asset-url"]')) == null ? void 0 : _a.content) || "";
   return base + "/" + String(p).replace(/^\//, "");
 }
+const _sfc_main$h = {
+  __name: "AcceptInvite",
+  __ssrInlineRender: true,
+  props: { email: String, name: String },
+  setup(__props) {
+    const form = useForm({ password: "", password_confirmation: "" });
+    const show = ref(false);
+    return (_ctx, _push, _parent, _attrs) => {
+      _push(`<section${ssrRenderAttrs(mergeProps({
+        class: "ad-login",
+        "aria-labelledby": "inviteTitle"
+      }, _attrs))}><div class="ad-login__brand"><img${ssrRenderAttr("src", unref(asset)("assets/img/logo-afriquinfos-negatif.png"))} alt="Afriquinfos" width="320" height="114"><p class="ad-login__claim">Ni totems, ni tabous.</p><p class="ad-login__sub">Espace de rédaction et d’administration</p></div><div class="ad-login__panel"><form class="ad-login__form" novalidate><h1 id="inviteTitle">Bienvenue ${ssrInterpolate(__props.name)}</h1><p class="ad-muted">Définissez votre mot de passe pour activer votre compte (${ssrInterpolate(__props.email)}).</p><div class="ad-field"><label for="ivPass">Nouveau mot de passe</label><div class="ad-input-group"><input class="ad-input" id="ivPass"${ssrRenderAttr("type", show.value ? "text" : "password")} autocomplete="new-password"${ssrRenderDynamicModel(show.value ? "text" : "password", unref(form).password, null)}${ssrRenderAttr("aria-invalid", !!unref(form).errors.password)} required><button type="button" class="ad-iconbtn"${ssrRenderAttr("aria-label", show.value ? "Masquer" : "Afficher")}${ssrRenderAttr("aria-pressed", show.value)}><i class="${ssrRenderClass([show.value ? "bi-eye-slash" : "bi-eye", "bi"])}" aria-hidden="true"></i></button></div><p class="ad-error">${ssrInterpolate(unref(form).errors.password)}</p></div><div class="ad-field"><label for="ivPass2">Confirmer le mot de passe</label><input class="ad-input" id="ivPass2"${ssrRenderAttr("type", show.value ? "text" : "password")} autocomplete="new-password"${ssrRenderDynamicModel(show.value ? "text" : "password", unref(form).password_confirmation, null)} required></div><button class="ad-btn ad-btn--primary w-100" type="submit"${ssrIncludeBooleanAttr(unref(form).processing) ? " disabled" : ""}>Activer mon compte</button></form></div></section>`);
+    };
+  }
+};
+const _sfc_setup$h = _sfc_main$h.setup;
+_sfc_main$h.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Admin/AcceptInvite.vue");
+  return _sfc_setup$h ? _sfc_setup$h(props, ctx) : void 0;
+};
+const __vite_glob_0_0 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: _sfc_main$h
+}, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$g = {
   __name: "Login",
   __ssrInlineRender: true,
@@ -86,7 +111,7 @@ _sfc_main$g.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Admin/Login.vue");
   return _sfc_setup$g ? _sfc_setup$g(props, ctx) : void 0;
 };
-const __vite_glob_0_0 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$g
 }, Symbol.toStringTag, { value: "Module" }));
@@ -293,7 +318,7 @@ _sfc_main$c.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Agendas.vue");
   return _sfc_setup$c ? _sfc_setup$c(props, ctx) : void 0;
 };
-const __vite_glob_0_1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_2 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$c
 }, Symbol.toStringTag, { value: "Module" }));
@@ -437,6 +462,7 @@ const _sfc_main$8 = {
       return items;
     });
     const blocks = computed(() => (a.body || []).map((b) => {
+      if (b.startsWith("<")) return { t: "html", x: b };
       if (b.startsWith("## ")) return { t: "h2", x: b.slice(3) };
       if (b.startsWith("> ")) return { t: "quote", x: b.slice(2) };
       return { t: "p", x: b };
@@ -514,13 +540,21 @@ const _sfc_main$8 = {
         priority: true,
         sizes: "(min-width: 992px) 760px, 100vw"
       }, null, _parent));
-      _push(`</div><figcaption>${ssrInterpolate(unref(fr)(unref(a).img))}. Photo de démonstration.</figcaption></figure><div class="aq-prose" itemprop="articleBody"><!--[-->`);
+      _push(`</div><figcaption>${ssrInterpolate(unref(fr)(unref(a).img))}`);
+      if (!unref(a).src) {
+        _push(`<!--[-->. Photo de démonstration.<!--]-->`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</figcaption></figure><div class="aq-prose" itemprop="articleBody"><!--[-->`);
       ssrRenderList(blocks.value, (b, i) => {
         _push(`<!--[-->`);
         if (b.t === "h2") {
           _push(`<h2>${ssrInterpolate(unref(fr)(b.x))}</h2>`);
         } else if (b.t === "quote") {
           _push(`<blockquote>${ssrInterpolate(unref(fr)(b.x))}</blockquote>`);
+        } else if (b.t === "html") {
+          _push(`<div class="aq-legacy">${b.x ?? ""}</div>`);
         } else {
           _push(`<p>${ssrInterpolate(unref(fr)(b.x))}</p>`);
         }
@@ -713,7 +747,7 @@ _sfc_main$8.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Article.vue");
   return _sfc_setup$8 ? _sfc_setup$8(props, ctx) : void 0;
 };
-const __vite_glob_0_2 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$8
 }, Symbol.toStringTag, { value: "Module" }));
@@ -767,7 +801,7 @@ _sfc_main$7.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Contact.vue");
   return _sfc_setup$7 ? _sfc_setup$7(props, ctx) : void 0;
 };
-const __vite_glob_0_3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_4 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$7
 }, Symbol.toStringTag, { value: "Module" }));
@@ -1456,7 +1490,7 @@ _sfc_main$5.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Home.vue");
   return _sfc_setup$5 ? _sfc_setup$5(props, ctx) : void 0;
 };
-const __vite_glob_0_4 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_5 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$5
 }, Symbol.toStringTag, { value: "Module" }));
@@ -1601,7 +1635,7 @@ _sfc_main$4.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Legal.vue");
   return _sfc_setup$4 ? _sfc_setup$4(props, ctx) : void 0;
 };
-const __vite_glob_0_5 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_6 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$4
 }, Symbol.toStringTag, { value: "Module" }));
@@ -1677,7 +1711,7 @@ _sfc_main$3.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Portraits.vue");
   return _sfc_setup$3 ? _sfc_setup$3(props, ctx) : void 0;
 };
-const __vite_glob_0_6 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_7 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$3
 }, Symbol.toStringTag, { value: "Module" }));
@@ -1841,7 +1875,7 @@ _sfc_main$2.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Recherche.vue");
   return _sfc_setup$2 ? _sfc_setup$2(props, ctx) : void 0;
 };
-const __vite_glob_0_7 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_8 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$2
 }, Symbol.toStringTag, { value: "Module" }));
@@ -1984,7 +2018,7 @@ _sfc_main$1.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Rubrique.vue");
   return _sfc_setup$1 ? _sfc_setup$1(props, ctx) : void 0;
 };
-const __vite_glob_0_8 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_9 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: _sfc_main$1
 }, Symbol.toStringTag, { value: "Module" }));
@@ -2625,7 +2659,7 @@ createServer(
     page,
     render: renderToString,
     resolve: (name) => {
-      const pages = /* @__PURE__ */ Object.assign({ "./Pages/Admin/Login.vue": __vite_glob_0_0, "./Pages/Agendas.vue": __vite_glob_0_1, "./Pages/Article.vue": __vite_glob_0_2, "./Pages/Contact.vue": __vite_glob_0_3, "./Pages/Home.vue": __vite_glob_0_4, "./Pages/Legal.vue": __vite_glob_0_5, "./Pages/Portraits.vue": __vite_glob_0_6, "./Pages/Recherche.vue": __vite_glob_0_7, "./Pages/Rubrique.vue": __vite_glob_0_8 });
+      const pages = /* @__PURE__ */ Object.assign({ "./Pages/Admin/AcceptInvite.vue": __vite_glob_0_0, "./Pages/Admin/Login.vue": __vite_glob_0_1, "./Pages/Agendas.vue": __vite_glob_0_2, "./Pages/Article.vue": __vite_glob_0_3, "./Pages/Contact.vue": __vite_glob_0_4, "./Pages/Home.vue": __vite_glob_0_5, "./Pages/Legal.vue": __vite_glob_0_6, "./Pages/Portraits.vue": __vite_glob_0_7, "./Pages/Recherche.vue": __vite_glob_0_8, "./Pages/Rubrique.vue": __vite_glob_0_9 });
       const p = pages[`./Pages/${name}.vue`];
       if (p.default.layout === void 0) {
         p.default.layout = name === "Admin/Login" ? void 0 : SiteLayout;

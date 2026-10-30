@@ -35,6 +35,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/login', [AuthController::class, 'login'])->name('login');
         Route::post('/login', [AuthController::class, 'authenticate'])
             ->middleware('throttle:5,1')->name('login.post');
+        Route::get('/invitation/{user}', [AuthController::class, 'acceptForm'])
+            ->middleware('signed')->name('invitation.accept');
+        Route::post('/invitation/{user}', [AuthController::class, 'acceptInvite'])
+            ->middleware('signed');
     });
 
     Route::middleware('auth')->group(function () {
