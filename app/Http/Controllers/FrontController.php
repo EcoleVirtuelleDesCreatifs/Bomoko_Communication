@@ -147,6 +147,13 @@ class FrontController extends Controller
         ]));
     }
 
+    public function legacyArticle(string $rubrique, string $slug)
+    {
+        $a = Article::published()->where('slug', $slug)->firstOrFail();
+
+        return redirect()->route('article.show', $a->slug, 301);
+    }
+
     public function article(string $slug)
     {
         $a = Article::published()->with(['rubrique', 'region'])->where('slug', $slug)->firstOrFail();

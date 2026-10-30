@@ -49,3 +49,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/api/state', [AdminStateController::class, 'save'])->name('state.save');
     });
 });
+
+// Ancien format d'URL /{rubrique}/{slug} → redirection permanente vers /article/{slug}
+Route::get('/{rubrique}/{slug}', [FrontController::class, 'legacyArticle'])
+    ->where(['rubrique' => '[a-z0-9-]+', 'slug' => '[a-z0-9-]+'])
+    ->name('article.legacy');
