@@ -38,6 +38,10 @@ class AuthController extends Controller
         $request->session()->regenerate();
         $request->user()->update(['last_login_at' => now()]);
 
+        if ($request->header('X-Inertia')) {
+            return Inertia::location($request->session()->pull('url.intended', route('admin.dashboard')));
+        }
+
         return redirect()->intended(route('admin.dashboard'));
     }
 
