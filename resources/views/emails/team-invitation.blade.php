@@ -12,8 +12,8 @@
 
         <tr><td style="background:#1a1918;padding:28px 32px;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
-            <td style="font-size:22px;font-weight:800;letter-spacing:-.5px;">
-              <span style="color:#de5011;">Afriqu</span><span style="color:#f4f1ec;">infos</span>
+            <td>
+              <img src="{{ asset('assets/img/logo-afriquinfos-negatif.png') }}" alt="Afriquinfos" width="168" style="display:block;height:auto;max-width:168px;border:0;">
             </td>
             <td align="right" style="color:#8f8a83;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;">Administration</td>
           </tr></table>
