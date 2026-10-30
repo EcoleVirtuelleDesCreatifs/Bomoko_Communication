@@ -18,9 +18,13 @@ class FrontController extends Controller
         return Article::published()->with(['rubrique', 'region'])->orderByDesc('published_at');
     }
 
-    private function list($query)
+    private function list($query, int $limit = 60)
     {
-        return $query->get()->map->toPublicArray()->values();
+        return $query->limit($limit)
+            ->get(['id', 'slug', 'rubrique_slug', 'region_slug', 'country', 'title', 'chapo',
+                   'author_name', 'published_at', 'read_time', 'tags', 'ph', 'img',
+                   'image_path', 'icon', 'views', 'is_une', 'status'])
+            ->map->toPublicArray()->values();
     }
 
     private function meta(array $meta = []): array
@@ -148,7 +152,10 @@ class FrontController extends Controller
         $a = Article::published()->with(['rubrique', 'region'])->where('slug', $slug)->firstOrFail();
         $a->increment('views');
         $article = $a->toPublicArray();
-        $sameRub = $this->pub()->where('rubrique_slug', $a->rubrique_slug)->get();
+        $sameRub = $this->pub()->where('rubrique_slug', $a->rubrique_slug)->limit(50)
+            ->get(['id', 'slug', 'rubrique_slug', 'region_slug', 'country', 'title', 'chapo',
+                   'author_name', 'published_at', 'read_time', 'tags', 'ph', 'img',
+                   'image_path', 'icon', 'views', 'is_une', 'status']);
         $idx = $sameRub->search(fn ($x) => $x->id === $a->id);
         $related = $sameRub->reject(fn ($x) => $x->id === $a->id)->take(3)->map->toPublicArray()->values();
         $sameRegion = $a->region_slug
@@ -224,9 +231,17 @@ class FrontController extends Controller
 
     public function recherche(Request $request)
     {
+        $q = trim((string) $request->query('q', ''));
+        $query = $this->pub();
+        if ($q !== '') {
+            $like = '%'.str_replace(['%', '_'], ['\\%', '\\_'], $q).'%';
+            $query->where(fn ($w) => $w->where('title', 'like', $like)
+                ->orWhere('chapo', 'like', $like)->orWhere('country', 'like', $like));
+        }
+
         return Inertia::render('Recherche', [
-            'q' => $request->query('q', ''),
-            'articles' => $this->list($this->pub()),
+            'q' => $q,
+            'articles' => $this->list($query, 200),
         ])->withViewData($this->meta([
             'title' => 'Recherche — Afriquinfos',
             'description' => 'Rechercher une actualité, un pays, un sujet sur Afriquinfos.',

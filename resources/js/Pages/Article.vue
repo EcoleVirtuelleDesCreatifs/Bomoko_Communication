@@ -29,6 +29,7 @@ const crumb = computed(() => {
 });
 
 const blocks = computed(() => (a.body || []).map((b) => {
+    if (b.startsWith('<')) return { t: 'html', x: b };
     if (b.startsWith('## ')) return { t: 'h2', x: b.slice(3) };
     if (b.startsWith('> ')) return { t: 'quote', x: b.slice(2) };
     return { t: 'p', x: b };
@@ -133,12 +134,13 @@ function sendComment() {
       </dl></div>
 
       <figure class="aq-figure"><div class="aq-media aq-media--cut"><AqMedia :a="a" :alt="true" :priority="true" sizes="(min-width: 992px) 760px, 100vw" /></div>
-        <figcaption>{{ fr(a.img) }}. Photo de démonstration.</figcaption></figure>
+        <figcaption>{{ fr(a.img) }}<template v-if="!a.src">. Photo de démonstration.</template></figcaption></figure>
 
       <div class="aq-prose" itemprop="articleBody" ref="prose">
         <template v-for="(b, i) in blocks" :key="i">
           <h2 v-if="b.t === 'h2'">{{ fr(b.x) }}</h2>
           <blockquote v-else-if="b.t === 'quote'">{{ fr(b.x) }}</blockquote>
+          <div v-else-if="b.t === 'html'" class="aq-legacy" v-html="b.x"></div>
           <p v-else>{{ fr(b.x) }}</p>
         </template>
       </div>

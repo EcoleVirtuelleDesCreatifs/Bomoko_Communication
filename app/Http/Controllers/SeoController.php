@@ -76,7 +76,8 @@ class SeoController extends Controller
         foreach (\App\Models\Region::all() as $r) {
             $urls[] = ['loc' => url('/afriques/'.$r->slug), 'priority' => '0.7', 'freq' => 'hourly'];
         }
-        foreach (Article::published()->orderByDesc('published_at')->get() as $a) {
+        foreach (Article::published()->orderByDesc('published_at')->limit(5000)
+                     ->get(['slug', 'image_path', 'updated_at']) as $a) {
             $urls[] = ['loc' => route('article.show', $a->slug), 'lastmod' => $a->updated_at->toW3cString(), 'priority' => '0.9', 'freq' => 'daily', 'img' => $a->image_path ? asset('storage/'.$a->image_path) : null];
         }
 
