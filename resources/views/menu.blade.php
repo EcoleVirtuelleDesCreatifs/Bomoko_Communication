@@ -86,15 +86,11 @@
         </div>
     </section>
 
-    <nav class="menu-nav menu-nav-switch" aria-label="Nos cartes">
+    <nav class="menu-nav menu-nav-switch" aria-label="La carte">
         <ul>
-            @foreach ($menuLinks as $key => $link)
-                <li>
-                    <a href="{{ $link['route'] }}" @if ($key === $menuKey) aria-current="page" class="is-active" @endif>
-                        {{ $link['label'] }}@if ($link['note'])<small>{{ $link['note'] }}</small>@endif
-                    </a>
-                </li>
-            @endforeach
+            <li>
+                <a href="{{ url('/menu/') }}">La carte digitale<small>Commander à table</small></a>
+            </li>
         </ul>
     </nav>
 

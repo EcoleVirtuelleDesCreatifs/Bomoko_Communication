@@ -71,12 +71,6 @@ class MenuController extends Controller
             'categories' => MenuItem::categoriesForMenu($menu),
             'page' => self::pages()[$menu],
             'menuKey' => $menu,
-            'menuLinks' => [
-                MenuItem::MENU_CARTE => ['label' => 'La carte bistronomique', 'note' => null, 'route' => route('menu')],
-                MenuItem::MENU_TAPAS => ['label' => 'La carte à tapas', 'note' => 'En terrasse uniquement', 'route' => route('menu.tapas')],
-                MenuItem::MENU_BOISSONS => ['label' => 'La carte des boissons', 'note' => null, 'route' => route('menu.drinks')],
-                MenuItem::MENU_CIGARES => ['label' => 'La cave à cigares', 'note' => null, 'route' => route('menu.cigares')],
-            ],
         ]);
     }
 }

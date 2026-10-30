@@ -9,17 +9,16 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LegalController;
-use App\Http\Controllers\MenuController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
-Route::get('/carte', MenuController::class)->name('menu');
-Route::get('/tapas', MenuController::class)->defaults('menu', 'tapas')->name('menu.tapas');
-Route::get('/carte-des-vins', MenuController::class)->defaults('menu', 'boissons')->name('menu.drinks');
-Route::get('/cave-a-cigares', MenuController::class)->defaults('menu', 'cigares')->name('menu.cigares');
+Route::redirect('/carte', '/menu/')->name('menu');
+Route::redirect('/tapas', '/menu/')->name('menu.tapas');
+Route::redirect('/carte-des-vins', '/menu/')->name('menu.drinks');
+Route::redirect('/cave-a-cigares', '/menu/')->name('menu.cigares');
 Route::redirect('/galerie', '/#galerie')->name('gallery');
 
 Route::get('/evenements', [EventController::class, 'index'])->name('events.index');
