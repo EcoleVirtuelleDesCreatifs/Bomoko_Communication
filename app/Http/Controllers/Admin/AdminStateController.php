@@ -33,6 +33,17 @@ class AdminStateController extends Controller
         return response()->json($this->state());
     }
 
+    public function article(string $slug)
+    {
+        $a = Article::where('slug', $slug)->firstOrFail();
+
+        return response()->json([
+            'body' => $a->body ?? [],
+            'person' => $a->person,
+            'image_path' => $a->image_path,
+        ]);
+    }
+
     private function state(): array
     {
         $blob = DB::table('admin_data')->pluck('value', 'key')
@@ -55,7 +66,12 @@ class AdminStateController extends Controller
             'regions' => Region::all()->map(fn ($r) => [
                 'id' => $r->slug, 'label' => $r->label, 'order' => $r->sort,
             ])->values()->all(),
-            'articles' => Article::all()->map(fn ($a) => array_filter([
+            'articles' => Article::orderByDesc('published_at')->limit(1500)
+                ->get(['id', 'slug', 'rubrique_slug', 'region_slug', 'country', 'ph', 'img',
+                       'image_path', 'views', 'title', 'chapo', 'author_name', 'published_at',
+                       'updated_at', 'read_time', 'tags', 'status', 'meta_desc', 'is_une',
+                       'person', 'icon', 'media_id'])
+                ->map(fn ($a) => array_filter([
                 'id' => $a->slug,
                 'slug' => $a->slug,
                 'rub' => $a->rubrique_slug,
@@ -71,7 +87,6 @@ class AdminStateController extends Controller
                 'updated' => optional($a->updated_at)->toIso8601String(),
                 'read' => $a->read_time,
                 'tags' => $a->tags ?? [],
-                'body' => $a->body ?? [],
                 'status' => $a->status,
                 'meta' => $a->meta_desc,
                 'une' => (bool) $a->is_une,
@@ -251,24 +266,27 @@ class AdminStateController extends Controller
                 'published_at' => $a['date'] ?? null,
                 'read_time' => $a['read'] ?? 4,
                 'tags' => $a['tags'] ?? [],
-                'body' => $a['body'] ?? [],
                 'ph' => $a['ph'] ?? 'ink',
-                'img' => $media ? ($media['img'] ?? $media['name'] ?? null) : ($a['img'] ?? null),
-                'image_path' => $media['path'] ?? null,
+                'img' => $media ? ($media['img'] ?? $media['name'] ?? null) : ($a['img'] ?? $article->img),
                 'icon' => $a['icon'] ?? null,
                 'person' => $a['person'] ?? null,
-                'media_id' => $a['mediaId'] ?? null,
+                'media_id' => $a['mediaId'] ?? $article->media_id,
                 'views' => $a['views'] ?? 0,
                 'is_une' => ! empty($a['une']),
                 'status' => $a['status'] ?? 'brouillon',
                 'meta_desc' => $a['meta'] ?? null,
             ]);
+            if (array_key_exists('body', $a)) {
+                $article->body = $a['body'];
+            }
+            if ($media) {
+                $article->image_path = $media['path'] ?? null;
+            }
             if (! empty($a['updated'])) {
                 $article->updated_at = $a['updated'];
             }
             $article->save();
         }
-        Article::whereNotIn('slug', $ids)->delete();
     }
 
     private function resolveMedias(array $medias): array
@@ -366,7 +384,8 @@ class AdminStateController extends Controller
                 $kept[] = (int) $mm[1];
             }
         }
-        \App\Models\ContactMessage::whereNotIn('id', $kept ?: [0])->delete();
+        $window = \App\Models\ContactMessage::latest()->limit(200)->pluck('id');
+        \App\Models\ContactMessage::whereIn('id', $window)->whereNotIn('id', $kept ?: [0])->delete();
     }
 
     private function syncDebates(array $items): void

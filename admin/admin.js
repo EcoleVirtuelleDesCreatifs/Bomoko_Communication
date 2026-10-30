@@ -667,6 +667,14 @@
   VIEWS.editeur = function (v) {
     var isNew = !editing || !art(editing);
     var src = isNew ? null : art(editing);
+    if (src && src.body === undefined) {
+      v.innerHTML = '<div class="ad-panel"><div class="ad-panel__body">Chargement de l\u2019article\u2026</div></div>';
+      fetch((window.AQ_API || '').replace(/\/state$/, '/article/') + encodeURIComponent(src.slug || src.id), { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { src.body = d.body || []; if (d.person) src.person = d.person; src.image_path = d.image_path; render(); })
+        .catch(function () { src.body = []; render(); });
+      return;
+    }
     var a = src ? clone(src) : { id: '', rub: editorPreset || 'politique', region: '', country: '', ph: PH[Math.floor(Math.random() * PH.length)], img: '', caption: '', views: 0, title: '', chapo: '', author: ME.name, date: new Date().toISOString(), updated: new Date().toISOString(), read: 1, tags: [], body: [], status: 'brouillon', meta: '', slug: '', une: false };
     if (editorPreset === 'portraits' && isNew) a.person = { name: '', initials: '', role: '', city: '', field: '', since: new Date().getFullYear() };
     editorPreset = null; dirty = false;
