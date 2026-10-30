@@ -45,13 +45,13 @@ class MenuController extends Controller
             ],
             MenuItem::MENU_CIGARES => [
                 'title' => 'La cave à cigares — Le Cercle',
-                'surtitle' => 'La Cave à Cigares',
+                'surtitle' => 'Carte des Cigares',
                 'h1' => 'La cave à cigares.',
                 'subtitle' => 'Notre sélection — l’art de prendre le temps.',
                 'meta' => 'La cave à cigares du restaurant Le Cercle : une sélection de cigares du Nicaragua, du Honduras, de Cuba, de la République dominicaine et d’ailleurs.',
                 'image' => 'cercle/cave.jpg',
                 'route' => 'menu.cigares',
-                'note' => 'Prix par cigare, tarifs indiqués à l’unité, en FCFA. L’art de prendre le temps.',
+                'note' => 'Prix en francs CFA, par cigare · tarifs à l’unité. L’art de prendre le temps.',
             ],
         ];
     }
