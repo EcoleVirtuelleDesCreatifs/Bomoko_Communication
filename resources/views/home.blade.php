@@ -88,6 +88,7 @@
             <div class="hero-cta reveal">
                 <a href="{{ $reservationUrl }}" class="btn btn-gold">Réserver une table</a>
                 <a href="#la-carte" class="btn btn-ghost">Voir la carte</a>
+                <a href="{{ url('/menu/') }}" class="btn btn-ghost">La carte digitale</a>
             </div>
         </div>
         <a href="#la-carte" class="scroll-hint" aria-label="Faire défiler">

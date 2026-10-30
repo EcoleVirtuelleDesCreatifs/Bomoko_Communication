@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Le Cercle Abidjan — La Carte</title>
+<meta name="description" content="Carte digitale du restaurant bistronomique Le Cercle, Abidjan.">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14120f" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Le Cercle">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<!--BUILD:HEAD-->
+<link rel="stylesheet" href="vendor/bootstrap.min.css">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+<!--/BUILD:HEAD-->
+</head>
+<body>
+<!--BUILD:BODY-->
+<header class="wrap brand">
+  <div class="logo" aria-hidden="true"><span class="logo-dot"></span><span class="logo-word"><small>le</small>Cercle</span></div>
+  <div class="brand-txt">
+    <h1 class="brand-name" id="brandName">Le Cercle</h1>
+    <p class="brand-sub">Bistronomique · Abidjan · <span class="net" id="net">En ligne</span></p>
+  </div>
+  <button type="button" class="icon-btn" id="themeBtn" aria-label="Thème clair ou sombre">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+  </button>
+</header>
+
+<nav class="sticky-nav" aria-label="Navigation de la carte">
+  <div class="wrap">
+    <div class="nav-row">
+      <div class="universes" id="universes" role="tablist" aria-label="Univers"></div>
+      <button type="button" class="icon-btn" data-bs-toggle="offcanvas" data-bs-target="#searchSheet" aria-label="Rechercher">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      </button>
+    </div>
+    <div class="chips" id="chips" aria-label="Rubriques"></div>
+  </div>
+</nav>
+
+<main id="content" class="wrap"><p class="empty">Chargement de la carte…</p></main>
+
+<footer class="foot wrap">
+  <strong>Le Cercle Abidjan</strong>
+  Prix en francs CFA. Signalez toute allergie à votre serveur.
+</footer>
+
+<!-- Barre commande -->
+<div class="cart-bar" id="cartBar" hidden>
+  <button type="button" id="cartOpen" aria-label="Voir le récapitulatif de ma commande">
+    <span class="cart-count" id="cartCount">0</span><span id="cartLabel">Voir ma commande</span><span class="cart-total" id="cartTotal"></span>
+  </button>
+</div>
+<div class="toast-mini" id="toast" role="status" aria-live="polite"></div>
+
+<!-- Récapitulatif / validation -->
+<div class="offcanvas offcanvas-bottom d-flex flex-column" tabindex="-1" id="orderSheet" aria-labelledby="orderTitle">
+  <span class="grabber" aria-hidden="true"></span>
+  <div class="sheet-head">
+    <h2 id="orderTitle">Récapitulatif</h2>
+    <button type="button" class="close-x" data-bs-dismiss="offcanvas" aria-label="Fermer">✕</button>
+  </div>
+  <div class="offcanvas-body flex-grow-1 overflow-auto" id="orderBody"></div>
+  <div class="sheet-foot" id="orderFoot"></div>
+</div>
+
+<!-- Recherche -->
+<div class="offcanvas offcanvas-top" tabindex="-1" id="searchSheet" aria-label="Recherche">
+  <div class="sheet-head">
+    <label class="search-box" for="q">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Plat, vin, cocktail…" autocomplete="off" enterkeyhint="search">
+    </label>
+    <button type="button" class="close-x" data-bs-dismiss="offcanvas" aria-label="Fermer la recherche">✕</button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="filters" id="searchFilters">
+      <button type="button" class="chip" data-f="veg" aria-pressed="false">Végétarien</button>
+      <button type="button" class="chip" data-f="sig" aria-pressed="false">Signature</button>
+      <button type="button" class="chip" data-f="verre" aria-pressed="false">Au verre</button>
+    </div>
+    <div id="results"></div>
+  </div>
+</div>
+<!--/BUILD:BODY-->
+
+<!--BUILD:SCRIPTS-->
+<script src="vendor/bootstrap.bundle.min.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script>
+  /* Hors connexion : met la carte en cache après la première visite */
+  if ("serviceWorker" in navigator && location.protocol === "https:") {
+    window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+  }
+</script>
+<!--/BUILD:SCRIPTS-->
+</body>
+</html>

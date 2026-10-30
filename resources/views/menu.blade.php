@@ -80,6 +80,9 @@
             <p class="surtitle reveal">{{ $page['surtitle'] }}</p>
             <h1 class="hero-title reveal">{{ $page['h1'] }}</h1>
             <p class="hero-sub reveal">{{ $page['subtitle'] }}</p>
+            <div class="hero-cta reveal">
+                <a href="{{ url('/menu/') }}" class="btn btn-gold">La carte digitale — commander à table</a>
+            </div>
         </div>
     </section>
 

@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Le Cercle — Admin</title>
+<!--BUILD:HEAD-->
+<link rel="stylesheet" href="../vendor/bootstrap.min.css">
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="admin.css">
+<!--/BUILD:HEAD-->
+<style>body{margin:0}</style>
+</head>
+<body>
+<!--BUILD:BODY-->
+<div class="adm" id="adm">
+  <!-- Connexion -->
+  <section class="a-login wrap-a" id="aLogin" hidden>
+    <form id="loginForm" novalidate>
+      <div class="a-mark" aria-hidden="true">C</div>
+      <h1>Espace admin</h1>
+      <p>Le Cercle Abidjan</p>
+      <div class="a-f text-start"><label for="loginPw">Mot de passe</label>
+        <input id="loginPw" type="password" autocomplete="current-password" required></div>
+      <button type="submit" class="a-primary w-100" style="min-height:46px">Se connecter</button>
+      <p class="a-msg err" id="loginErr" hidden></p>
+    </form>
+  </section>
+
+  <!-- Application -->
+  <div id="aApp" hidden>
+    <header class="a-top">
+      <div class="wrap-a">
+        <div class="a-top-row">
+          <div class="a-brand"><div class="a-mark" aria-hidden="true">C</div><div><b id="aName">Le Cercle</b><small>Espace admin</small></div></div>
+          <label class="a-open form-switch" for="openSw"><input class="form-check-input" type="checkbox" role="switch" id="openSw"> <span id="openLbl">Commandes ouvertes</span></label>
+          <button type="button" class="a-ghost" id="themeA" aria-label="Thème clair ou sombre" style="padding:8px 10px;line-height:0"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+          <button type="button" class="a-ghost" id="logoutBtn">Déconnexion</button>
+        </div>
+        <nav class="a-tabs" role="tablist" aria-label="Sections">
+          <button type="button" class="a-tab" role="tab" data-tab="orders" aria-selected="true">Commandes <span class="a-badge" id="newBadge" hidden>0</span></button>
+          <button type="button" class="a-tab" role="tab" data-tab="menu" aria-selected="false">Carte</button>
+          <button type="button" class="a-tab" role="tab" data-tab="settings" aria-selected="false">Réglages</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="a-main wrap-a">
+      <div class="a-warn" id="pwWarn" hidden>Vous utilisez encore le mot de passe d’origine. <button type="button" id="goPw">Le changer maintenant</button></div>
+
+      <!-- Commandes -->
+      <section id="tab-orders">
+        <div class="a-stats" id="stats"></div>
+        <div class="a-h">
+          <h2>Commandes</h2>
+          <div class="d-flex gap-2 flex-wrap align-items-center">
+            <div class="a-seg" id="scopeSeg">
+              <button type="button" data-scope="active" aria-pressed="true">En cours</button>
+              <button type="button" data-scope="today" aria-pressed="false">Aujourd’hui</button>
+              <button type="button" data-scope="all" aria-pressed="false">Historique</button>
+            </div>
+            <button type="button" class="a-ghost" id="soundBtn" aria-pressed="false">🔔 Activer le son</button>
+          </div>
+        </div>
+        <div class="a-orders" id="orders"></div>
+      </section>
+
+      <!-- Carte -->
+      <section id="tab-menu" hidden>
+        <div class="a-h">
+          <h2>Carte</h2>
+          <span class="a-save" id="saveState">À jour</span>
+        </div>
+        <div class="a-unis" id="unis"></div>
+        <div id="groups"></div>
+      </section>
+
+      <!-- Réglages -->
+      <section id="tab-settings" hidden>
+        <div class="a-h"><h2>Réglages</h2></div>
+        <div class="a-panels">
+          <form class="a-panel no-print" id="setForm">
+            <h3>Restaurant</h3><p>Affiché sur la carte des clients.</p>
+            <div class="a-f"><label for="sNom">Nom</label><input id="sNom" maxlength="80"></div>
+            <div class="a-row">
+              <div class="a-f"><label for="sDev">Devise</label><input id="sDev" maxlength="12"></div>
+              <div class="a-f"><label for="sWa">WhatsApp (facultatif)</label><input id="sWa" inputmode="tel" placeholder="2250700000000"></div>
+            </div>
+            <div class="a-f"><label class="a-switch form-switch" for="sOpen"><input class="form-check-input" type="checkbox" role="switch" id="sOpen"> Accepter les commandes depuis les téléphones</label></div>
+            <button type="submit" class="a-primary">Enregistrer</button>
+            <p class="a-msg" id="setMsg" hidden></p>
+          </form>
+
+          <form class="a-panel no-print" id="pwForm">
+            <h3>Mot de passe admin</h3><p>Au moins 8 caractères.</p>
+            <div class="a-f"><label for="pwCur">Mot de passe actuel</label><input id="pwCur" type="password" autocomplete="current-password"></div>
+            <div class="a-f"><label for="pwNew">Nouveau mot de passe</label><input id="pwNew" type="password" autocomplete="new-password"></div>
+            <div class="a-f"><label for="pwNew2">Confirmer</label><input id="pwNew2" type="password" autocomplete="new-password"></div>
+            <button type="submit" class="a-primary">Changer le mot de passe</button>
+            <p class="a-msg" id="pwMsg" hidden></p>
+          </form>
+
+          <div class="a-panel" id="qrPanel" style="grid-column: 1 / -1">
+            <h3>QR codes des tables</h3>
+            <p class="no-print">Chaque QR ouvre la carte avec le numéro de table déjà rempli.</p>
+            <div class="a-row no-print">
+              <div class="a-f" style="flex:3"><label for="qrBase">Adresse de la carte</label><input id="qrBase"></div>
+              <div class="a-f"><label for="qrFrom">De la table</label><input id="qrFrom" type="number" min="1" value="1"></div>
+              <div class="a-f"><label for="qrTo">À la table</label><input id="qrTo" type="number" min="1" value="12"></div>
+            </div>
+            <div class="d-flex gap-2 no-print">
+              <button type="button" class="a-gold" id="qrGen">Générer les QR codes</button>
+              <button type="button" class="a-ghost" id="qrPrint" hidden>Imprimer</button>
+            </div>
+            <div class="qr-grid" id="qrGrid"></div>
+          </div>
+
+          <div class="a-panel no-print" id="dataPanel">
+            <h3>Sauvegarde de la carte</h3><p>Téléchargez une copie de la carte, ou restaurez une copie.</p>
+            <div class="d-flex gap-2 flex-wrap">
+              <button type="button" class="a-ghost" id="expBtn">Exporter (.json)</button>
+              <label class="a-ghost mb-0" for="impFile" style="cursor:pointer">Importer…</label>
+              <input type="file" id="impFile" accept="application/json,.json" hidden>
+            </div>
+            <p class="a-msg" id="dataMsg" hidden></p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modale article -->
+  <div class="modal fade adm-modal" id="itemModal" tabindex="-1" aria-labelledby="itemTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+      <form class="modal-content" id="itemForm" novalidate>
+        <div class="modal-header"><h5 class="modal-title" id="itemTitle">Article</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button></div>
+        <div class="modal-body">
+          <div class="a-f"><label for="iName">Nom</label><input id="iName" maxlength="120" required></div>
+          <div class="a-f"><label for="iDesc">Description</label><textarea id="iDesc" rows="3" maxlength="400"></textarea></div>
+          <div class="a-f"><label>Prix</label>
+            <div id="iOpts"></div>
+            <button type="button" class="a-add" id="iAddOpt" style="margin-top:0">+ Ajouter un prix (ex. Verre / Bouteille)</button>
+            <div class="hint">Libellé facultatif s’il n’y a qu’un seul prix.</div></div>
+          <div class="a-f"><label for="iCat">Catégorie</label><select id="iCat"></select></div>
+          <div class="a-f"><label>Étiquettes</label>
+            <div class="chk"><label><input type="checkbox" id="iVeg"> Végétarien</label><label><input type="checkbox" id="iSig"> Signature</label><label><input type="checkbox" id="iVerre"> Servi au verre</label></div></div>
+          <div class="a-f"><label class="a-switch form-switch" for="iAvail"><input class="form-check-input" type="checkbox" role="switch" id="iAvail"> Disponible</label></div>
+          <p class="a-msg err" id="iErr" hidden></p>
+        </div>
+        <div class="modal-footer"><button type="button" class="a-ghost" data-bs-dismiss="modal">Annuler</button><button type="submit" class="a-primary">Enregistrer</button></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modale texte (rubrique, catégorie, univers) -->
+  <div class="modal fade adm-modal" id="textModal" tabindex="-1" aria-labelledby="textTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <form class="modal-content" id="textForm" novalidate>
+        <div class="modal-header"><h5 class="modal-title" id="textTitle">Modifier</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button></div>
+        <div class="modal-body">
+          <div class="a-f"><label for="tA" id="tALbl">Titre</label><input id="tA" maxlength="80" required></div>
+          <div class="a-f" id="tBWrap"><label for="tB" id="tBLbl">Sous-titre</label><input id="tB" maxlength="160"></div>
+          <p class="a-msg err" id="tErr" hidden></p>
+        </div>
+        <div class="modal-footer"><button type="button" class="a-ghost" data-bs-dismiss="modal">Annuler</button><button type="submit" class="a-primary">Enregistrer</button></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirmation -->
+  <div class="modal fade adm-modal" id="confirmModal" tabindex="-1" aria-labelledby="cfTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-body"><h5 class="modal-title mb-2" id="cfTitle">Confirmer</h5><p class="mb-0" id="cfText"></p></div>
+        <div class="modal-footer"><button type="button" class="a-ghost" data-bs-dismiss="modal">Annuler</button><button type="button" class="a-danger armed" id="cfOk">Supprimer</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="a-toast" id="aToast" role="status" aria-live="polite"></div>
+</div>
+<!--/BUILD:BODY-->
+
+<!--BUILD:SCRIPTS-->
+<script>window.CERCLE_API_BASE = "../api/index.php";</script>
+<script src="../vendor/bootstrap.bundle.min.js"></script>
+<script src="../vendor/qrcode.js"></script>
+<script src="../js/api.js"></script>
+<script src="admin.js"></script>
+<!--/BUILD:SCRIPTS-->
+</body>
+</html>

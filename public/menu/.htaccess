@@ -1,0 +1,7 @@
+# Le Cercle
+Options -Indexes
+<IfModule mod_headers.c>
+  <FilesMatch "sw\.js$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>

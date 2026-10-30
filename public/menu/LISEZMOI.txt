@@ -1,0 +1,45 @@
+LE CERCLE ABIDJAN — CARTE DIGITALE + ESPACE ADMIN
+=================================================
+
+CONTENU
+  index.html        Carte des clients (téléphone)
+  admin/            Espace admin : commandes, carte, réglages
+  api/index.php     Serveur (PHP 8 + SQLite)
+  api/config.php    Mot de passe initial, fuseau horaire
+  data/             Base de données (créée automatiquement) + carte de départ
+  js/api-demo.js    Utilisé uniquement pour l'aperçu de démonstration (peut être supprimé)
+
+1. MISE EN LIGNE
+   - Hébergement avec PHP 8 et SQLite (cPanel, OVH, Hostinger, o2switch... : c'est
+     activé par défaut presque partout). Aucune base MySQL à créer.
+   - Envoyer tout le dossier par FTP, par ex. dans /menu.
+   - Le dossier data/ doit être accessible en écriture par PHP (droits 775).
+   - HTTPS obligatoire (nécessaire au fonctionnement hors connexion).
+
+2. PREMIÈRE CONNEXION ADMIN
+   - Ouvrir https://votre-site.com/menu/admin/
+   - Mot de passe initial : cercle2026  (modifiable dans api/config.php)
+   - Le changer tout de suite dans Admin > Réglages.
+
+3. QR CODES
+   - Admin > Réglages > QR codes des tables : générer puis imprimer.
+   - Chaque QR ouvre la carte avec le numéro de table pré-rempli (?table=12).
+
+4. AU QUOTIDIEN
+   - Commandes : les nouvelles commandes arrivent toutes seules (son en option).
+     Nouvelle -> En préparation -> Servie -> Payée (ou Annulée).
+   - Carte : modifier prix, textes, ajouter/supprimer, réordonner, marquer
+     « épuisé ». Chaque modification est publiée automatiquement.
+   - Bouton « Commandes ouvertes » : fermer les commandes par téléphone
+     (la carte reste consultable).
+
+5. HORS CONNEXION
+   - La carte reste consultable sans réseau après la 1re ouverture.
+   - Une commande passée sans réseau est gardée sur le téléphone et envoyée
+     automatiquement dès le retour de la connexion.
+   - Après une mise à jour des fichiers du site (pas de la carte), augmenter
+     VERSION dans sw.js.
+
+6. SAUVEGARDE
+   - Admin > Réglages > Exporter la carte (.json).
+   - Copier régulièrement data/cercle.sqlite (contient aussi les commandes).
