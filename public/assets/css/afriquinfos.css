@@ -467,6 +467,7 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 .aq-prose blockquote { margin: 1.75em 0; padding-left: 1.5rem; border-left: 3px solid var(--orange); font-style: italic; font-size: 1.35em; line-height: 1.38; }
 .aq-prose blockquote::before { content: "« "; }
 .aq-prose blockquote::after { content: " »"; }
+.aq-legacy * { font-family: inherit !important; }
 .aq-legacy p { margin: 0 0 1.35em; }
 .aq-legacy h2 { font-family: var(--display); font-weight: 700; font-size: 1.45rem; letter-spacing: -.01em; margin: 2em 0 .6em; }
 .aq-legacy a { color: var(--orange); text-decoration: underline; text-underline-offset: 2px; }
