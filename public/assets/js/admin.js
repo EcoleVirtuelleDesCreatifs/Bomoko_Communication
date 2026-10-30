@@ -188,7 +188,7 @@
     return '<div class="ad-ph ad-ph--' + esc(name || 'ink') + '">' + (ini ? '<span class="ad-ph__ini">' + esc(ini) + '</span>' : '') + '</div>';
   }
   function mediaById(id) { return S.medias.filter(function (m) { return m.id === id; })[0]; }
-  function coverOf(a) { var m = a.mediaId && mediaById(a.mediaId); return m ? ph(m.ph, m.data) : ph(a.ph, null, a.person && a.person.initials); }
+  function coverOf(a) { var m = a.mediaId && mediaById(a.mediaId); return m ? ph(m.ph, m.data) : ph(a.ph, a.src || null, a.person && a.person.initials); }
 
   /* ===================== Composants ===================== */
   var toastTimer;

@@ -79,6 +79,7 @@ class AdminStateController extends Controller
                 'country' => $a->country,
                 'ph' => $a->ph,
                 'img' => $a->img,
+                'src' => $a->image_path ? asset('storage/'.$a->image_path) : null,
                 'views' => $a->views,
                 'title' => $a->title,
                 'chapo' => $a->chapo,
