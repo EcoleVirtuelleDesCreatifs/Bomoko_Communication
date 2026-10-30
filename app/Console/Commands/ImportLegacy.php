@@ -8,7 +8,15 @@ use Illuminate\Support\Facades\Schema;
 
 class ImportLegacy extends Command
 {
-    protected $signature = 'app:import-legacy {--db=afriquinfos_old : Base contenant l\'ancien schéma} {--truncate : Vider les nouvelles tables avant import}';
+    protected $signature = 'app:import-legacy {--db=afriquinfos_old : Base contenant l\'ancien schéma} {--suffix= : Suffixe des anciennes tables (ex. _old pour articles_old)} {--truncate : Vider les nouvelles tables avant import}';
+
+    private $old;
+
+    private function t(string $name): string
+    {
+        $suffixed = $name . $this->option('suffix');
+        return $this->option('suffix') && Schema::connection('legacy')->hasTable($suffixed) ? $suffixed : $name;
+    }
 
     protected $description = 'Importe les articles, rubriques, régions, événements et abonnés de l\'ancienne base vers le nouveau schéma';
 
@@ -26,7 +34,7 @@ class ImportLegacy extends Command
     {
         $db = $this->option('db');
         config(['database.connections.legacy' => array_merge(config('database.connections.mysql'), ['database' => $db])]);
-        $old = DB::connection('legacy');
+        $this->old = $old = DB::connection('legacy');
 
         try {
             $old->select('SELECT 1');
@@ -36,26 +44,31 @@ class ImportLegacy extends Command
         }
 
         if ($this->option('truncate')) {
+            Schema::disableForeignKeyConstraints();
             foreach (['comments', 'articles', 'events', 'subscribers'] as $t) {
                 DB::table($t)->truncate();
             }
+            Schema::enableForeignKeyConstraints();
             $this->warn('Tables articles/events/subscribers vidées.');
         }
 
         // 1. Rubriques depuis categories
-        $cats = $old->table('categories')->get();
-        $rubRows = $cats->map(fn ($c) => [
-            'slug' => $c->slug, 'label' => $c->name, 'tagline' => $c->description,
-            'in_menu' => (bool) $c->show_in_menu, 'sort' => $c->position,
+        $cats = $old->table($this->t('categories'))->get();
+        $rubRows = $cats->map(fn($c) => [
+            'slug' => $c->slug,
+            'label' => $c->name,
+            'tagline' => $c->description,
+            'in_menu' => (bool) $c->show_in_menu,
+            'sort' => $c->position,
         ])->all();
         DB::table('rubriques')->insertOrIgnore($rubRows);
-        $this->info('Rubriques : '.count($rubRows).' traitées.');
+        $this->info('Rubriques : ' . count($rubRows) . ' traitées.');
 
         // 2. Régions
-        $regs = $old->table('regions')->get();
-        $regRows = $regs->map(fn ($r) => ['slug' => $r->slug, 'label' => $r->name, 'sort' => $r->position])->all();
+        $regs = $old->table($this->t('regions'))->get();
+        $regRows = $regs->map(fn($r) => ['slug' => $r->slug, 'label' => $r->name, 'sort' => $r->position])->all();
         DB::table('regions')->insertOrIgnore($regRows);
-        $this->info('Régions : '.count($regRows).' traitées.');
+        $this->info('Régions : ' . count($regRows) . ' traitées.');
 
         // 3. Tables de correspondance
         $catSlug = $cats->pluck('slug', 'id');
@@ -64,39 +77,56 @@ class ImportLegacy extends Command
         $validReg = DB::table('regions')->pluck('slug')->flip();
         $fallbackRub = DB::table('rubriques')->orderBy('sort')->value('slug');
 
-        $media = $old->table('media')->get(['id', 'disk', 'path', 'alt', 'caption', 'title'])->keyBy('id');
-        $authors = Schema::connection('legacy')->hasTable('users')
-            ? $old->table('users')->pluck('name', 'id')
+        $media = $old->table($this->t('media'))->get(['id', 'disk', 'path', 'alt', 'caption', 'title'])->keyBy('id');
+        $authors = Schema::connection('legacy')->hasTable($this->t('users'))
+            ? $old->table($this->t('users'))->pluck('name', 'id')
             : collect();
 
         $tagMap = [];
-        if (Schema::connection('legacy')->hasTable('article_tag') && Schema::connection('legacy')->hasTable('tags')) {
-            foreach ($old->table('article_tag')->join('tags', 'tags.id', '=', 'article_tag.tag_id')->get(['article_tag.article_id', 'tags.name']) as $row) {
+        if (Schema::connection('legacy')->hasTable($this->t('article_tag')) && Schema::connection('legacy')->hasTable($this->t('tags'))) {
+            foreach ($old->table($this->t('article_tag'))->join($this->t('tags') . ' as t', 't.id', '=', $this->t('article_tag') . '.tag_id')->get(['article_id', 't.name']) as $row) {
                 $tagMap[$row->article_id][] = $row->name;
             }
         }
 
         $countryMap = [];
-        if (Schema::connection('legacy')->hasTable('article_country') && Schema::connection('legacy')->hasTable('countries')) {
-            foreach ($old->table('article_country')->join('countries', 'countries.id', '=', 'article_country.country_id')->get(['article_country.article_id', 'countries.name']) as $row) {
+        if (Schema::connection('legacy')->hasTable($this->t('article_country')) && Schema::connection('legacy')->hasTable($this->t('countries'))) {
+            foreach ($old->table($this->t('article_country'))->join($this->t('countries') . ' as c', 'c.id', '=', $this->t('article_country') . '.country_id')->get(['article_id', 'c.name']) as $row) {
                 $countryMap[$row->article_id] ??= $row->name;
             }
         }
 
         // 4. Articles
         $existingSlugs = DB::table('articles')->pluck('slug')->flip();
-        $imported = 0; $skipped = 0;
-        $old->table('articles')->orderBy('id')->chunk(500, function ($rows) use (
-            &$imported, &$skipped, $existingSlugs, $catSlug, $regSlug, $validRub, $validReg,
-            $fallbackRub, $media, $authors, $tagMap, $countryMap
+        $imported = 0;
+        $skipped = 0;
+        $old->table($this->t('articles'))->orderBy('id')->chunk(500, function ($rows) use (
+            &$imported,
+            &$skipped,
+            $existingSlugs,
+            $catSlug,
+            $regSlug,
+            $validRub,
+            $validReg,
+            $fallbackRub,
+            $media,
+            $authors,
+            $tagMap,
+            $countryMap
         ) {
             $batch = [];
             foreach ($rows as $a) {
-                if ($a->deleted_at) { $skipped++; continue; }
+                if ($a->deleted_at) {
+                    $skipped++;
+                    continue;
+                }
                 $slug = mb_substr($a->slug, 0, 250);
                 if ($existingSlugs->has($slug)) {
-                    $slug .= '-'.$a->id;
-                    if ($existingSlugs->has($slug)) { $skipped++; continue; }
+                    $slug .= '-' . $a->id;
+                    if ($existingSlugs->has($slug)) {
+                        $skipped++;
+                        continue;
+                    }
                 }
                 $existingSlugs->put($slug, true);
 
@@ -106,11 +136,11 @@ class ImportLegacy extends Command
                 if ($region && ! $validReg->has($region)) $region = null;
 
                 $m = $a->featured_media_id ? $media->get($a->featured_media_id) : null;
-                $imagePath = $m ? ($m->disk === 'legacy' ? 'legacy/'.$m->path : $m->path) : null;
+                $imagePath = $m ? ($m->disk === 'legacy' ? 'legacy/' . $m->path : $m->path) : null;
                 $alt = $a->image_caption ?: ($m?->alt ?? $m?->title);
 
                 $body = trim((string) $a->body);
-                $blocks = $body === '' ? [] : [str_starts_with($body, '<') ? $body : '<p>'.nl2br(e($body)).'</p>'];
+                $blocks = $body === '' ? [] : [str_starts_with($body, '<') ? $body : '<p>' . nl2br(e($body)) . '</p>'];
 
                 $batch[] = [
                     'slug' => $slug,
@@ -144,13 +174,13 @@ class ImportLegacy extends Command
 
         // 5. Événements
         $evImported = 0;
-        if (Schema::connection('legacy')->hasTable('events')) {
+        if (Schema::connection('legacy')->hasTable($this->t('events'))) {
             $existing = DB::table('events')->pluck('slug')->flip();
-            $countries = Schema::connection('legacy')->hasTable('countries')
-                ? $old->table('countries')->pluck('name', 'id') : collect();
-            foreach ($old->table('events')->orderBy('id')->get() as $e) {
+            $countries = Schema::connection('legacy')->hasTable($this->t('countries'))
+                ? $old->table($this->t('countries'))->pluck('name', 'id') : collect();
+            foreach ($old->table($this->t('events'))->orderBy('id')->get() as $e) {
                 $slug = $e->slug;
-                if ($existing->has($slug)) $slug .= '-'.$e->id;
+                if ($existing->has($slug)) $slug .= '-' . $e->id;
                 DB::table('events')->insert([
                     'slug' => $slug,
                     'start_date' => substr((string) $e->starts_at, 0, 10),
@@ -170,8 +200,8 @@ class ImportLegacy extends Command
 
         // 6. Abonnés newsletter
         $subImported = 0;
-        if (Schema::connection('legacy')->hasTable('newsletter_subscribers')) {
-            foreach ($old->table('newsletter_subscribers')->orderBy('id')->cursor() as $s) {
+        if (Schema::connection('legacy')->hasTable($this->t('newsletter_subscribers'))) {
+            foreach ($old->table($this->t('newsletter_subscribers'))->orderBy('id')->cursor() as $s) {
                 $ok = DB::table('subscribers')->insertOrIgnore([
                     'email' => $s->email,
                     'status' => $s->unsubscribed_at ? 'inactif' : 'actif',
