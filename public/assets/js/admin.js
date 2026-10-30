@@ -775,7 +775,10 @@
     }
     function publishLabel() {
       var st = $('#edStatus').value, future = new Date($('#edDate').value) > new Date();
-      $('#edPublish').textContent = future ? 'Programmer' : (st === 'publie' && !isNew && src.status === 'publie' ? 'Mettre à jour' : 'Publier');
+      $('#edPublish').textContent = st === 'brouillon' ? 'Enregistrer le brouillon'
+        : st === 'relecture' ? 'Envoyer en relecture'
+        : future ? 'Programmer'
+        : (st === 'publie' && !isNew && src.status === 'publie' ? 'Mettre à jour' : 'Publier');
     }
     function markDirty() { dirty = true; var s = $('#edSaved'); s.textContent = 'Modifications non enregistrées'; s.classList.add('is-dirty'); }
     function flashPrev() {
@@ -842,6 +845,13 @@
     $('#edSave').addEventListener('click', doSave);
     form.addEventListener('submit', function (e) {
       e.preventDefault(); collect();
+      var st = $('#edStatus').value;
+      if (st === 'brouillon' || st === 'relecture') {
+        if (!validate(false)) { $('#edTitle').focus(); return; }
+        persist(st, st === 'relecture' ? 'a envoyé en relecture' : 'a enregistré le brouillon');
+        toast(st === 'brouillon' ? 'Brouillon enregistré' : 'Envoyé en relecture');
+        return;
+      }
       if (!validate(true)) { var bad = $('[aria-invalid="true"]', form); if (bad) bad.focus(); toast('Complétez les champs signalés avant de publier'); return; }
       var future = new Date(a.date) > new Date();
       persist(future ? 'programme' : 'publie', future ? 'a programmé' : 'a publié');
