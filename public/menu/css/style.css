@@ -50,7 +50,7 @@ button { touch-action: manipulation; font-family: inherit; }
 
 /* ---------- En-tête de marque ---------- */
 .brand { display: flex; align-items: center; gap: 12px; padding-block: 14px 4px; }
-.logo { flex: none; position: relative; width: 52px; height: 52px; border-radius: 50%; border: 1.5px solid var(--gold-ring); display: grid; place-items: center; }
+.logo { flex: none; position: relative; text-decoration: none; color: inherit; cursor: pointer; display: grid; width: 52px; height: 52px; border-radius: 50%; border: 1.5px solid var(--gold-ring); display: grid; place-items: center; }
 .logo-word { font-family: var(--f-script); font-size: 21px; line-height: 1; transform: translate(2px, -2px); }
 .logo-word small { font-size: 12px; }
 .logo-dot { position: absolute; left: 7px; top: 28px; width: 6px; height: 6px; border-radius: 50%; background: var(--gold-ring); }
