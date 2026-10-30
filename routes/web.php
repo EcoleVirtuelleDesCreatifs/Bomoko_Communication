@@ -15,10 +15,12 @@ use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
-Route::redirect('/carte', '/menu/')->name('menu');
-Route::redirect('/tapas', '/menu/')->name('menu.tapas');
-Route::redirect('/carte-des-vins', '/menu/')->name('menu.drinks');
-Route::redirect('/cave-a-cigares', '/menu/')->name('menu.cigares');
+Route::redirect('/carte', '/carte/')->name('menu');
+Route::redirect('/tapas', '/carte/')->name('menu.tapas');
+Route::redirect('/carte-des-vins', '/carte/')->name('menu.drinks');
+Route::redirect('/cave-a-cigares', '/carte/')->name('menu.cigares');
+Route::redirect('/menu', '/carte/')->name('menu.digital');
+Route::redirect('/menu/{any}', '/carte/{any}')->where('any', '.*');
 Route::redirect('/galerie', '/#galerie')->name('gallery');
 
 Route::get('/evenements', [EventController::class, 'index'])->name('events.index');

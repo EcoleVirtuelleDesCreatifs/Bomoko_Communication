@@ -17,7 +17,7 @@ CONTENU
    - HTTPS obligatoire (nécessaire au fonctionnement hors connexion).
 
 2. PREMIÈRE CONNEXION ADMIN
-   - Ouvrir https://votre-site.com/menu/admin/
+   - Ouvrir https://votre-site.com/carte/admin/
    - Mot de passe initial : cercle2026  (modifiable dans api/config.php)
    - Le changer tout de suite dans Admin > Réglages.
 

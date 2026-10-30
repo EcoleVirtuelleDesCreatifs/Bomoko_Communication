@@ -129,7 +129,7 @@ class DashboardController extends Controller
         $_SESSION['admin'] = true;
         session_write_close();
 
-        return redirect('/menu/admin/');
+        return redirect('/carte/admin/');
     }
 
     public function edit(Reservation $reservation): View

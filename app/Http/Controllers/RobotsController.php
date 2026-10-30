@@ -67,7 +67,7 @@ class RobotsController extends Controller
             '## Pages',
             '',
             '- [Accueil]('.route('home').')',
-            '- [La carte digitale (cuisine, terrasse, cave & bar, cigares)]('.url('/menu/').')',
+            '- [La carte digitale (cuisine, terrasse, cave & bar, cigares)]('.url('/carte/').')',
             '- [Événements & Actualités]('.route('events.index').')',
             '- [Réservation]('.route('reservation').')',
             '- [Mentions légales]('.route('legal.notice').')',

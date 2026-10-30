@@ -13,7 +13,7 @@ class MenuPageTest extends TestCase
     {
         foreach (['menu', 'menu.tapas', 'menu.drinks', 'menu.cigares'] as $routeName) {
             $this->get(route($routeName))
-                ->assertRedirect(url('/menu/'));
+                ->assertRedirect(url('/carte/'));
         }
     }
 
@@ -21,10 +21,10 @@ class MenuPageTest extends TestCase
     {
         $this->get(route('home'))
             ->assertOk()
-            ->assertSee(url('/menu/'), false);
+            ->assertSee(url('/carte/'), false);
 
         $this->get(route('reservation'))
             ->assertOk()
-            ->assertSee(url('/menu/'), false);
+            ->assertSee(url('/carte/'), false);
     }
 }

@@ -57,7 +57,7 @@
 
 @php
     $reservationUrl = config('site.reservation_url') ?: route('reservation');
-    $menuUrl = url('/menu/');
+    $menuUrl = url('/carte/');
     $galleryUrl = config('site.gallery_url') ?: route('gallery');
     $contactEmail = config('site.contact_email');
     $contactUrl = $contactEmail ? 'mailto:'.$contactEmail : $reservationUrl;
@@ -88,7 +88,7 @@
             <div class="hero-cta reveal">
                 <a href="{{ $reservationUrl }}" class="btn btn-gold">Réserver une table</a>
                 <a href="#la-carte" class="btn btn-ghost">Voir la carte</a>
-                <a href="{{ url('/menu/') }}" class="btn btn-ghost">La carte digitale</a>
+                <a href="{{ url('/carte/') }}" class="btn btn-ghost">La carte digitale</a>
             </div>
         </div>
         <a href="#la-carte" class="scroll-hint" aria-label="Faire défiler">
@@ -156,7 +156,7 @@
                 <div class="section-foot reveal">
                     <p class="text signature-outro">Et bien d'autres assiettes vous attendent : des classiques revisités du ndolé royal,
                         jusqu'aux plus belles pièces du boucher, venues des quatre coins du monde.</p>
-                    <a href="{{ url('/menu/') }}" class="link-arrow">Découvrir la carte digitale</a>
+                    <a href="{{ url('/carte/') }}" class="link-arrow">Découvrir la carte digitale</a>
                 </div>
             </div>
         </div>

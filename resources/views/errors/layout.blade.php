@@ -16,7 +16,7 @@
             <p class="error-message">@yield('error_message')</p>
             <div class="error-actions">
                 <a href="{{ route('home') }}" class="btn btn-gold">Retour à l'accueil</a>
-                <a href="{{ url('/menu/') }}" class="btn btn-outline">Voir la carte</a>
+                <a href="{{ url('/carte/') }}" class="btn btn-outline">Voir la carte</a>
                 <a href="{{ route('reservation') }}" class="link-arrow">Réserver une table</a>
             </div>
             <p class="error-help">Besoin d'aide ? <a

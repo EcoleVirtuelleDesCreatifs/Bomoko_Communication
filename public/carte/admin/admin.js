@@ -180,7 +180,7 @@
   });
 
   /* QR codes */
-  try { $("#qrBase").value = API.demo ? "https://votre-site.com/menu/" : new URL("../", location.href).href; } catch (e) {}
+  try { $("#qrBase").value = API.demo ? "https://votre-site.com/carte/" : new URL("../", location.href).href; } catch (e) {}
   $("#qrPrint").addEventListener("click", () => window.print());
   $("#qrGen").addEventListener("click", () => {
     const base = $("#qrBase").value.trim(), a = Math.max(1, +$("#qrFrom").value || 1), b = Math.min(a + 99, Math.max(a, +$("#qrTo").value || a));

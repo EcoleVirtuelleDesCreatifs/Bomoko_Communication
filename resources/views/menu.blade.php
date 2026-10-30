@@ -81,7 +81,7 @@
             <h1 class="hero-title reveal">{{ $page['h1'] }}</h1>
             <p class="hero-sub reveal">{{ $page['subtitle'] }}</p>
             <div class="hero-cta reveal">
-                <a href="{{ url('/menu/') }}" class="btn btn-gold">La carte digitale — commander à table</a>
+                <a href="{{ url('/carte/') }}" class="btn btn-gold">La carte digitale — commander à table</a>
             </div>
         </div>
     </section>
@@ -89,7 +89,7 @@
     <nav class="menu-nav menu-nav-switch" aria-label="La carte">
         <ul>
             <li>
-                <a href="{{ url('/menu/') }}">La carte digitale<small>Commander à table</small></a>
+                <a href="{{ url('/carte/') }}">La carte digitale<small>Commander à table</small></a>
             </li>
         </ul>
     </nav>

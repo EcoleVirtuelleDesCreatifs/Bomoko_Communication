@@ -19,7 +19,7 @@
         <nav class="footer-nav" aria-label="Navigation pied de page">
             <ul>
                 <li><a href="{{ $homeUrl }}#le-cercle">Le Cercle</a></li>
-                <li><a href="{{ url('/menu/') }}">La Carte</a></li>
+                <li><a href="{{ url('/carte/') }}">La Carte</a></li>
                 <li><a href="{{ $homeUrl }}#espaces">Nos Espaces</a></li>
                 <li><a href="{{ $homeUrl }}#galerie">Galerie</a></li>
                 <li><a href="{{ route('events.index') }}">Événements</a></li>

@@ -1,6 +1,6 @@
 {
     "preset": "laravel",
     "exclude": [
-        "public/menu"
+        "public/carte"
     ]
 }

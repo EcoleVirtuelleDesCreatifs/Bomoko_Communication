@@ -11,7 +11,7 @@ class SitemapController extends Controller
     {
         $urls = [
             ['loc' => route('home'), 'priority' => '1.0', 'changefreq' => 'weekly'],
-            ['loc' => url('/menu/'), 'priority' => '0.9', 'changefreq' => 'weekly'],
+            ['loc' => url('/carte/'), 'priority' => '0.9', 'changefreq' => 'weekly'],
             ['loc' => route('reservation'), 'priority' => '0.9', 'changefreq' => 'monthly'],
             ['loc' => route('gallery'), 'priority' => '0.6', 'changefreq' => 'monthly'],
             ['loc' => route('legal.notice'), 'priority' => '0.3', 'changefreq' => 'yearly'],
