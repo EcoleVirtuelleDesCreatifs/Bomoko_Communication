@@ -50,6 +50,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function (): void {
         Route::patch('/reservations/{reservation}/status', [DashboardController::class, 'updateStatus'])->name('admin.reservations.status');
     });
 
+    Route::get('/carte-digitale', [DashboardController::class, 'menuDigital'])->name('admin.menu-digital')
+        ->middleware('can:manage-menu');
     Route::resource('menu', MenuItemController::class)->names('admin.menu')->except(['show'])
         ->middleware('can:manage-menu');
     Route::resource('events', AdminEventController::class)->names('admin.events')->except(['show'])

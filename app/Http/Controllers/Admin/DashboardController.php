@@ -116,6 +116,22 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function menuDigital(): RedirectResponse
+    {
+        session_name('cercle_admin');
+        session_set_cookie_params([
+            'httponly' => true,
+            'samesite' => 'Strict',
+            'secure' => ! empty($_SERVER['HTTPS']),
+            'path' => '/',
+        ]);
+        session_start();
+        $_SESSION['admin'] = true;
+        session_write_close();
+
+        return redirect('/menu/admin/');
+    }
+
     public function edit(Reservation $reservation): View
     {
         return view('admin.reservations.edit', compact('reservation'));

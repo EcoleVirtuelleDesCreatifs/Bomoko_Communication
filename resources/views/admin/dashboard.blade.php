@@ -311,6 +311,10 @@
                         <span class="quick-action-icon">≡</span>
                         <span class="quick-action-label">La Carte</span>
                     </a>
+                    <a href="{{ route('admin.menu-digital') }}" class="quick-action-card">
+                        <span class="quick-action-icon">◈</span>
+                        <span class="quick-action-label">Carte digitale</span>
+                    </a>
                 @endcan
                 @can('manage-events')
                     <a href="{{ route('admin.events.create') }}" class="quick-action-card">
