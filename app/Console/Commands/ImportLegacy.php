@@ -46,7 +46,9 @@ class ImportLegacy extends Command
         if ($this->option('truncate')) {
             Schema::disableForeignKeyConstraints();
             foreach (['comments', 'articles', 'events', 'subscribers'] as $t) {
-                DB::table($t)->truncate();
+                if (Schema::hasTable($t)) {
+                    DB::table($t)->truncate();
+                }
             }
             Schema::enableForeignKeyConstraints();
             $this->warn('Tables articles/events/subscribers vidées.');
