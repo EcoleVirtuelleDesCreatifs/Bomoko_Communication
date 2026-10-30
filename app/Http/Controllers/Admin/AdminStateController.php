@@ -147,6 +147,14 @@ class AdminStateController extends Controller
             $state[$key] = $blob[$key] ?? $this->defaultBlob($key);
         }
 
+        if (is_array($state['medias'] ?? null)) {
+            $state['medias'] = array_values(array_filter($state['medias'], function ($m) {
+                $d = $m['data'] ?? '';
+
+                return str_starts_with($d, 'data:image/') || str_starts_with($d, 'http') || str_starts_with($d, '/');
+            }));
+        }
+
         return $state;
     }
 
@@ -178,12 +186,14 @@ class AdminStateController extends Controller
             'flash' => Article::published()->orderByDesc('published_at')->limit(5)->get()
                 ->map(fn ($a) => ['id' => 'f'.$a->id, 'articleId' => $a->slug, 'text' => $a->title, 'auto' => true, 'active' => true])
                 ->values()->all(),
-            'medias' => Article::whereNotNull('img')->pluck('img')->unique()->values()
-                ->map(fn ($img, $i) => [
+            'medias' => Article::whereNotNull('image_path')->orderByDesc('published_at')
+                ->limit(300)->get(['image_path', 'img'])
+                ->unique('image_path')->values()
+                ->map(fn ($a, $i) => [
                     'id' => 'm'.$i,
-                    'name' => mb_convert_encoding(basename(parse_url($img, PHP_URL_PATH) ?: 'media-'.$i), 'UTF-8', 'UTF-8'),
+                    'name' => mb_convert_encoding($a->img ?: basename($a->image_path), 'UTF-8', 'UTF-8'),
                     'ph' => 'ink',
-                    'data' => mb_convert_encoding($img, 'UTF-8', 'UTF-8'),
+                    'data' => asset('storage/'.$a->image_path),
                 ])->all(),
             'history' => null,
             default => [],
