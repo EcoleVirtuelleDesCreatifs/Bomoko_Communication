@@ -172,13 +172,12 @@
                     Le Cercle se vit différemment selon l'heure et l'envie.</p>
             </div>
 
-            <div class="espaces-grid espaces-grid-5">
+            <div class="espaces-grid">
                 @foreach ([
                     ['cercle/salle.jpg', 'La salle Bistrot', 'Le cœur de la maison. Un cadre élégant et feutré, pour savourer toute la carte.', 'La salle Bistrot du restaurant Le Cercle'],
-                    ['cercle/pergola.jpg', 'La pergola', 'Un coin privilégié, à l\'écart du tumulte. Les tapas et planches à partager en tête-à-tête, l\'intimité en plus, la magie en héritage.', 'La pergola du restaurant Le Cercle'],
+                    ['cercle/pergola.jpg', 'Le Pavillon', 'Notre lieu d\'exception, face au jardin. Tapas, planches à partager et dîners qui comptent : l\'intimité en plus, la magie en héritage.', 'Le Pavillon du restaurant Le Cercle'],
                     ['cercle/table-piscine.jpg', 'Au bord de la piscine', 'Un écrin de détente, pour prolonger l\'après-midi ou ouvrir la soirée, les pieds presque dans l\'eau.', 'La piscine du restaurant Le Cercle'],
                     ['cercle/jardin-verre.jpg', 'La scène en plein air', 'À la nuit tombée, la musique prend le relais. Des artistes choisis avec exigence se produisent en live, pour des soirées où l\'on dîne, l\'on écoute et l\'on se retrouve.', 'La scène en plein air du restaurant Le Cercle'],
-                    ['cercle/pavillon.jpg', 'Le Pavillon', 'Notre lieu d\'exception. Sous sa charpente de bois et son lustre de lumière, face au jardin, il accueille les dîners qui comptent : une célébration, un repas d\'affaires, une soirée entre proches. Un espace à part, pour des moments à leur image.', 'Le Pavillon du restaurant Le Cercle'],
                 ] as [$image, $name, $description, $alt])
                     <a href="#galerie" class="espace reveal">
                         <figure>

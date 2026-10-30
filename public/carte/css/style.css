@@ -221,3 +221,6 @@ button { touch-action: manipulation; font-family: inherit; }
 .send-err { color: var(--danger); font-size: 14px; margin: 0 0 8px; }
 .btn-main:disabled { opacity: .5; }
 .hist-item .status-pill { font-size: 11px; }
+
+/* Consultation uniquement : commande en ligne désactivée */
+.add, .stepper, .cart-bar, #orderSheet { display: none !important; }
