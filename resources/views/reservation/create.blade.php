@@ -85,7 +85,7 @@
                         @endforeach
                     </div>
                     <p class="form-hint">
-                        <a href="{{ route('menu') }}" class="link-arrow-inline">Consulter la carte et les prix</a>
+                        <a href="{{ url('/menu/') }}" class="link-arrow-inline">Consulter la carte et les prix</a>
                     </p>
                 </fieldset>
 

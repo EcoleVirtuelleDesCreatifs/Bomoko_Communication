@@ -57,7 +57,7 @@
 
 @php
     $reservationUrl = config('site.reservation_url') ?: route('reservation');
-    $menuUrl = config('site.menu_url') ?: route('menu');
+    $menuUrl = url('/menu/');
     $galleryUrl = config('site.gallery_url') ?: route('gallery');
     $contactEmail = config('site.contact_email');
     $contactUrl = $contactEmail ? 'mailto:'.$contactEmail : $reservationUrl;
@@ -156,9 +156,7 @@
                 <div class="section-foot reveal">
                     <p class="text signature-outro">Et bien d'autres assiettes vous attendent : des classiques revisités du ndolé royal,
                         jusqu'aux plus belles pièces du boucher, venues des quatre coins du monde.</p>
-                    <a href="{{ $menuUrl }}" class="link-arrow">La carte bistronomique</a>
-                    <a href="{{ route('menu.tapas') }}" class="link-arrow">La carte à tapas</a>
-                    <a href="{{ route('menu.drinks') }}" class="link-arrow">La carte des boissons</a>
+                    <a href="{{ url('/menu/') }}" class="link-arrow">Découvrir la carte digitale</a>
                 </div>
             </div>
         </div>
