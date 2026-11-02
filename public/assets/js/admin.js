@@ -667,6 +667,30 @@
       .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#0?39;|&apos;/g, '’')
       .replace(/\s+/g, ' ').trim();
   }
+  function nodeInline(el) {
+    var out = '';
+    el.childNodes.forEach(function (n) {
+      if (n.nodeType === 3) { out += n.textContent; return; }
+      var tag = n.nodeName;
+      if (tag === 'STRONG' || tag === 'B' || tag === 'EM' || tag === 'I') out += '**' + nodeInline(n) + '**';
+      else if (tag === 'A') { var href = n.getAttribute('href') || ''; out += /^https?:\/\//.test(href) ? '[' + nodeInline(n) + '](' + href + ')' : nodeInline(n); }
+      else if (tag === 'BR') out += ' ';
+      else out += nodeInline(n);
+    });
+    return out;
+  }
+  function richBlocks(el) {
+    var out = [];
+    el.childNodes.forEach(function (n) {
+      if (n.nodeType === 3) { var t = n.textContent.trim(); if (t) out.push(t); return; }
+      var tag = n.nodeName, t = nodeInline(n).replace(/\s+/g, ' ').trim();
+      if (!t) return;
+      if (tag === 'H1' || tag === 'H2' || tag === 'H3') out.push('## ' + t);
+      else if (tag === 'BLOCKQUOTE') out.push('> ' + t);
+      else out.push(t);
+    });
+    return out;
+  }
   function htmlToBlocks(html) {
     var parts = html.match(/<(?:h2|p|blockquote)[^>]*>[\s\S]*?<\/(?:h2|p|blockquote)>/gi) || [html];
     return parts.map(function (h) {
@@ -713,7 +737,7 @@
             '<label class="visually-hidden" for="edTitle">Titre</label><textarea class="ad-editor__title" id="edTitle" rows="1" placeholder="Titre de l’article">' + esc(a.title) + '</textarea><p class="ad-error" id="edTitleErr"></p>' +
             '<label class="visually-hidden" for="edChapo">Chapô</label><textarea class="ad-editor__chapo" id="edChapo" rows="2" placeholder="Chapô : deux ou trois lignes qui résument l’essentiel">' + esc(a.chapo) + '</textarea><p class="ad-error" id="edChapoErr"></p>' +
             '<div class="ad-editor__bar" role="toolbar" aria-label="Mise en forme"><button type="button" class="ad-btn ad-btn--ghost" data-ins="## "><i class="bi bi-type-h2" aria-hidden="true"></i>Intertitre</button><button type="button" class="ad-btn ad-btn--ghost" data-ins="> "><i class="bi bi-quote" aria-hidden="true"></i>Citation</button><button type="button" class="ad-btn ad-btn--ghost" data-bold><i class="bi bi-type-bold" aria-hidden="true"></i>Gras</button><span class="sep" aria-hidden="true"></span><button type="button" class="ad-btn ad-btn--ghost" data-media><i class="bi bi-image" aria-hidden="true"></i>Image de une</button><span class="ms-auto ad-hint d-none d-md-inline">Un paragraphe par ligne vide</span></div>' +
-            '<label class="visually-hidden" for="edBody">Texte de l’article</label><textarea class="ad-editor__body" id="edBody" placeholder="Rédigez l’article. Laissez une ligne vide entre deux paragraphes.">' + esc(a.body.flatMap(function (b) { return b.indexOf('<') === 0 ? htmlToBlocks(b) : [b]; }).join('\n\n')) + '</textarea><p class="ad-error" id="edBodyErr"></p>' +
+            '<label class="visually-hidden" for="edBody">Texte de l’article</label><div class="ad-editor__body" id="edBody" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Rédigez l’article.">' + bodyHtml(a.body.flatMap(function (b) { return b.indexOf('<') === 0 ? htmlToBlocks(b) : [b]; })) + '</div><p class="ad-error" id="edBodyErr"></p>' +
             '<div class="ad-editor__meta tnum"><span id="edWords"></span><span id="edRead"></span><span>Raccourci : Ctrl + S pour enregistrer</span></div>' +
           '</div>' +
           '<div id="edPrev" hidden></div>' +
@@ -766,41 +790,35 @@
     });
     $('#edTags').addEventListener('click', function (e) { var b = e.target.closest('[data-tag]'); if (b) { a.tags.splice(+b.getAttribute('data-tag'), 1); drawTags(); markDirty(); } });
 
-    // insertion intertitre / citation
+    // éditeur riche : le formatage s'applique visuellement sur la sélection
+    function blockTag() {
+      var sel = window.getSelection(); if (!sel.rangeCount) return '';
+      var n = sel.anchorNode; if (n && n.nodeType === 3) n = n.parentNode;
+      var ed = $('#edBody');
+      while (n && n !== ed) { var t = n.nodeName.toLowerCase(); if (t === 'h2' || t === 'blockquote') return t; n = n.parentNode; }
+      return '';
+    }
     $$('[data-ins]', v).forEach(function (b) {
+      b.addEventListener('mousedown', function (e) { e.preventDefault(); });
       b.addEventListener('click', function () {
-        var ta = $('#edBody'), pre = b.getAttribute('data-ins'), s = ta.selectionStart, e = ta.selectionEnd, val = ta.value;
-        var ls = val.lastIndexOf('\n', s - 1) + 1, delta;
-        if (val.slice(ls, ls + pre.length) === pre) {
-          ta.value = val.slice(0, ls) + val.slice(ls + pre.length);
-          delta = -pre.length;
-        } else {
-          var cleaned = val.slice(ls).replace(/^(## |> )/, '');
-          delta = pre.length - (val.slice(ls).length - cleaned.length);
-          ta.value = val.slice(0, ls) + pre + cleaned;
-        }
-        ta.focus();
-        ta.setSelectionRange(Math.max(ls, s + delta), Math.max(ls, e + delta));
+        var tag = b.getAttribute('data-ins') === '## ' ? 'h2' : 'blockquote';
+        $('#edBody').focus();
+        document.execCommand('formatBlock', false, blockTag() === tag ? 'p' : tag);
         markDirty(); stats();
       });
     });
     $$('[data-bold]', v).forEach(function (b) {
+      b.addEventListener('mousedown', function (e) { e.preventDefault(); });
       b.addEventListener('click', function () {
-        var ta = $('#edBody'), s = ta.selectionStart, e = ta.selectionEnd, val = ta.value, sel = val.slice(s, e);
-        if (val.slice(s - 2, s) === '**' && val.slice(e, e + 2) === '**') {
-          ta.value = val.slice(0, s - 2) + sel + val.slice(e + 2);
-          ta.setSelectionRange(s - 2, e - 2);
-        } else {
-          ta.value = val.slice(0, s) + '**' + (sel || 'texte en gras') + '**' + val.slice(e);
-          ta.setSelectionRange(s + 2, s + 2 + (sel || 'texte en gras').length);
-        }
-        ta.focus(); markDirty(); stats();
+        $('#edBody').focus();
+        document.execCommand('bold');
+        markDirty(); stats();
       });
     });
     $$('[data-media]', v).forEach(function (b) { b.addEventListener('click', function () { pickMedia(function (m) { a.mediaId = m.id; a.ph = m.ph; if (!$('#edCaption').value) $('#edCaption').value = m.alt; $('#edCover').innerHTML = coverOf(a); markDirty(); }); }); });
 
     function stats() {
-      var w = wordCount($('#edBody').value), r = Math.max(1, Math.round(w / 220));
+      var w = wordCount($('#edBody').textContent), r = Math.max(1, Math.round(w / 220));
       $('#edWords').textContent = plural(w, 'mot', 'mots'); $('#edRead').textContent = r + ' min de lecture';
     }
     function serp() {
@@ -842,7 +860,7 @@
 
     function collect() {
       a.title = $('#edTitle').value.trim(); a.chapo = $('#edChapo').value.trim();
-      a.body = $('#edBody').value.split(/\n\s*\n/).map(function (p) { return p.replace(/\s*\n\s*/g, ' ').trim(); }).filter(Boolean);
+      a.body = richBlocks($('#edBody'));
       a.rub = $('#edRub').value; a.region = $('#edReg').value || null; a.country = $('#edCountry').value.trim(); a.author = $('#edAuthor').value;
       a.une = $('#edUne').checked; a.caption = $('#edCaption').value.trim(); a.img = a.caption || a.img;
       a.slug = slugify($('#edSlug').value || a.title); a.meta = $('#edMeta').value.trim();
