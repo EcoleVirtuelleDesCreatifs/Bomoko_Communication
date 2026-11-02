@@ -57,7 +57,7 @@ function submit() {
       </form>
     </div>
     <aside class="col-lg-5">
-      <div class="aq-side-box"><h2>Rédaction</h2><p class="aq-serif"><strong>Bomoko Communication SA</strong><br>Directeur de la publication : Gadegbeku Edem<br><a href="mailto:redaction@afriquinfos.com">redaction@afriquinfos.com</a></p></div>
+      <div class="aq-side-box"><h2>Rédaction</h2><p class="aq-serif"><strong>Afriquinfos</strong><br>Directeur de la publication : Gadegbeku Edem<br><a href="mailto:redaction@afriquinfos.com">redaction@afriquinfos.com</a></p></div>
       <div class="aq-side-box"><h2>Suivez-nous</h2><div class="aq-social">
         <a href="https://www.facebook.com/afriquinfoscom/" aria-label="Afriquinfos sur Facebook" rel="noopener"><i class="bi bi-facebook" aria-hidden="true"></i></a>
         <a href="https://x.com/AfriquinfosActu" aria-label="Afriquinfos sur X" rel="noopener"><i class="bi bi-twitter-x" aria-hidden="true"></i></a></div></div>

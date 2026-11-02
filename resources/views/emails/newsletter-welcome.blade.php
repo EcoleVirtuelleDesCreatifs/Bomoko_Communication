@@ -54,7 +54,7 @@
 
         {{-- Pied --}}
         <tr><td style="background:#1a1918;padding:24px 32px;">
-          <p style="margin:0 0 6px;color:#f4f1ec;font-size:12px;">Afriquinfos est édité par <strong style="color:#de5011;">Bomoko Communication SA</strong> · Direction de la publication : Gadegbeku Edem</p>
+          <p style="margin:0 0 6px;color:#f4f1ec;font-size:12px;">Direction de la publication : Gadegbeku Edem</p>
           <p style="margin:0;color:#8f8a83;font-size:11px;line-height:1.6;">
             Vous recevez cet e-mail car vous vous êtes inscrit sur {{ url('/') }}.
             <a href="{{ url('/cookies') }}" style="color:#8f8a83;text-decoration:underline;">Préférences cookies</a> ·

@@ -29,19 +29,19 @@ const links = [
 
       <template v-if="page === 'mentions-legales'">
         <h2>Éditeur du site</h2>
-        <p>Le site <strong>Afriquinfos</strong> (ci-après « le Site ») est édité par la société <strong>Bomoko Communication SA</strong>, société de presse.</p>
+        <p>Le site <strong>Afriquinfos</strong> (ci-après « le Site ») est édité par <strong>Afriquinfos</strong>, média panafricain en ligne.</p>
         <p><strong>Directeur de la publication</strong> : Gadegbeku Edem — <a href="mailto:gadegbekuedem@gmail.com">gadegbekuedem@gmail.com</a><br>
         <strong>Contact rédaction</strong> : <a href="mailto:redaction@afriquinfos.com">redaction@afriquinfos.com</a></p>
         <h2>Hébergement</h2>
         <p>Le Site est hébergé par <strong>Hestia</strong>.</p>
         <h2>Propriété intellectuelle</h2>
-        <p>L’ensemble des contenus du Site (articles, reportages, photographies, infographies, logo, charte graphique) est la propriété exclusive de Bomoko Communication SA ou de ses partenaires. Toute reproduction, représentation, diffusion ou rediffusion, totale ou partielle, sans autorisation écrite préalable est interdite, conformément au droit d’auteur.</p>
+        <p>L’ensemble des contenus du Site (articles, reportages, photographies, infographies, logo, charte graphique) est la propriété exclusive d’Afriquinfos ou de ses partenaires. Toute reproduction, représentation, diffusion ou rediffusion, totale ou partielle, sans autorisation écrite préalable est interdite, conformément au droit d’auteur.</p>
         <h2>Liens hypertextes</h2>
         <p>Le Site peut contenir des liens vers des sites tiers. Afriquinfos n’exerce aucun contrôle sur leur contenu et décline toute responsabilité à leur égard. L’établissement d’un lien vers le Site est autorisé pour les pages publiques, sous réserve d’une mention claire de la source.</p>
         <h2>Responsabilité</h2>
         <p>Les informations publiées le sont à titre journalistique et informatif. Afriquinfos s’efforce d’en garantir l’exactitude mais ne saurait être tenu responsable des erreurs, omissions ou de l’usage qui en est fait. Les tribunes publiées n’engagent que leurs auteurs.</p>
         <h2>Droit applicable</h2>
-        <p>Les présentes mentions légales sont régies par le droit applicable au siège social de Bomoko Communication SA. Tout litige relatif à l’utilisation du Site relève des tribunaux compétents du ressort de ce siège.</p>
+        <p>Les présentes mentions légales sont régies par le droit applicable au siège social de l’éditeur. Tout litige relatif à l’utilisation du Site relève des tribunaux compétents du ressort de ce siège.</p>
       </template>
 
       <template v-else-if="page === 'confidentialite'">
