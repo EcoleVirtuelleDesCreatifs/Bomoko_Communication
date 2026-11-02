@@ -155,6 +155,9 @@ class AdminStateController extends Controller
             }));
         }
 
+        $state['adMetrics'] = DB::table('ad_metrics')->get()
+            ->mapWithKeys(fn ($m) => [$m->ad_key => ['imp' => (int) $m->impressions, 'clk' => (int) $m->clicks]])->all();
+
         return $state;
     }
 

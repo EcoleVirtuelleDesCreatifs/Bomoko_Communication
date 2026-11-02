@@ -61,6 +61,7 @@ class HandleInertiaRequests extends Middleware
             ->filter(fn ($a) => ! ($a['paused'] ?? false)
                 && ($a['start'] ?? '') <= $today && ($a['end'] ?? '') >= $today)
             ->map(fn ($a) => [
+                'id' => $a['id'] ?? '',
                 'slot' => $a['slot'] ?? '',
                 'advertiser' => $a['advertiser'] ?? '',
                 'name' => $a['name'] ?? '',

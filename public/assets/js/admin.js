@@ -1468,10 +1468,8 @@
   function slotById(id) { return S.slots.filter(function (s) { return s.id === id; })[0]; }
   function adStats(a) {
     var st = adStatus(a); if (st === 'programme') return null;
-    var t = day(0), last = a.end < t ? a.end : t, days = Math.max(1, Math.round((new Date(last) - new Date(a.start)) / 864e5) + 1);
-    var seedN = 0; for (var i = 0; i < a.id.length; i++) seedN += a.id.charCodeAt(i);
-    var imp = days * (2600 + (seedN % 9) * 520), clk = Math.round(imp * (0.0025 + (seedN % 5) * 0.0007));
-    return { imp: imp, clk: clk, ctr: (clk / imp * 100).toFixed(2).replace('.', ',') };
+    var m = (S.adMetrics || {})[a.id] || { imp: 0, clk: 0 };
+    return { imp: m.imp, clk: m.clk, ctr: m.imp ? (m.clk / m.imp * 100).toFixed(2).replace('.', ',') : '0,00' };
   }
   function readImage(file, maxW, done) {
     if (!file || !/^image\//.test(file.type)) { toast('Choisissez un fichier image (JPG, PNG, WebP ou GIF)'); return; }
@@ -1581,7 +1579,7 @@
         '<div class="ad-grid ad-grid--kpi mb-4">' +
           '<div class="ad-panel ad-kpi"><p class="ad-kpi__label">En diffusion</p><p class="ad-kpi__value">' + counts.active + '</p><p class="ad-kpi__hint">' + plural(counts.programme, 'campagne programmée', 'campagnes programmées') + '</p></div>' +
           '<div class="ad-panel ad-kpi"><p class="ad-kpi__label">Emplacements libres</p><p class="ad-kpi__value">' + free + '</p><p class="ad-kpi__hint">sur ' + S.slots.length + ' aujourd’hui</p></div>' +
-          '<div class="ad-panel ad-kpi ad-kpi--dark"><p class="ad-kpi__label">Impressions des campagnes en cours</p><p class="ad-kpi__value tnum">' + fmtNum.format(imp) + '</p><p class="ad-kpi__hint">Données de démonstration</p></div>' +
+          '<div class="ad-panel ad-kpi ad-kpi--dark"><p class="ad-kpi__label">Impressions des campagnes en cours</p><p class="ad-kpi__value tnum">' + fmtNum.format(imp) + '</p><p class="ad-kpi__hint">Mesurées en temps réel sur le site</p></div>' +
         '</div>' +
         '<section class="ad-panel mb-4" aria-labelledby="slT"><div class="ad-panel__head"><h2 id="slT">Emplacements</h2></div><div class="ad-tablewrap"><table class="ad-table"><thead><tr><th>Emplacement</th><th>Format</th><th>Aujourd’hui</th><th>Prochaine campagne</th><th class="actions"><span class="visually-hidden">Actions</span></th></tr></thead><tbody>' +
           S.slots.map(function (s) {
@@ -1605,7 +1603,7 @@
                 '<button type="button" class="ad-iconbtn ad-iconbtn--sm" data-pbe="' + a.id + '" aria-label="Modifier"><i class="bi bi-pencil" aria-hidden="true"></i></button>' +
                 '<button type="button" class="ad-iconbtn ad-iconbtn--sm ad-iconbtn--danger" data-pbx="' + a.id + '" aria-label="Supprimer"><i class="bi bi-trash3" aria-hidden="true"></i></button></td></tr>';
           }).join('') : '<tr><td colspan="7"><div class="ad-empty"><strong>Aucune campagne</strong>Ajoutez-en une avec « Nouvelle publicité ».</div></td></tr>') +
-        '</tbody></table></div></section><p class="ad-note">Impressions et clics : données de démonstration, à relier à votre régie publicitaire.</p>';
+        '</tbody></table></div></section><p class="ad-note">Impressions et clics mesurés en temps réel sur le site public.</p>';
     }
     function byId(id) { return S.ads.filter(function (a) { return a.id === id; })[0]; }
     function after(st) { if (st) tab = st; draw(); }

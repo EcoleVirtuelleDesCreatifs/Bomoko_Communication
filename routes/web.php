@@ -23,6 +23,7 @@ Route::post('/contact', [FormController::class, 'contact'])->middleware('throttl
 Route::post('/newsletter', [FormController::class, 'newsletter'])->middleware('throttle:10,1')->name('newsletter');
 Route::get('/desinscription', [FormController::class, 'unsubscribe'])->middleware('signed')->name('unsubscribe');
 Route::post('/debat/{debate}/vote', [FormController::class, 'vote'])->middleware('throttle:10,1')->name('debate.vote');
+Route::post('/ad-event', [FormController::class, 'adEvent'])->middleware('throttle:120,1')->name('ad.event');
 Route::post('/article/{article}/commentaire', [FormController::class, 'comment'])
     ->middleware('throttle:5,1')->name('article.comment');
 

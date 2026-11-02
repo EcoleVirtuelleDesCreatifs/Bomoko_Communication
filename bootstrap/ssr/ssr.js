@@ -335,9 +335,39 @@ const _sfc_main$d = {
   },
   setup(__props) {
     const props = __props;
+    const el = ref(null);
     const ad = computed(() => (usePage().props.ads || []).find((a) => a.slot === props.slot));
+    let observer = null;
+    function xsrf() {
+      return decodeURIComponent((document.cookie.match(/XSRF-TOKEN=([^;]+)/) || [])[1] || "");
+    }
+    function track(type) {
+      var _a;
+      if (!((_a = ad.value) == null ? void 0 : _a.id)) return;
+      fetch("/ad-event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest", "X-XSRF-TOKEN": xsrf() },
+        body: JSON.stringify({ ad: ad.value.id, slot: props.slot, type }),
+        credentials: "same-origin",
+        keepalive: true
+      }).catch(() => {
+      });
+    }
+    onMounted(() => {
+      if (!ad.value || !el.value || !("IntersectionObserver" in window)) return;
+      observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          track("imp");
+          observer.disconnect();
+        }
+      }, { threshold: 0.5 });
+      observer.observe(el.value);
+    });
+    onBeforeUnmount(() => observer == null ? void 0 : observer.disconnect());
     return (_ctx, _push, _parent, _attrs) => {
       _push(`<div${ssrRenderAttrs(mergeProps({
+        ref_key: "el",
+        ref: el,
         class: ["aq-ad", "aq-ad--" + __props.variant],
         role: "complementary",
         "aria-label": "Publicité"
@@ -890,6 +920,25 @@ const _sfc_main$7 = {
   __ssrInlineRender: true,
   setup(__props) {
     const ad = computed(() => (usePage().props.ads || []).find((a) => a.slot === "habillage" && a.visual));
+    function track(type) {
+      var _a;
+      if (!((_a = ad.value) == null ? void 0 : _a.id)) return;
+      fetch("/ad-event", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+          "X-XSRF-TOKEN": decodeURIComponent((document.cookie.match(/XSRF-TOKEN=([^;]+)/) || [])[1] || "")
+        },
+        body: JSON.stringify({ ad: ad.value.id, slot: "habillage", type }),
+        credentials: "same-origin",
+        keepalive: true
+      }).catch(() => {
+      });
+    }
+    onMounted(() => {
+      if (ad.value && window.matchMedia("(min-width: 1440px)").matches) track("imp");
+    });
     return (_ctx, _push, _parent, _attrs) => {
       if (ad.value) {
         _push(`<div${ssrRenderAttrs(mergeProps({
@@ -904,7 +953,8 @@ const _sfc_main$7 = {
             target: ad.value.url ? "_blank" : null,
             rel: ad.value.url ? "noopener sponsored" : null,
             "aria-label": ad.value.url ? "Publicité — " + ad.value.advertiser : null,
-            style: { backgroundImage: "url(" + ad.value.visual + ")" }
+            style: { backgroundImage: "url(" + ad.value.visual + ")" },
+            onClick: ($event) => track("clk")
           }, {
             default: withCtx((_, _push2, _parent2, _scopeId) => {
               if (_push2) {

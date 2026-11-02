@@ -112,4 +112,19 @@ class FormController extends Controller
             'contre' => $debate->votes_contre,
         ]);
     }
+
+    public function adEvent(Request $request)
+    {
+        $data = $request->validate([
+            'ad' => 'required|string|max:60',
+            'slot' => 'required|string|max:60',
+            'type' => 'required|in:imp,clk',
+        ]);
+
+        $col = $data['type'] === 'imp' ? 'impressions' : 'clicks';
+        DB::table('ad_metrics')->insertOrIgnore(['ad_key' => $data['ad'], 'created_at' => now(), 'updated_at' => now()]);
+        DB::table('ad_metrics')->where('ad_key', $data['ad'])->increment($col);
+
+        return response()->noContent();
+    }
 }
