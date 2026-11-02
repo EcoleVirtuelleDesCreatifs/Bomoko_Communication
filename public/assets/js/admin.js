@@ -769,11 +769,19 @@
     // insertion intertitre / citation
     $$('[data-ins]', v).forEach(function (b) {
       b.addEventListener('click', function () {
-        var ta = $('#edBody'), pre = b.getAttribute('data-ins'), s = ta.selectionStart, val = ta.value;
-        var ls = val.lastIndexOf('\n', s - 1) + 1;
-        if (val.slice(ls, ls + pre.length) === pre) { ta.value = val.slice(0, ls) + val.slice(ls + pre.length); }
-        else { var cleaned = val.slice(ls).replace(/^(## |> )/, ''); ta.value = val.slice(0, ls) + pre + cleaned; }
-        ta.focus(); markDirty(); stats();
+        var ta = $('#edBody'), pre = b.getAttribute('data-ins'), s = ta.selectionStart, e = ta.selectionEnd, val = ta.value;
+        var ls = val.lastIndexOf('\n', s - 1) + 1, delta;
+        if (val.slice(ls, ls + pre.length) === pre) {
+          ta.value = val.slice(0, ls) + val.slice(ls + pre.length);
+          delta = -pre.length;
+        } else {
+          var cleaned = val.slice(ls).replace(/^(## |> )/, '');
+          delta = pre.length - (val.slice(ls).length - cleaned.length);
+          ta.value = val.slice(0, ls) + pre + cleaned;
+        }
+        ta.focus();
+        ta.setSelectionRange(Math.max(ls, s + delta), Math.max(ls, e + delta));
+        markDirty(); stats();
       });
     });
     $$('[data-bold]', v).forEach(function (b) {
