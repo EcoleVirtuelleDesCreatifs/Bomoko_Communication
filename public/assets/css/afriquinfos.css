@@ -460,6 +460,7 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 .aq-figure { margin: 0 0 2.25rem; }
 .aq-figure .aq-media { aspect-ratio: 16 / 9; }
 .aq-figure figcaption { font-family: var(--serif); font-style: italic; font-size: .875rem; color: var(--muted); margin-top: .6rem; }
+.aq-figure--body img { display: block; width: 100%; height: auto; }
 .aq-prose { font-family: var(--serif); font-size: var(--aq-article-size); line-height: 1.7; max-width: 680px; }
 .aq-prose p { margin: 0 0 1.35em; }
 .aq-prose > p:first-of-type::first-letter { float: left; font-family: var(--display); font-weight: 800; font-size: 4.1em; line-height: .82; margin: .06em .12em 0 0; color: var(--orange); }

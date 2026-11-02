@@ -6,7 +6,7 @@ import ArticleCard from '../Components/ArticleCard.vue';
 import ChapterHead from '../Components/ChapterHead.vue';
 import Crumbs from '../Components/Crumbs.vue';
 import Newsletter from '../Components/Newsletter.vue';
-import { fmtLongDate, fr, initials, inline, kicker, rel, store, toast } from '../utils';
+import { asset, fmtLongDate, fr, initials, inline, kicker, rel, store, toast } from '../utils';
 
 const props = defineProps({
     article: { type: Object, required: true },
@@ -32,6 +32,8 @@ const blocks = computed(() => (a.body || []).map((b) => {
     if (b.startsWith('<')) return { t: 'html', x: b };
     if (b.startsWith('## ')) return { t: 'h2', x: b.slice(3) };
     if (b.startsWith('> ')) return { t: 'quote', x: b.slice(2) };
+    const img = b.match(/^\[img:([^\]|]+)\|?([^\]]*)\]$/);
+    if (img) return { t: 'img', src: img[1], cap: img[2] };
     return { t: 'p', x: b };
 }));
 
@@ -141,6 +143,10 @@ function sendComment() {
           <h2 v-if="b.t === 'h2'" v-html="inline(b.x)"></h2>
           <blockquote v-else-if="b.t === 'quote'" v-html="inline(b.x)"></blockquote>
           <div v-else-if="b.t === 'html'" class="aq-legacy" v-html="b.x"></div>
+          <figure v-else-if="b.t === 'img'" class="aq-figure aq-figure--body">
+            <img :src="/^(https?:|data:)/.test(b.src) ? b.src : asset('storage/' + b.src)" :alt="b.cap" loading="lazy">
+            <figcaption v-if="b.cap">{{ fr(b.cap) }}</figcaption>
+          </figure>
           <p v-else v-html="inline(b.x)"></p>
         </template>
       </div>

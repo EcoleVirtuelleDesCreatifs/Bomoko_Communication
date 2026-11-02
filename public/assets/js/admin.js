@@ -683,7 +683,20 @@
     var out = [];
     el.childNodes.forEach(function (n) {
       if (n.nodeType === 3) { var t = n.textContent.trim(); if (t) out.push(t); return; }
-      var tag = n.nodeName, t = nodeInline(n).replace(/\s+/g, ' ').trim();
+      var tag = n.nodeName;
+      var imgs = n.querySelectorAll ? n.querySelectorAll('img') : [];
+      if (tag === 'IMG') imgs = [n];
+      if (imgs.length) {
+        var txt = nodeInline(n).replace(/\s+/g, ' ').trim();
+        if (txt) out.push(txt);
+        imgs.forEach(function (im) {
+          var ref = im.getAttribute('data-mid') || im.getAttribute('src') || '';
+          var cap = (im.getAttribute('alt') || '').replace(/[|\]]/g, ' ').trim();
+          if (ref) out.push('[img:' + ref + (cap ? '|' + cap : '') + ']');
+        });
+        return;
+      }
+      var t = nodeInline(n).replace(/\s+/g, ' ').trim();
       if (!t) return;
       if (tag === 'H1' || tag === 'H2' || tag === 'H3') out.push('## ' + t);
       else if (tag === 'BLOCKQUOTE') out.push('> ' + t);
@@ -700,7 +713,13 @@
     }).filter(Boolean);
   }
   function bodyHtml(body) {
-    return body.map(function (p) { return p.indexOf('## ') === 0 ? '<h2>' + inline(p.slice(3)) + '</h2>' : p.indexOf('> ') === 0 ? '<blockquote>« ' + inline(p.slice(2)) + ' »</blockquote>' : '<p>' + inline(p) + '</p>'; }).join('');
+    return body.map(function (p) {
+      if (p.indexOf('## ') === 0) return '<h2>' + inline(p.slice(3)) + '</h2>';
+      if (p.indexOf('> ') === 0) return '<blockquote>« ' + inline(p.slice(2)) + ' »</blockquote>';
+      var img = p.match(/^\[img:([^\]|]+)\|?([^\]]*)\]$/);
+      if (img) return '<figure class="ad-figure"><img src="' + esc(img[1]) + '" alt="' + esc(img[2]) + '">' + (img[2] ? '<figcaption>' + esc(img[2]) + '</figcaption>' : '') + '</figure>';
+      return '<p>' + inline(p) + '</p>';
+    }).join('');
   }
   function previewHtml(a) {
     return '<article class="ad-preview"><span class="ad-preview__tag">' + esc(rubLabel(a.rub)) + (a.country ? ', ' + esc(a.country) : '') + '</span><h1>' + fr(a.title || 'Titre de l’article') + '</h1>' +
@@ -736,7 +755,7 @@
           '<div class="ad-editor__write" id="edWrite">' +
             '<label class="visually-hidden" for="edTitle">Titre</label><textarea class="ad-editor__title" id="edTitle" rows="1" placeholder="Titre de l’article">' + esc(a.title) + '</textarea><p class="ad-error" id="edTitleErr"></p>' +
             '<label class="visually-hidden" for="edChapo">Chapô</label><textarea class="ad-editor__chapo" id="edChapo" rows="2" placeholder="Chapô : deux ou trois lignes qui résument l’essentiel">' + esc(a.chapo) + '</textarea><p class="ad-error" id="edChapoErr"></p>' +
-            '<div class="ad-editor__bar" role="toolbar" aria-label="Mise en forme"><button type="button" class="ad-btn ad-btn--ghost" data-ins="## "><i class="bi bi-type-h2" aria-hidden="true"></i>Intertitre</button><button type="button" class="ad-btn ad-btn--ghost" data-ins="> "><i class="bi bi-quote" aria-hidden="true"></i>Citation</button><button type="button" class="ad-btn ad-btn--ghost" data-bold><i class="bi bi-type-bold" aria-hidden="true"></i>Gras</button><span class="sep" aria-hidden="true"></span><button type="button" class="ad-btn ad-btn--ghost" data-media><i class="bi bi-image" aria-hidden="true"></i>Image de une</button><span class="ms-auto ad-hint d-none d-md-inline">Un paragraphe par ligne vide</span></div>' +
+            '<div class="ad-editor__bar" role="toolbar" aria-label="Mise en forme"><button type="button" class="ad-btn ad-btn--ghost" data-ins="## "><i class="bi bi-type-h2" aria-hidden="true"></i>Intertitre</button><button type="button" class="ad-btn ad-btn--ghost" data-ins="> "><i class="bi bi-quote" aria-hidden="true"></i>Citation</button><button type="button" class="ad-btn ad-btn--ghost" data-bold><i class="bi bi-type-bold" aria-hidden="true"></i>Gras</button><button type="button" class="ad-btn ad-btn--ghost" data-imgbody><i class="bi bi-images" aria-hidden="true"></i>Image</button><span class="sep" aria-hidden="true"></span><button type="button" class="ad-btn ad-btn--ghost" data-media><i class="bi bi-image" aria-hidden="true"></i>Image de une</button><span class="ms-auto ad-hint d-none d-md-inline">Un paragraphe par ligne vide</span></div>' +
             '<label class="visually-hidden" for="edBody">Texte de l’article</label><div class="ad-editor__body" id="edBody" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Rédigez l’article.">' + bodyHtml(a.body.flatMap(function (b) { return b.indexOf('<') === 0 ? htmlToBlocks(b) : [b]; })) + '</div><p class="ad-error" id="edBodyErr"></p>' +
             '<div class="ad-editor__meta tnum"><span id="edWords"></span><span id="edRead"></span><span>Raccourci : Ctrl + S pour enregistrer</span></div>' +
           '</div>' +
@@ -813,6 +832,16 @@
         $('#edBody').focus();
         document.execCommand('bold');
         markDirty(); stats();
+      });
+    });
+    $$('[data-imgbody]', v).forEach(function (b) {
+      b.addEventListener('click', function () {
+        pickMedia(function (m) {
+          $('#edBody').focus();
+          var isData = /^data:/.test(m.data);
+          document.execCommand('insertHTML', false, '<p><img src="' + m.data + '"' + (isData ? ' data-mid="' + m.id + '"' : '') + ' alt="' + (m.alt || m.name || '').replace(/"/g, '&quot;') + '" style="max-width:100%;height:auto"></p>');
+          markDirty(); stats();
+        });
       });
     });
     $$('[data-media]', v).forEach(function (b) { b.addEventListener('click', function () { pickMedia(function (m) { a.mediaId = m.id; a.ph = m.ph; if (!$('#edCaption').value) $('#edCaption').value = m.alt; $('#edCover').innerHTML = coverOf(a); markDirty(); }); }); });

@@ -297,7 +297,13 @@ class AdminStateController extends Controller
                 'meta_desc' => $a['meta'] ?? null,
             ]);
             if (array_key_exists('body', $a)) {
-                $article->body = $a['body'];
+                $article->body = collect($a['body'])->map(function ($b) use ($mediaMap) {
+                    if (is_string($b) && preg_match('/^\[img:([^\]|]+)\|?(.*)\]$/', $b, $mm) && isset($mediaMap[$mm[1]])) {
+                        return '[img:'.$mediaMap[$mm[1]]['path'].($mm[2] !== '' ? '|'.$mm[2] : '').']';
+                    }
+
+                    return $b;
+                })->all();
             }
             if ($media) {
                 $article->image_path = $media['path'] ?? null;

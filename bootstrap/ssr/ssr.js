@@ -468,6 +468,8 @@ const _sfc_main$8 = {
       if (b.startsWith("<")) return { t: "html", x: b };
       if (b.startsWith("## ")) return { t: "h2", x: b.slice(3) };
       if (b.startsWith("> ")) return { t: "quote", x: b.slice(2) };
+      const img = b.match(/^\[img:([^\]|]+)\|?([^\]]*)\]$/);
+      if (img) return { t: "img", src: img[1], cap: img[2] };
       return { t: "p", x: b };
     }));
     const shareUrl = computed(() => encodeURIComponent(a.url));
@@ -558,6 +560,14 @@ const _sfc_main$8 = {
           _push(`<blockquote>${unref(inline)(b.x) ?? ""}</blockquote>`);
         } else if (b.t === "html") {
           _push(`<div class="aq-legacy">${b.x ?? ""}</div>`);
+        } else if (b.t === "img") {
+          _push(`<figure class="aq-figure aq-figure--body"><img${ssrRenderAttr("src", /^(https?:|data:)/.test(b.src) ? b.src : unref(asset)("storage/" + b.src))}${ssrRenderAttr("alt", b.cap)} loading="lazy">`);
+          if (b.cap) {
+            _push(`<figcaption>${ssrInterpolate(unref(fr)(b.cap))}</figcaption>`);
+          } else {
+            _push(`<!---->`);
+          }
+          _push(`</figure>`);
         } else {
           _push(`<p>${unref(inline)(b.x) ?? ""}</p>`);
         }
