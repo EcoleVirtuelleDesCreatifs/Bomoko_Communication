@@ -60,7 +60,7 @@ function store(k, v) {
     return null;
   }
 }
-typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const reduceMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 function norm(s) {
   return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 }
@@ -832,11 +832,21 @@ const _sfc_main$6 = {
   setup(__props) {
     const props = __props;
     const cur = ref(0);
+    const paused = ref(false);
     const n = computed(() => props.items.length);
+    let timer = null;
+    function arm() {
+      clearInterval(timer);
+      if (!reduceMotion && n.value > 1) timer = setInterval(() => {
+        if (!paused.value) cur.value = (cur.value + 1) % n.value;
+      }, 5e3);
+    }
+    onMounted(arm);
+    onBeforeUnmount(() => clearInterval(timer));
     return (_ctx, _push, _parent, _attrs) => {
       var _a, _b;
       if (n.value) {
-        _push(`<div${ssrRenderAttrs(mergeProps({ class: "aq-flashbar" }, _attrs))} data-v-33e5b4bc><div class="container-xl" data-v-33e5b4bc><div class="aq-flash" role="region" aria-label="Flash info" aria-roledescription="carrousel" data-v-33e5b4bc><div class="aq-flash__label" data-v-33e5b4bc><span class="aq-flash__dot" aria-hidden="true" data-v-33e5b4bc></span><span data-v-33e5b4bc><small data-v-33e5b4bc>En direct</small><strong data-v-33e5b4bc>Flash info</strong></span></div><div class="aq-flash__viewport aq-flash__single" aria-live="off" data-v-33e5b4bc>`);
+        _push(`<div${ssrRenderAttrs(mergeProps({ class: "aq-flashbar" }, _attrs))} data-v-875d532f><div class="container-xl" data-v-875d532f><div class="aq-flash" role="region" aria-label="Flash info" aria-roledescription="carrousel" data-v-875d532f><div class="aq-flash__label" data-v-875d532f><span class="aq-flash__dot" aria-hidden="true" data-v-875d532f></span><span data-v-875d532f><small data-v-875d532f>En direct</small><strong data-v-875d532f>Flash info</strong></span></div><div class="aq-flash__viewport aq-flash__single" aria-live="off" data-v-875d532f>`);
         if ((_a = __props.items[cur.value]) == null ? void 0 : _a.url) {
           _push(ssrRenderComponent(unref(Link), {
             key: cur.value,
@@ -858,11 +868,11 @@ const _sfc_main$6 = {
             _: 1
           }, _parent));
         } else {
-          _push(`<span class="aq-flash__item" data-v-33e5b4bc>${ssrInterpolate(unref(fr)((_b = __props.items[cur.value]) == null ? void 0 : _b.text))}</span>`);
+          _push(`<span class="aq-flash__item" data-v-875d532f>${ssrInterpolate(unref(fr)((_b = __props.items[cur.value]) == null ? void 0 : _b.text))}</span>`);
         }
         _push(`</div>`);
         if (n.value > 1) {
-          _push(`<div class="aq-flash__nav" data-v-33e5b4bc><span class="aq-flash__pos tnum" aria-hidden="true" data-v-33e5b4bc>${ssrInterpolate(cur.value + 1)}/${ssrInterpolate(n.value)}</span><button class="aq-flash__arrow" type="button" aria-label="Flash précédent" data-v-33e5b4bc><i class="bi bi-chevron-left" aria-hidden="true" data-v-33e5b4bc></i></button><button class="aq-flash__arrow" type="button" aria-label="Flash suivant" data-v-33e5b4bc><i class="bi bi-chevron-right" aria-hidden="true" data-v-33e5b4bc></i></button></div>`);
+          _push(`<div class="aq-flash__nav" data-v-875d532f><span class="aq-flash__pos tnum" aria-hidden="true" data-v-875d532f>${ssrInterpolate(cur.value + 1)}/${ssrInterpolate(n.value)}</span><button class="aq-flash__arrow" type="button" aria-label="Flash précédent" data-v-875d532f><i class="bi bi-chevron-left" aria-hidden="true" data-v-875d532f></i></button><button class="aq-flash__arrow" type="button" aria-label="Flash suivant" data-v-875d532f><i class="bi bi-chevron-right" aria-hidden="true" data-v-875d532f></i></button><button class="aq-flash__pause" type="button"${ssrRenderAttr("aria-label", paused.value ? "Reprendre le défilement" : "Mettre le défilement en pause")}${ssrRenderAttr("aria-pressed", paused.value)} data-v-875d532f><i class="${ssrRenderClass([paused.value ? "bi-play-fill" : "bi-pause-fill", "bi"])}" aria-hidden="true" data-v-875d532f></i></button></div>`);
         } else {
           _push(`<!---->`);
         }
@@ -879,7 +889,7 @@ _sfc_main$6.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/FlashBar.vue");
   return _sfc_setup$6 ? _sfc_setup$6(props, ctx) : void 0;
 };
-const FlashBar = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["__scopeId", "data-v-33e5b4bc"]]);
+const FlashBar = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["__scopeId", "data-v-875d532f"]]);
 const FLASH_N = 3;
 const _sfc_main$5 = {
   __name: "Home",
@@ -2005,7 +2015,7 @@ const _sfc_main = {
     });
     const year = (/* @__PURE__ */ new Date()).getFullYear();
     const showTop = ref(false);
-    const reduceMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduceMotion2 = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let lastScrollY = 0;
     function onScroll() {
       var _a;
@@ -2019,7 +2029,7 @@ const _sfc_main = {
     }
     let revealObs = null;
     function initReveals() {
-      if (reduceMotion || !("IntersectionObserver" in window)) return;
+      if (reduceMotion2 || !("IntersectionObserver" in window)) return;
       revealObs == null ? void 0 : revealObs.disconnect();
       revealObs = new IntersectionObserver((entries) => {
         let batch = 0;

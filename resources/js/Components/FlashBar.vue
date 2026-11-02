@@ -1,15 +1,25 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { fr, reduceMotion } from '../utils';
 
 const props = defineProps({ items: { type: Array, default: () => [] } });
 const cur = ref(0);
+const paused = ref(false);
 const n = computed(() => props.items.length);
+let timer = null;
 
 function go(delta) {
     if (n.value) cur.value = ((cur.value + delta) % n.value + n.value) % n.value;
+    arm();
 }
+function arm() {
+    clearInterval(timer);
+    if (!reduceMotion && n.value > 1) timer = setInterval(() => { if (!paused.value) cur.value = (cur.value + 1) % n.value; }, 5000);
+}
+
+onMounted(arm);
+onBeforeUnmount(() => clearInterval(timer));
 </script>
 
 <template>
@@ -27,6 +37,9 @@ function go(delta) {
       <span class="aq-flash__pos tnum" aria-hidden="true">{{ cur + 1 }}/{{ n }}</span>
       <button class="aq-flash__arrow" type="button" aria-label="Flash précédent" @click="go(-1)"><i class="bi bi-chevron-left" aria-hidden="true"></i></button>
       <button class="aq-flash__arrow" type="button" aria-label="Flash suivant" @click="go(1)"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      <button class="aq-flash__pause" type="button" :aria-label="paused ? 'Reprendre le défilement' : 'Mettre le défilement en pause'" :aria-pressed="paused" @click="paused = !paused">
+        <i class="bi" :class="paused ? 'bi-play-fill' : 'bi-pause-fill'" aria-hidden="true"></i>
+      </button>
     </div>
   </div></div></div>
 </template>
