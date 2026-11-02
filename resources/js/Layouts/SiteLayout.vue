@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
+import AqAd from '../Components/AqAd.vue';
 import { todayLong, store, asset } from '../utils';
 
 const page = usePage();
@@ -124,6 +125,8 @@ onUnmounted(() => { window.removeEventListener('scroll', onScroll); revealObs?.d
     <a class="aq-btn aq-btn--primary aq-head__cta d-none d-lg-inline-flex" href="/#newsletter"><i class="bi bi-envelope" aria-hidden="true"></i>Recevoir le brief</a>
     <Link class="aq-icon d-lg-none" href="/recherche" aria-label="Rechercher"><i class="bi bi-search" aria-hidden="true"></i></Link>
   </div></header>
+
+  <AqAd slot="mobile" variant="mobile" format="320 × 100" />
 
   <nav class="aq-mainnav" id="mainNav" aria-label="Rubriques"><div class="container-xl">
     <Link class="aq-mainnav__mini" href="/" aria-label="Afriquinfos, accueil"><img :src="asset('assets/img/logo-compact-negatif.png')" alt="" width="600" height="158" loading="lazy"></Link>

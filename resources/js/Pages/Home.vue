@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import AqAd from '../Components/AqAd.vue';
 import AqMedia from '../Components/AqMedia.vue';
+import AqSkin from '../Components/AqSkin.vue';
 import ArticleCard from '../Components/ArticleCard.vue';
 import ChapterHead from '../Components/ChapterHead.vue';
 import EventItem from '../Components/EventItem.vue';
@@ -137,6 +138,7 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
 </script>
 
 <template>
+  <AqSkin />
   <h1 class="visually-hidden">Afriquinfos, l’actualité panafricaine</h1>
   <div class="aq-hero">
     <FlashBar :items="flash" />
