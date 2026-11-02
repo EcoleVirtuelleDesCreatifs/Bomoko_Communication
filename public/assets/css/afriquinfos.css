@@ -330,7 +330,12 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 .aq-skin__side--r { right: 0; background-position: right top; }
 .aq-skin__tag { position: absolute; top: .5rem; left: .5rem; font-size: .625rem; letter-spacing: .06em; text-transform: uppercase; color: #fff; background: rgba(0,0,0,.55); padding: 2px 7px; border-radius: 2px; }
 @media (max-width: 1439.98px) { .aq-skin { display: none; } }
-.aq-ad--mobile { display: none; width: 320px; max-width: 100%; aspect-ratio: 320 / 100; margin: .75rem auto 0; }
+.aq-ad--mobile { display: none; position: relative; width: 100%; max-width: 100%; margin: 0; padding: 0; background: #0d0d0f; }
+.aq-ad--mobile > span { position: absolute; top: .35rem; left: .5rem; z-index: 1; font-size: .5625rem; letter-spacing: .06em; text-transform: uppercase; color: rgba(255, 255, 255, .75); }
+.aq-ad--mobile .aq-ad__link { display: block; width: 100%; }
+.aq-ad--mobile img { display: block; width: 100%; height: auto; max-height: 110px; object-fit: contain; }
+.aq-ad--mobile .aq-ad__text { min-height: 56px; }
+.aq-ad--mobile > b { display: block; padding: 1rem .5rem; font-size: .75rem; font-weight: 600; text-align: center; }
 @media (max-width: 767.98px) { .aq-ad--mobile { display: grid; } }
 
 /* Culture : affiches */
