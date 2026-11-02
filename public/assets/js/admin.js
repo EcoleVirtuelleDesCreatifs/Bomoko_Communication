@@ -817,11 +817,15 @@
       $('#edFlashHint').textContent = !on ? 'Ajoute l’article au bandeau Flash info, avec un lien vers lui.' : fl && !fl.auto ? 'Texte personnalisé dans Flash info.' : (future || st === 'programme' ? 'Le titre est repris et s’affichera à la publication.' : st === 'publie' ? 'Le titre est repris automatiquement, même s’il change.' : 'Le titre est repris et s’affichera dès la publication.');
     }
     stats(); serp(); publishLabel(); flashPrev();
+    function livePrev() {
+      var pv = $('#edPrev');
+      if (pv && !pv.hidden) { collect(); pv.innerHTML = previewHtml(a); }
+    }
     form.addEventListener('input', function (e) {
       if (e.target.id === 'edSlug') slugTouched = true;
       if (e.target.id !== 'edTagIn') markDirty();
       if (e.target.id === 'edBody') stats();
-      serp(); publishLabel(); flashPrev();
+      serp(); publishLabel(); flashPrev(); livePrev();
     });
     form.addEventListener('change', function (e) {
       if (e.target.id === 'edRub') { $('#edPersonBox').hidden = e.target.value !== 'portraits'; if (e.target.value === 'portraits' && !a.person) a.person = { name: '', initials: '', role: '', city: '', field: '', since: new Date().getFullYear() }; }
