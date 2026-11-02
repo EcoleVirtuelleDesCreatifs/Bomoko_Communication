@@ -132,9 +132,11 @@ class ImportLegacy extends Command
                 }
                 $existingSlugs->put($slug, true);
 
-                $rub = ($a->format ?? null) === 'portrait' && $validRub->has('portraits')
-                    ? 'portraits'
-                    : ($catSlug[$a->category_id] ?? $fallbackRub);
+                $rub = match ($a->format ?? null) {
+                    'portrait' => $validRub->has('portraits') ? 'portraits' : ($catSlug[$a->category_id] ?? $fallbackRub),
+                    'opinion' => $validRub->has('opinion') ? 'opinion' : ($catSlug[$a->category_id] ?? $fallbackRub),
+                    default => $catSlug[$a->category_id] ?? $fallbackRub,
+                };
                 if (! $validRub->has($rub)) $rub = $fallbackRub;
                 $region = $regSlug[$a->region_id] ?? null;
                 if ($region && ! $validReg->has($region)) $region = null;
