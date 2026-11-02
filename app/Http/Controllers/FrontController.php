@@ -54,6 +54,9 @@ class FrontController extends Controller
             ->map(function ($f) use ($bySlug, $byId) {
                 $ref = $f['articleId'] ?? '';
                 $a = $bySlug[$ref] ?? $byId[(int) preg_replace('/^[a-z]+/', '', (string) $ref)] ?? null;
+                if (! $a && ! empty($f['text'])) {
+                    $a = Article::where('title', $f['text'])->first();
+                }
                 return [
                     'id' => (string) $f['id'],
                     'text' => $f['text'] ?? $a?->title ?? '',
