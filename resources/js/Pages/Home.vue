@@ -250,7 +250,7 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
   </div></section>
 
   <section class="aq-section aq-section--orange aq-below" id="opinion" aria-labelledby="h-opinion"><div class="container-xl">
-    <ChapterHead id="opinion" title="Opinion" tagline="Afriquinfos vous invite au débat" href="/rubrique/opinion" more="Toutes les tribunes" />
+    <ChapterHead id="opinion" title="Opinion/Tribune" tagline="Afriquinfos vous invite au débat" href="/rubrique/opinion" more="Toutes les tribunes" />
     <div class="aq-debate" v-if="debate">
       <p class="aq-debate__q">Le débat de la semaine</p><h3 class="aq-debate__title">{{ fr(debate.question) }}</h3>
       <div class="aq-debate__sides">

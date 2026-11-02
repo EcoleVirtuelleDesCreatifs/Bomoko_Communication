@@ -1356,7 +1356,7 @@ const _sfc_main$5 = {
       _push(`<!--]--></div></div></section><section class="aq-section aq-section--orange aq-below" id="opinion" aria-labelledby="h-opinion"><div class="container-xl">`);
       _push(ssrRenderComponent(_sfc_main$f, {
         id: "opinion",
-        title: "Opinion",
+        title: "Opinion/Tribune",
         tagline: "Afriquinfos vous invite au débat",
         href: "/rubrique/opinion",
         more: "Toutes les tribunes"
