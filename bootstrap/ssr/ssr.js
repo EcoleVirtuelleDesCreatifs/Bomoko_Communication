@@ -57,7 +57,7 @@ function store(k, v) {
     return null;
   }
 }
-const reduceMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 function norm(s) {
   return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 }
@@ -818,22 +818,12 @@ const _sfc_main$6 = {
   props: { items: { type: Array, default: () => [] } },
   setup(__props) {
     const props = __props;
-    const paused = ref(false);
     const cur = ref(0);
     const n = computed(() => props.items.length);
-    let timer = null;
-    function arm() {
-      clearInterval(timer);
-      if (!reduceMotion && n.value > 1) timer = setInterval(() => {
-        if (!paused.value) cur.value = (cur.value + 1) % n.value;
-      }, 5e3);
-    }
-    onMounted(arm);
-    onBeforeUnmount(() => clearInterval(timer));
     return (_ctx, _push, _parent, _attrs) => {
       var _a, _b;
       if (n.value) {
-        _push(`<div${ssrRenderAttrs(mergeProps({ class: "aq-flashbar" }, _attrs))} data-v-fa11bae2><div class="container-xl" data-v-fa11bae2><div class="${ssrRenderClass([{ "is-paused": paused.value }, "aq-flash"])}" role="region" aria-label="Flash info" aria-roledescription="carrousel" data-v-fa11bae2><div class="aq-flash__label" data-v-fa11bae2><span class="aq-flash__dot" aria-hidden="true" data-v-fa11bae2></span><span data-v-fa11bae2><small data-v-fa11bae2>En direct</small><strong data-v-fa11bae2>Flash info</strong></span></div><div class="aq-flash__viewport aq-flash__single" aria-live="off" data-v-fa11bae2>`);
+        _push(`<div${ssrRenderAttrs(mergeProps({ class: "aq-flashbar" }, _attrs))} data-v-33e5b4bc><div class="container-xl" data-v-33e5b4bc><div class="aq-flash" role="region" aria-label="Flash info" aria-roledescription="carrousel" data-v-33e5b4bc><div class="aq-flash__label" data-v-33e5b4bc><span class="aq-flash__dot" aria-hidden="true" data-v-33e5b4bc></span><span data-v-33e5b4bc><small data-v-33e5b4bc>En direct</small><strong data-v-33e5b4bc>Flash info</strong></span></div><div class="aq-flash__viewport aq-flash__single" aria-live="off" data-v-33e5b4bc>`);
         if ((_a = __props.items[cur.value]) == null ? void 0 : _a.url) {
           _push(ssrRenderComponent(unref(Link), {
             key: cur.value,
@@ -855,11 +845,11 @@ const _sfc_main$6 = {
             _: 1
           }, _parent));
         } else {
-          _push(`<span class="aq-flash__item" data-v-fa11bae2>${ssrInterpolate(unref(fr)((_b = __props.items[cur.value]) == null ? void 0 : _b.text))}</span>`);
+          _push(`<span class="aq-flash__item" data-v-33e5b4bc>${ssrInterpolate(unref(fr)((_b = __props.items[cur.value]) == null ? void 0 : _b.text))}</span>`);
         }
         _push(`</div>`);
         if (n.value > 1) {
-          _push(`<div class="aq-flash__nav" data-v-fa11bae2><span class="aq-flash__pos tnum" aria-hidden="true" data-v-fa11bae2>${ssrInterpolate(cur.value + 1)}/${ssrInterpolate(n.value)}</span><button class="aq-flash__arrow" type="button" aria-label="Flash précédent" data-v-fa11bae2><i class="bi bi-chevron-left" aria-hidden="true" data-v-fa11bae2></i></button><button class="aq-flash__arrow" type="button" aria-label="Flash suivant" data-v-fa11bae2><i class="bi bi-chevron-right" aria-hidden="true" data-v-fa11bae2></i></button><button class="aq-flash__pause" type="button"${ssrRenderAttr("aria-label", paused.value ? "Reprendre le défilement" : "Mettre le défilement en pause")}${ssrRenderAttr("aria-pressed", paused.value)} data-v-fa11bae2><i class="${ssrRenderClass([paused.value ? "bi-play-fill" : "bi-pause-fill", "bi"])}" aria-hidden="true" data-v-fa11bae2></i></button></div>`);
+          _push(`<div class="aq-flash__nav" data-v-33e5b4bc><span class="aq-flash__pos tnum" aria-hidden="true" data-v-33e5b4bc>${ssrInterpolate(cur.value + 1)}/${ssrInterpolate(n.value)}</span><button class="aq-flash__arrow" type="button" aria-label="Flash précédent" data-v-33e5b4bc><i class="bi bi-chevron-left" aria-hidden="true" data-v-33e5b4bc></i></button><button class="aq-flash__arrow" type="button" aria-label="Flash suivant" data-v-33e5b4bc><i class="bi bi-chevron-right" aria-hidden="true" data-v-33e5b4bc></i></button></div>`);
         } else {
           _push(`<!---->`);
         }
@@ -876,9 +866,8 @@ _sfc_main$6.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/FlashBar.vue");
   return _sfc_setup$6 ? _sfc_setup$6(props, ctx) : void 0;
 };
-const FlashBar = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["__scopeId", "data-v-fa11bae2"]]);
+const FlashBar = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["__scopeId", "data-v-33e5b4bc"]]);
 const FLASH_N = 3;
-const DURATION = 7e3;
 const _sfc_main$5 = {
   __name: "Home",
   __ssrInlineRender: true,
@@ -925,35 +914,6 @@ const _sfc_main$5 = {
     });
     const cur = ref(0);
     const progress = ref([]);
-    let raf = null, start = 0, elapsed = 0, visible = true;
-    const userPaused = ref(reduceMotion), hoverPaused = ref(false);
-    function go(n, fromUser) {
-      if (!slides.value.length) return;
-      cur.value = (n % slides.value.length + slides.value.length) % slides.value.length;
-      elapsed = 0;
-      start = performance.now();
-      progress.value = slides.value.map((_, k) => k < cur.value ? 1 : 0);
-    }
-    function loop(now) {
-      if (!visible) {
-        raf = null;
-        return;
-      }
-      if (!(userPaused.value || hoverPaused.value || document.hidden)) {
-        elapsed += now - start;
-        if (elapsed >= DURATION) go(cur.value + 1);
-      }
-      start = now;
-      if (slides.value.length) progress.value[cur.value] = Math.min(1, elapsed / DURATION);
-      raf = requestAnimationFrame(loop);
-    }
-    function kick() {
-      if (!raf) {
-        start = performance.now();
-        raf = requestAnimationFrame(loop);
-      }
-    }
-    let observer = null;
     onMounted(() => {
       try {
         let seenIds = JSON.parse(store("aq-flash-seen") || "[]");
@@ -967,25 +927,12 @@ const _sfc_main$5 = {
         flash.value = pickFlash;
       } catch (e) {
       }
-      progress.value = slides.value.map(() => 0);
-      const root = document.querySelector(".aq-slider");
-      if (root && "IntersectionObserver" in window) {
-        observer = new IntersectionObserver((e) => {
-          visible = e[0].isIntersecting;
-          if (visible) kick();
-        });
-        observer.observe(root);
-      }
-      kick();
+      progress.value = slides.value.map((_, k) => k === 0 ? 1 : 0);
       const rail = document.getElementById("cultureRail");
       if (rail) checkRail();
       window.addEventListener("resize", checkRail);
     });
-    onBeforeUnmount(() => {
-      if (raf) cancelAnimationFrame(raf);
-      if (observer) observer.disconnect();
-      window.removeEventListener("resize", checkRail);
-    });
+    onBeforeUnmount(() => window.removeEventListener("resize", checkRail));
     const railNav = ref(false);
     function checkRail() {
       const rail = document.getElementById("cultureRail");
@@ -1072,7 +1019,7 @@ const _sfc_main$5 = {
         ssrRenderList(slides.value, (a, i) => {
           _push(`<button type="button" role="tab" class="aq-slider__tab"${ssrRenderAttr("aria-controls", "slide-" + i)}${ssrRenderAttr("aria-selected", i === cur.value)}><span class="aq-slider__progress" aria-hidden="true" style="${ssrRenderStyle({ "--p": progress.value[i] || 0 })}"></span><small><b>${ssrInterpolate(two(i + 1))}</b>${ssrInterpolate(a.rub_label)}</small><span class="aq-slider__tabtitle">${ssrInterpolate(unref(fr)(a.title))}</span></button>`);
         });
-        _push(`<!--]--></div><div class="aq-slider__btns"><button type="button" class="aq-slider__btn" aria-label="Article précédent"><i class="bi bi-arrow-left" aria-hidden="true"></i></button><button type="button" class="aq-slider__btn"${ssrRenderAttr("aria-label", userPaused.value ? "Reprendre le défilement" : "Mettre le défilement en pause")}><i class="${ssrRenderClass([userPaused.value ? "bi-play-fill" : "bi-pause-fill", "bi"])}" aria-hidden="true"></i></button><button type="button" class="aq-slider__btn" aria-label="Article suivant"><i class="bi bi-arrow-right" aria-hidden="true"></i></button></div></div></div></section>`);
+        _push(`<!--]--></div><div class="aq-slider__btns"><button type="button" class="aq-slider__btn" aria-label="Article précédent"><i class="bi bi-arrow-left" aria-hidden="true"></i></button><button type="button" class="aq-slider__btn" aria-label="Article suivant"><i class="bi bi-arrow-right" aria-hidden="true"></i></button></div></div></div></section>`);
       } else {
         _push(`<!---->`);
       }
@@ -2045,7 +1992,7 @@ const _sfc_main = {
     });
     const year = (/* @__PURE__ */ new Date()).getFullYear();
     const showTop = ref(false);
-    const reduceMotion2 = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduceMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let lastScrollY = 0;
     function onScroll() {
       var _a;
@@ -2059,7 +2006,7 @@ const _sfc_main = {
     }
     let revealObs = null;
     function initReveals() {
-      if (reduceMotion2 || !("IntersectionObserver" in window)) return;
+      if (reduceMotion || !("IntersectionObserver" in window)) return;
       revealObs == null ? void 0 : revealObs.disconnect();
       revealObs = new IntersectionObserver((entries) => {
         let batch = 0;

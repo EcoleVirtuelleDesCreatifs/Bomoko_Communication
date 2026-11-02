@@ -1,29 +1,19 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { fr, reduceMotion } from '../utils';
 
 const props = defineProps({ items: { type: Array, default: () => [] } });
-const paused = ref(false);
 const cur = ref(0);
 const n = computed(() => props.items.length);
-let timer = null;
 
-function go(delta, user) {
+function go(delta) {
     if (n.value) cur.value = ((cur.value + delta) % n.value + n.value) % n.value;
-    if (user) arm();
 }
-function arm() {
-    clearInterval(timer);
-    if (!reduceMotion && n.value > 1) timer = setInterval(() => { if (!paused.value) cur.value = (cur.value + 1) % n.value; }, 5000);
-}
-
-onMounted(arm);
-onBeforeUnmount(() => clearInterval(timer));
 </script>
 
 <template>
-  <div v-if="n" class="aq-flashbar"><div class="container-xl"><div class="aq-flash" :class="{ 'is-paused': paused }" role="region" aria-label="Flash info" aria-roledescription="carrousel">
+  <div v-if="n" class="aq-flashbar"><div class="container-xl"><div class="aq-flash" role="region" aria-label="Flash info" aria-roledescription="carrousel">
     <div class="aq-flash__label"><span class="aq-flash__dot" aria-hidden="true"></span><span><small>En direct</small><strong>Flash info</strong></span></div>
 
     <div class="aq-flash__viewport aq-flash__single" aria-live="off">
@@ -35,11 +25,8 @@ onBeforeUnmount(() => clearInterval(timer));
 
     <div class="aq-flash__nav" v-if="n > 1">
       <span class="aq-flash__pos tnum" aria-hidden="true">{{ cur + 1 }}/{{ n }}</span>
-      <button class="aq-flash__arrow" type="button" aria-label="Flash précédent" @click="go(-1, true)"><i class="bi bi-chevron-left" aria-hidden="true"></i></button>
-      <button class="aq-flash__arrow" type="button" aria-label="Flash suivant" @click="go(1, true)"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
-      <button class="aq-flash__pause" type="button" :aria-label="paused ? 'Reprendre le défilement' : 'Mettre le défilement en pause'" :aria-pressed="paused" @click="paused = !paused">
-        <i class="bi" :class="paused ? 'bi-play-fill' : 'bi-pause-fill'" aria-hidden="true"></i>
-      </button>
+      <button class="aq-flash__arrow" type="button" aria-label="Flash précédent" @click="go(-1)"><i class="bi bi-chevron-left" aria-hidden="true"></i></button>
+      <button class="aq-flash__arrow" type="button" aria-label="Flash suivant" @click="go(1)"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
     </div>
   </div></div></div>
 </template>

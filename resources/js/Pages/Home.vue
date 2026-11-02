@@ -57,32 +57,16 @@ const regionList = computed(() => {
     return l.slice(0, 6);
 });
 
-// Slider
+// Slider — navigation manuelle uniquement (pas de défilement automatique)
 const cur = ref(0);
 const progress = ref([]);
-const DURATION = 7000;
-let raf = null, start = 0, elapsed = 0, visible = true;
-const userPaused = ref(reduceMotion), hoverPaused = ref(false);
 
-function go(n, fromUser) {
+function go(n) {
     if (!slides.value.length) return;
     cur.value = ((n % slides.value.length) + slides.value.length) % slides.value.length;
-    elapsed = 0; start = performance.now();
-    progress.value = slides.value.map((_, k) => (k < cur.value ? 1 : 0));
+    progress.value = slides.value.map((_, k) => (k === cur.value ? 1 : 0));
 }
-function loop(now) {
-    if (!visible) { raf = null; return; }
-    if (!(userPaused.value || hoverPaused.value || document.hidden)) {
-        elapsed += now - start;
-        if (elapsed >= DURATION) go(cur.value + 1);
-    }
-    start = now;
-    if (slides.value.length) progress.value[cur.value] = Math.min(1, elapsed / DURATION);
-    raf = requestAnimationFrame(loop);
-}
-function kick() { if (!raf) { start = performance.now(); raf = requestAnimationFrame(loop); } }
 
-let observer = null;
 onMounted(() => {
     // Choisit 3 flashs non encore vus par ce visiteur ; repart à zéro quand tout a été vu
     try {
@@ -93,18 +77,12 @@ onMounted(() => {
         store('aq-flash-seen', JSON.stringify(seenIds.concat(pickFlash.map((f) => f.id))));
         flash.value = pickFlash;
     } catch (e) {}
-    progress.value = slides.value.map(() => 0);
-    const root = document.querySelector('.aq-slider');
-    if (root && 'IntersectionObserver' in window) {
-        observer = new IntersectionObserver((e) => { visible = e[0].isIntersecting; if (visible) kick(); });
-        observer.observe(root);
-    }
-    kick();
+    progress.value = slides.value.map((_, k) => (k === 0 ? 1 : 0));
     const rail = document.getElementById('cultureRail');
     if (rail) checkRail();
     window.addEventListener('resize', checkRail);
 });
-onBeforeUnmount(() => { if (raf) cancelAnimationFrame(raf); if (observer) observer.disconnect(); window.removeEventListener('resize', checkRail); });
+onBeforeUnmount(() => window.removeEventListener('resize', checkRail));
 
 const railNav = ref(false);
 function checkRail() {
@@ -162,7 +140,7 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
   <div class="aq-hero">
     <FlashBar :items="flash" />
     <section v-if="slides.length" class="aq-slider" aria-roledescription="carrousel" aria-label="À la une" @keydown="sliderKey"><div class="container-xl">
-      <div class="aq-slider__stage" aria-live="off" @mouseenter="hoverPaused = true" @mouseleave="hoverPaused = false" @focusin="hoverPaused = true" @focusout="hoverPaused = false" @pointerdown="pdown" @pointerup="pup">
+      <div class="aq-slider__stage" aria-live="off" @pointerdown="pdown" @pointerup="pup">
         <article v-for="(a, i) in slides" :key="a.id" class="aq-slide" :class="{ 'is-active': i === cur }" :id="'slide-' + i" role="group" aria-roledescription="diapositive" :aria-label="(i + 1) + ' sur ' + slides.length" :aria-hidden="i === cur ? null : 'true'">
           <Link class="aq-slide__media" :href="a.url" tabindex="-1" aria-hidden="true"><AqMedia :a="a" :priority="i === 0" sizes="(min-width: 992px) 58vw, 100vw" /></Link>
           <div class="aq-slide__text">
@@ -182,9 +160,8 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
           </button>
         </div>
         <div class="aq-slider__btns">
-          <button type="button" class="aq-slider__btn" aria-label="Article précédent" @click="go(cur - 1, true)"><i class="bi bi-arrow-left" aria-hidden="true"></i></button>
-          <button type="button" class="aq-slider__btn" :aria-label="userPaused ? 'Reprendre le défilement' : 'Mettre le défilement en pause'" @click="userPaused = !userPaused"><i class="bi" :class="userPaused ? 'bi-play-fill' : 'bi-pause-fill'" aria-hidden="true"></i></button>
-          <button type="button" class="aq-slider__btn" aria-label="Article suivant" @click="go(cur + 1, true)"><i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+          <button type="button" class="aq-slider__btn" aria-label="Article précédent" @click="go(cur - 1)"><i class="bi bi-arrow-left" aria-hidden="true"></i></button>
+          <button type="button" class="aq-slider__btn" aria-label="Article suivant" @click="go(cur + 1)"><i class="bi bi-arrow-right" aria-hidden="true"></i></button>
         </div>
       </div>
     </div></section>
