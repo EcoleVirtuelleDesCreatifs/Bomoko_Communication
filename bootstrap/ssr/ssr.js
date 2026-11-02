@@ -5,6 +5,9 @@ import createServer from "@inertiajs/vue3/server";
 function fr(s) {
   return String(s == null ? "" : s).replace(/ ([:;?!%»])/g, " $1").replace(/« /g, "« ").replace(/(\d+)e (édition|Cameroon)/g, "$1ᵉ $2");
 }
+function inline(s) {
+  return fr(String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c])).replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+}
 function initials(name) {
   return String(name || "?").split(/[\s,]+/).filter(Boolean).slice(0, 2).map((p) => p.charAt(0).toUpperCase()).join("");
 }
@@ -550,13 +553,13 @@ const _sfc_main$8 = {
       ssrRenderList(blocks.value, (b, i) => {
         _push(`<!--[-->`);
         if (b.t === "h2") {
-          _push(`<h2>${ssrInterpolate(unref(fr)(b.x))}</h2>`);
+          _push(`<h2>${unref(inline)(b.x) ?? ""}</h2>`);
         } else if (b.t === "quote") {
-          _push(`<blockquote>${ssrInterpolate(unref(fr)(b.x))}</blockquote>`);
+          _push(`<blockquote>${unref(inline)(b.x) ?? ""}</blockquote>`);
         } else if (b.t === "html") {
           _push(`<div class="aq-legacy">${b.x ?? ""}</div>`);
         } else {
-          _push(`<p>${ssrInterpolate(unref(fr)(b.x))}</p>`);
+          _push(`<p>${unref(inline)(b.x) ?? ""}</p>`);
         }
         _push(`<!--]-->`);
       });

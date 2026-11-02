@@ -6,7 +6,7 @@ import ArticleCard from '../Components/ArticleCard.vue';
 import ChapterHead from '../Components/ChapterHead.vue';
 import Crumbs from '../Components/Crumbs.vue';
 import Newsletter from '../Components/Newsletter.vue';
-import { fmtLongDate, fr, initials, kicker, rel, store, toast } from '../utils';
+import { fmtLongDate, fr, initials, inline, kicker, rel, store, toast } from '../utils';
 
 const props = defineProps({
     article: { type: Object, required: true },
@@ -138,10 +138,10 @@ function sendComment() {
 
       <div class="aq-prose" itemprop="articleBody" ref="prose">
         <template v-for="(b, i) in blocks" :key="i">
-          <h2 v-if="b.t === 'h2'">{{ fr(b.x) }}</h2>
-          <blockquote v-else-if="b.t === 'quote'">{{ fr(b.x) }}</blockquote>
+          <h2 v-if="b.t === 'h2'" v-html="inline(b.x)"></h2>
+          <blockquote v-else-if="b.t === 'quote'" v-html="inline(b.x)"></blockquote>
           <div v-else-if="b.t === 'html'" class="aq-legacy" v-html="b.x"></div>
-          <p v-else>{{ fr(b.x) }}</p>
+          <p v-else v-html="inline(b.x)"></p>
         </template>
       </div>
 
