@@ -430,7 +430,7 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 .aq-crumbs { display: flex; flex-wrap: wrap; gap: .4rem; list-style: none; padding: 0; margin: 0 0 1.25rem; font-size: .8125rem; color: var(--muted); }
 .aq-crumbs li + li::before { content: "/"; margin-right: .4rem; color: var(--line); }
 .aq-crumbs a:hover { color: var(--text); }
-.aq-loadmore { display: flex; justify-content: center; margin-top: 3rem; }
+.aq-loadmore { display: flex; justify-content: center; margin-top: 3rem; margin-bottom: 3rem; }
 .aq-sticky { height: 100%; display: flex; flex-direction: column; }
 /* seul le pavé publicitaire, placé en dernier, reste collé : la colonne n'est jamais tronquée sur les petits écrans */
 .aq-sticky > .aq-ad--pave:last-child { position: sticky; top: 84px; }
