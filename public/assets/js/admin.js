@@ -659,7 +659,22 @@
   };
 
   /* ===================== Aperçu d'article ===================== */
-  function inline(s) { return fr(s).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>'); }
+  function inline(s) { return fr(s).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>'); }
+  function htmlToInline(s) {
+    return s.replace(/<a\s[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, '[$2]($1)')
+      .replace(/<(?:strong|b|em|i)>([\s\S]*?)<\/(?:strong|b|em|i)>/gi, '**$1**')
+      .replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#0?39;|&apos;/g, '’')
+      .replace(/\s+/g, ' ').trim();
+  }
+  function htmlToBlocks(html) {
+    var parts = html.match(/<(?:h2|p|blockquote)[^>]*>[\s\S]*?<\/(?:h2|p|blockquote)>/gi) || [html];
+    return parts.map(function (h) {
+      var isH2 = /^<h2/i.test(h), inner = h.replace(/^<[^>]+>/, '').replace(/<\/[^>]+>\s*$/, '');
+      var t = htmlToInline(inner);
+      return t ? (isH2 ? '## ' + t : t) : null;
+    }).filter(Boolean);
+  }
   function bodyHtml(body) {
     return body.map(function (p) { return p.indexOf('## ') === 0 ? '<h2>' + inline(p.slice(3)) + '</h2>' : p.indexOf('> ') === 0 ? '<blockquote>« ' + inline(p.slice(2)) + ' »</blockquote>' : '<p>' + inline(p) + '</p>'; }).join('');
   }
@@ -698,7 +713,7 @@
             '<label class="visually-hidden" for="edTitle">Titre</label><textarea class="ad-editor__title" id="edTitle" rows="1" placeholder="Titre de l’article">' + esc(a.title) + '</textarea><p class="ad-error" id="edTitleErr"></p>' +
             '<label class="visually-hidden" for="edChapo">Chapô</label><textarea class="ad-editor__chapo" id="edChapo" rows="2" placeholder="Chapô : deux ou trois lignes qui résument l’essentiel">' + esc(a.chapo) + '</textarea><p class="ad-error" id="edChapoErr"></p>' +
             '<div class="ad-editor__bar" role="toolbar" aria-label="Mise en forme"><button type="button" class="ad-btn ad-btn--ghost" data-ins="## "><i class="bi bi-type-h2" aria-hidden="true"></i>Intertitre</button><button type="button" class="ad-btn ad-btn--ghost" data-ins="> "><i class="bi bi-quote" aria-hidden="true"></i>Citation</button><button type="button" class="ad-btn ad-btn--ghost" data-bold><i class="bi bi-type-bold" aria-hidden="true"></i>Gras</button><span class="sep" aria-hidden="true"></span><button type="button" class="ad-btn ad-btn--ghost" data-media><i class="bi bi-image" aria-hidden="true"></i>Image de une</button><span class="ms-auto ad-hint d-none d-md-inline">Un paragraphe par ligne vide</span></div>' +
-            '<label class="visually-hidden" for="edBody">Texte de l’article</label><textarea class="ad-editor__body" id="edBody" placeholder="Rédigez l’article. Laissez une ligne vide entre deux paragraphes.">' + esc(a.body.join('\n\n')) + '</textarea><p class="ad-error" id="edBodyErr"></p>' +
+            '<label class="visually-hidden" for="edBody">Texte de l’article</label><textarea class="ad-editor__body" id="edBody" placeholder="Rédigez l’article. Laissez une ligne vide entre deux paragraphes.">' + esc(a.body.flatMap(function (b) { return b.indexOf('<') === 0 ? htmlToBlocks(b) : [b]; }).join('\n\n')) + '</textarea><p class="ad-error" id="edBodyErr"></p>' +
             '<div class="ad-editor__meta tnum"><span id="edWords"></span><span id="edRead"></span><span>Raccourci : Ctrl + S pour enregistrer</span></div>' +
           '</div>' +
           '<div id="edPrev" hidden></div>' +

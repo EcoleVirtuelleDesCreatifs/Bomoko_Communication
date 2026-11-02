@@ -6,11 +6,12 @@ export function fr(s) {
         .replace(/(\d+)e (édition|Cameroon)/g, '$1ᵉ $2');
 }
 
-// Corps d'article : échappe le HTML puis rend **texte** en gras.
+// Corps d'article : échappe le HTML puis rend **texte** en gras et [texte](url) en lien.
 export function inline(s) {
     return fr(String(s == null ? '' : s)
         .replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])))
-        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
 }
 
 export function initials(name) {

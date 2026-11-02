@@ -6,7 +6,7 @@ function fr(s) {
   return String(s == null ? "" : s).replace(/ ([:;?!%»])/g, " $1").replace(/« /g, "« ").replace(/(\d+)e (édition|Cameroon)/g, "$1ᵉ $2");
 }
 function inline(s) {
-  return fr(String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c])).replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  return fr(String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c])).replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>").replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
 }
 function initials(name) {
   return String(name || "?").split(/[\s,]+/).filter(Boolean).slice(0, 2).map((p) => p.charAt(0).toUpperCase()).join("");
