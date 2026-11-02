@@ -753,7 +753,7 @@
         '<div class="ad-editor__main">' +
           '<div class="ad-editor__tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-mode="write">Rédaction</button><button type="button" role="tab" aria-selected="false" data-mode="preview">Aperçu</button></div>' +
           '<div class="ad-editor__write" id="edWrite">' +
-            '<label class="visually-hidden" for="edTitle">Titre</label><textarea class="ad-editor__title" id="edTitle" rows="1" placeholder="Titre de l’article">' + esc(a.title) + '</textarea><p class="ad-error" id="edTitleErr"></p>' +
+            '<label class="visually-hidden" for="edTitle">Titre</label><textarea class="ad-editor__title" id="edTitle" rows="1" placeholder="Titre de l’article">' + esc(a.title) + '</textarea><p class="ad-titlecount" id="edTitleCount" aria-live="polite"></p><p class="ad-error" id="edTitleErr"></p>' +
             '<label class="visually-hidden" for="edChapo">Chapô</label><textarea class="ad-editor__chapo" id="edChapo" rows="2" placeholder="Chapô : deux ou trois lignes qui résument l’essentiel">' + esc(a.chapo) + '</textarea><p class="ad-error" id="edChapoErr"></p>' +
             '<div class="ad-editor__bar" role="toolbar" aria-label="Mise en forme"><button type="button" class="ad-btn ad-btn--ghost" data-ins="## "><i class="bi bi-type-h2" aria-hidden="true"></i>Intertitre</button><button type="button" class="ad-btn ad-btn--ghost" data-ins="> "><i class="bi bi-quote" aria-hidden="true"></i>Citation</button><button type="button" class="ad-btn ad-btn--ghost" data-bold><i class="bi bi-type-bold" aria-hidden="true"></i>Gras</button><button type="button" class="ad-btn ad-btn--ghost" data-imgbody><i class="bi bi-images" aria-hidden="true"></i>Image</button><span class="sep" aria-hidden="true"></span><button type="button" class="ad-btn ad-btn--ghost" data-media><i class="bi bi-image" aria-hidden="true"></i>Image de une</button><span class="ms-auto ad-hint d-none d-md-inline">Un paragraphe par ligne vide</span></div>' +
             '<label class="visually-hidden" for="edBody">Texte de l’article</label><div class="ad-editor__body" id="edBody" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Rédigez l’article.">' + bodyHtml(a.body.flatMap(function (b) { return b.indexOf('<') === 0 ? htmlToBlocks(b) : [b]; })) + '</div><p class="ad-error" id="edBodyErr"></p>' +
@@ -851,6 +851,11 @@
       $('#edWords').textContent = plural(w, 'mot', 'mots'); $('#edRead').textContent = r + ' min de lecture';
     }
     function serp() {
+      var tl = $('#edTitle').value.trim().length, tc = $('#edTitleCount');
+      if (tc) {
+        tc.textContent = tl + ' caractères — recommandé : 60 à 90 pour le SEO';
+        tc.className = 'ad-titlecount' + (tl > 90 ? ' is-over' : tl > 0 && tl < 60 ? ' is-short' : ' is-ok');
+      }
       if (!slugTouched) $('#edSlug').value = slugify($('#edTitle').value);
       $('#serpUrl').textContent = 'afriquinfos.com › ' + rubLabel($('#edRub').value).toLowerCase() + ' › ' + ($('#edSlug').value || 'adresse-de-la-page');
       $('#serpTitle').textContent = ($('#edTitle').value || 'Titre de l’article') + ' — Afriquinfos';

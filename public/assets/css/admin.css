@@ -307,6 +307,10 @@ h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
 .ad-editor__write { padding: 2rem 1.75rem 1.5rem; }
 .ad-editor__title { width: 100%; border: 0; resize: none; overflow: hidden; background: transparent; color: var(--text); font-family: var(--display); font-weight: 700; font-size: clamp(1.6rem, 1.2rem + 1.3vw, 2.4rem); line-height: 1.12; letter-spacing: -.025em; padding: 0; }
 .ad-editor__chapo { width: 100%; border: 0; resize: none; overflow: hidden; background: transparent; color: var(--text-2); font-family: var(--serif); font-size: 1.2rem; line-height: 1.5; padding: 0; margin-top: 1rem; }
+.ad-titlecount { font-size: .75rem; margin: .25rem 0 0; color: var(--muted); transition: color .15s; }
+.ad-titlecount.is-ok { color: #18794e; }
+.ad-titlecount.is-short { color: var(--muted); }
+.ad-titlecount.is-over { color: var(--accent); font-weight: 600; }
 .ad-editor__title:focus, .ad-editor__chapo:focus, .ad-editor__body:focus { outline: none; }
 .ad-editor__title::placeholder, .ad-editor__chapo::placeholder, .ad-editor__body::placeholder { color: var(--muted); opacity: .7; }
 .ad-editor__bar { display: flex; flex-wrap: wrap; gap: .25rem; align-items: center; margin: 1.5rem 0 0; padding: .4rem; border: 1px solid var(--line); border-radius: 4px 4px 0 0; background: var(--bg); }
