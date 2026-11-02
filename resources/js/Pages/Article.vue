@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
+import AqAd from '../Components/AqAd.vue';
 import AqMedia from '../Components/AqMedia.vue';
 import ArticleCard from '../Components/ArticleCard.vue';
 import ChapterHead from '../Components/ChapterHead.vue';
@@ -199,7 +200,7 @@ function sendComment() {
       <div class="aq-side-box"><h2>Les plus lus</h2>
         <ol class="aq-top5"><li v-for="x in top" :key="x.id"><Link :href="x.url"><span>{{ fr(x.title) }}</span></Link></li></ol>
       </div>
-      <div class="aq-ad aq-ad--pave" role="complementary" aria-label="Publicité"><span>Publicité</span><b>300 × 250</b></div>
+      <AqAd slot="pave" variant="pave" format="300 × 250" />
     </div></aside></div>
   </div></article>
 

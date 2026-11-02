@@ -69,7 +69,7 @@ function asset(p) {
   const base = typeof document !== "undefined" && ((_a = document.querySelector('meta[name="asset-url"]')) == null ? void 0 : _a.content) || "";
   return base + "/" + String(p).replace(/^\//, "");
 }
-const _sfc_main$h = {
+const _sfc_main$i = {
   __name: "AcceptInvite",
   __ssrInlineRender: true,
   props: { email: String, name: String },
@@ -84,17 +84,17 @@ const _sfc_main$h = {
     };
   }
 };
-const _sfc_setup$h = _sfc_main$h.setup;
-_sfc_main$h.setup = (props, ctx) => {
+const _sfc_setup$i = _sfc_main$i.setup;
+_sfc_main$i.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Admin/AcceptInvite.vue");
-  return _sfc_setup$h ? _sfc_setup$h(props, ctx) : void 0;
+  return _sfc_setup$i ? _sfc_setup$i(props, ctx) : void 0;
 };
 const __vite_glob_0_0 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$h
+  default: _sfc_main$i
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$g = {
+const _sfc_main$h = {
   __name: "Login",
   __ssrInlineRender: true,
   setup(__props) {
@@ -108,17 +108,17 @@ const _sfc_main$g = {
     };
   }
 };
-const _sfc_setup$g = _sfc_main$g.setup;
-_sfc_main$g.setup = (props, ctx) => {
+const _sfc_setup$h = _sfc_main$h.setup;
+_sfc_main$h.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Admin/Login.vue");
-  return _sfc_setup$g ? _sfc_setup$g(props, ctx) : void 0;
+  return _sfc_setup$h ? _sfc_setup$h(props, ctx) : void 0;
 };
 const __vite_glob_0_1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$g
+  default: _sfc_main$h
 }, Symbol.toStringTag, { value: "Module" }));
-const _sfc_main$f = {
+const _sfc_main$g = {
   __name: "ChapterHead",
   __ssrInlineRender: true,
   props: {
@@ -171,13 +171,13 @@ const _sfc_main$f = {
     };
   }
 };
-const _sfc_setup$f = _sfc_main$f.setup;
-_sfc_main$f.setup = (props, ctx) => {
+const _sfc_setup$g = _sfc_main$g.setup;
+_sfc_main$g.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/ChapterHead.vue");
-  return _sfc_setup$f ? _sfc_setup$f(props, ctx) : void 0;
+  return _sfc_setup$g ? _sfc_setup$g(props, ctx) : void 0;
 };
-const _sfc_main$e = {
+const _sfc_main$f = {
   __name: "Crumbs",
   __ssrInlineRender: true,
   props: { items: { type: Array, required: true } },
@@ -223,13 +223,13 @@ const _sfc_main$e = {
     };
   }
 };
-const _sfc_setup$e = _sfc_main$e.setup;
-_sfc_main$e.setup = (props, ctx) => {
+const _sfc_setup$f = _sfc_main$f.setup;
+_sfc_main$f.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/Crumbs.vue");
-  return _sfc_setup$e ? _sfc_setup$e(props, ctx) : void 0;
+  return _sfc_setup$f ? _sfc_setup$f(props, ctx) : void 0;
 };
-const _sfc_main$d = {
+const _sfc_main$e = {
   __name: "EventItem",
   __ssrInlineRender: true,
   props: { e: { type: Object, required: true } },
@@ -239,13 +239,13 @@ const _sfc_main$d = {
     };
   }
 };
-const _sfc_setup$d = _sfc_main$d.setup;
-_sfc_main$d.setup = (props, ctx) => {
+const _sfc_setup$e = _sfc_main$e.setup;
+_sfc_main$e.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/EventItem.vue");
-  return _sfc_setup$d ? _sfc_setup$d(props, ctx) : void 0;
+  return _sfc_setup$e ? _sfc_setup$e(props, ctx) : void 0;
 };
-const _sfc_main$c = {
+const _sfc_main$d = {
   __name: "Agendas",
   __ssrInlineRender: true,
   props: { events: { type: Array, default: () => [] } },
@@ -268,8 +268,8 @@ const _sfc_main$c = {
     });
     return (_ctx, _push, _parent, _attrs) => {
       _push(`<div${ssrRenderAttrs(mergeProps({ class: "container-xl aq-page-head" }, _attrs))}>`);
-      _push(ssrRenderComponent(_sfc_main$e, { items: [{ label: "Agendas" }] }, null, _parent));
-      _push(ssrRenderComponent(_sfc_main$f, {
+      _push(ssrRenderComponent(_sfc_main$f, { items: [{ label: "Agendas" }] }, null, _parent));
+      _push(ssrRenderComponent(_sfc_main$g, {
         title: "Agendas",
         tagline: "Les rendez-vous à ne pas manquer sur le continent",
         level: 1
@@ -282,7 +282,7 @@ const _sfc_main$c = {
       ssrRenderList(grouped.value, (g) => {
         _push(`<!--[--><h2 class="aq-month">${ssrInterpolate(g.month)}</h2><!--[-->`);
         ssrRenderList(g.events, (e) => {
-          _push(ssrRenderComponent(_sfc_main$d, {
+          _push(ssrRenderComponent(_sfc_main$e, {
             key: e.slug,
             e
           }, null, _parent));
@@ -315,16 +315,77 @@ const _sfc_main$c = {
     };
   }
 };
-const _sfc_setup$c = _sfc_main$c.setup;
-_sfc_main$c.setup = (props, ctx) => {
+const _sfc_setup$d = _sfc_main$d.setup;
+_sfc_main$d.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Agendas.vue");
-  return _sfc_setup$c ? _sfc_setup$c(props, ctx) : void 0;
+  return _sfc_setup$d ? _sfc_setup$d(props, ctx) : void 0;
 };
 const __vite_glob_0_2 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: _sfc_main$c
+  default: _sfc_main$d
 }, Symbol.toStringTag, { value: "Module" }));
+const _sfc_main$c = {
+  __name: "AqAd",
+  __ssrInlineRender: true,
+  props: {
+    slot: { type: String, required: true },
+    variant: { type: String, default: "pave" },
+    format: { type: String, default: "300 × 250" }
+  },
+  setup(__props) {
+    const props = __props;
+    const ad = computed(() => (usePage().props.ads || []).find((a) => a.slot === props.slot));
+    return (_ctx, _push, _parent, _attrs) => {
+      _push(`<div${ssrRenderAttrs(mergeProps({
+        class: ["aq-ad", "aq-ad--" + __props.variant],
+        role: "complementary",
+        "aria-label": "Publicité"
+      }, _attrs))}><span>Publicité</span>`);
+      if (ad.value) {
+        _push(`<!--[-->`);
+        if (ad.value.url) {
+          _push(`<a class="aq-ad__link"${ssrRenderAttr("href", ad.value.url)} target="_blank" rel="noopener sponsored">`);
+          if (ad.value.visual) {
+            _push(`<img${ssrRenderAttr("src", ad.value.visual)}${ssrRenderAttr("alt", ad.value.advertiser)} loading="lazy">`);
+          } else {
+            _push(`<span class="aq-ad__text"><strong>${ssrInterpolate(ad.value.advertiser)}</strong>`);
+            if (ad.value.name) {
+              _push(`<small>${ssrInterpolate(ad.value.name)}</small>`);
+            } else {
+              _push(`<!---->`);
+            }
+            _push(`</span>`);
+          }
+          _push(`</a>`);
+        } else {
+          _push(`<span class="aq-ad__text">`);
+          if (ad.value.visual) {
+            _push(`<img${ssrRenderAttr("src", ad.value.visual)}${ssrRenderAttr("alt", ad.value.advertiser)} loading="lazy">`);
+          } else {
+            _push(`<strong>${ssrInterpolate(ad.value.advertiser)}</strong>`);
+          }
+          if (!ad.value.visual && ad.value.name) {
+            _push(`<small>${ssrInterpolate(ad.value.name)}</small>`);
+          } else {
+            _push(`<!---->`);
+          }
+          _push(`</span>`);
+        }
+        _push(`<!--]-->`);
+      } else {
+        _push(`<b>${ssrInterpolate(__props.format)}</b>`);
+      }
+      _push(`</div>`);
+    };
+  }
+};
+const _sfc_setup$c = _sfc_main$c.setup;
+_sfc_main$c.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/AqAd.vue");
+  return _sfc_setup$c ? _sfc_setup$c(props, ctx) : void 0;
+};
 const _sfc_main$b = {
   __name: "AqMedia",
   __ssrInlineRender: true,
@@ -509,7 +570,7 @@ const _sfc_main$8 = {
     });
     return (_ctx, _push, _parent, _attrs) => {
       _push(`<!--[--><div class="aq-progress" aria-hidden="true"></div><article class="aq-article" itemscope itemtype="https://schema.org/NewsArticle"><div class="container-xl">`);
-      _push(ssrRenderComponent(_sfc_main$e, { items: crumb.value }, null, _parent));
+      _push(ssrRenderComponent(_sfc_main$f, { items: crumb.value }, null, _parent));
       _push(`<div class="row g-5"><div class="col-lg-8">`);
       _push(ssrRenderComponent(unref(Link), {
         class: "aq-tag",
@@ -727,10 +788,16 @@ const _sfc_main$8 = {
         }, _parent));
         _push(`</li>`);
       });
-      _push(`<!--]--></ol></div><div class="aq-ad aq-ad--pave" role="complementary" aria-label="Publicité"><span>Publicité</span><b>300 × 250</b></div></div></aside></div></div></article>`);
+      _push(`<!--]--></ol></div>`);
+      _push(ssrRenderComponent(_sfc_main$c, {
+        slot: "pave",
+        variant: "pave",
+        format: "300 × 250"
+      }, null, _parent));
+      _push(`</div></aside></div></div></article>`);
       if (__props.sameRegion.length) {
         _push(`<section class="aq-section aq-section--related aq-below" aria-label="Dans la même région"><div class="container-xl">`);
-        _push(ssrRenderComponent(_sfc_main$f, {
+        _push(ssrRenderComponent(_sfc_main$g, {
           title: unref(a).region_label,
           tagline: "Dans la même région",
           href: "/afriques/" + unref(a).region,
@@ -788,8 +855,8 @@ const _sfc_main$7 = {
     return (_ctx, _push, _parent, _attrs) => {
       var _a;
       _push(`<div${ssrRenderAttrs(mergeProps({ class: "container-xl aq-page-head" }, _attrs))}>`);
-      _push(ssrRenderComponent(_sfc_main$e, { items: [{ label: "Contact" }] }, null, _parent));
-      _push(ssrRenderComponent(_sfc_main$f, {
+      _push(ssrRenderComponent(_sfc_main$f, { items: [{ label: "Contact" }] }, null, _parent));
+      _push(ssrRenderComponent(_sfc_main$g, {
         title: "Contact",
         tagline: "Une information, une réaction, un projet ? Écrivez-nous.",
         level: 1
@@ -1072,7 +1139,7 @@ const _sfc_main$5 = {
         _push(`</li>`);
       });
       _push(`<!--]--></ol></div></div></section><section class="aq-section aq-section--white" id="afriques" aria-labelledby="h-afriques"><div class="container-xl">`);
-      _push(ssrRenderComponent(_sfc_main$f, {
+      _push(ssrRenderComponent(_sfc_main$g, {
         id: "afriques",
         title: "Les Afriques",
         tagline: "Toutes les Afriques, sans détour",
@@ -1100,7 +1167,7 @@ const _sfc_main$5 = {
       _push(`</div></div></section><section class="aq-section aq-section--white" id="politique" aria-labelledby="h-politique">`);
       if (pol.value.length) {
         _push(`<div class="container-xl">`);
-        _push(ssrRenderComponent(_sfc_main$f, {
+        _push(ssrRenderComponent(_sfc_main$g, {
           id: "politique",
           title: "Politique",
           tagline: "Les arcanes de la politique africaine",
@@ -1158,10 +1225,16 @@ const _sfc_main$5 = {
       } else {
         _push(`<!---->`);
       }
-      _push(`</section><div class="container-xl"><div class="aq-ad aq-ad--billboard" role="complementary" aria-label="Publicité"><span>Publicité</span><b class="d-none d-md-block">970 × 250</b><b class="d-md-none">300 × 250</b></div></div><section class="aq-section aq-section--ink" id="economie" aria-labelledby="h-economie">`);
+      _push(`</section><div class="container-xl">`);
+      _push(ssrRenderComponent(_sfc_main$c, {
+        slot: "billboard",
+        variant: "billboard",
+        format: "970 × 250"
+      }, null, _parent));
+      _push(`</div><section class="aq-section aq-section--ink" id="economie" aria-labelledby="h-economie">`);
       if (eco.value.length) {
         _push(`<div class="container-xl">`);
-        _push(ssrRenderComponent(_sfc_main$f, {
+        _push(ssrRenderComponent(_sfc_main$g, {
           id: "economie",
           title: "Économie",
           tagline: "L’information économique panafricaine de référence",
@@ -1207,7 +1280,7 @@ const _sfc_main$5 = {
         _push(`<!---->`);
       }
       _push(`</section><section class="aq-section aq-section--white aq-below" id="societe" aria-labelledby="h-societe"><div class="container-xl">`);
-      _push(ssrRenderComponent(_sfc_main$f, {
+      _push(ssrRenderComponent(_sfc_main$g, {
         id: "societe",
         title: "Société",
         tagline: "La société africaine en mouvement",
@@ -1223,7 +1296,7 @@ const _sfc_main$5 = {
         }, null, _parent));
       });
       _push(`<!--]--></div></div></section><section class="aq-section aq-section--white aq-below" id="culture" aria-labelledby="h-culture"><div class="container-xl">`);
-      _push(ssrRenderComponent(_sfc_main$f, {
+      _push(ssrRenderComponent(_sfc_main$g, {
         id: "culture",
         title: "Culture",
         tagline: "Vivez au rythme de la culture africaine",
@@ -1261,7 +1334,7 @@ const _sfc_main$5 = {
       _push(`</div></section><section class="aq-section aq-section--white aq-below" id="sports" aria-labelledby="h-sports">`);
       if (spo.value.length) {
         _push(`<div class="container-xl">`);
-        _push(ssrRenderComponent(_sfc_main$f, {
+        _push(ssrRenderComponent(_sfc_main$g, {
           id: "sports",
           title: "Sports",
           tagline: "La passion du sport africain est contagieuse",
@@ -1320,7 +1393,7 @@ const _sfc_main$5 = {
         _push(`<!---->`);
       }
       _push(`</section><section class="aq-section aq-section--stone aq-below" id="portraits" aria-labelledby="h-portraits"><div class="container-xl">`);
-      _push(ssrRenderComponent(_sfc_main$f, {
+      _push(ssrRenderComponent(_sfc_main$g, {
         id: "portraits",
         title: "Portraits",
         tagline: "Celles et ceux qui font l’Afrique d’aujourd’hui",
@@ -1354,7 +1427,7 @@ const _sfc_main$5 = {
         _push(`</article>`);
       });
       _push(`<!--]--></div></div></section><section class="aq-section aq-section--orange aq-below" id="opinion" aria-labelledby="h-opinion"><div class="container-xl">`);
-      _push(ssrRenderComponent(_sfc_main$f, {
+      _push(ssrRenderComponent(_sfc_main$g, {
         id: "opinion",
         title: "Opinion/Tribune",
         tagline: "Afriquinfos vous invite au débat",
@@ -1397,7 +1470,7 @@ const _sfc_main$5 = {
         _push(`</article>`);
       });
       _push(`<!--]--></div></div></section><section class="aq-section aq-section--white aq-below" id="tips" aria-labelledby="h-tips"><div class="container-xl">`);
-      _push(ssrRenderComponent(_sfc_main$f, {
+      _push(ssrRenderComponent(_sfc_main$g, {
         id: "tips",
         title: "Tips",
         tagline: "Conseils pratiques pour voyager, entreprendre et mieux vivre",
@@ -1429,7 +1502,7 @@ const _sfc_main$5 = {
         _push(`</article>`);
       });
       _push(`<!--]--></div></div></section><section class="aq-section aq-section--white aq-below" id="agenda" aria-labelledby="h-agenda"><div class="container-xl">`);
-      _push(ssrRenderComponent(_sfc_main$f, {
+      _push(ssrRenderComponent(_sfc_main$g, {
         id: "agenda",
         title: "Agenda",
         tagline: "Les rendez-vous à ne pas manquer",
@@ -1439,7 +1512,7 @@ const _sfc_main$5 = {
       if (__props.events.length) {
         _push(`<div class="aq-agenda-row"><!--[-->`);
         ssrRenderList(__props.events.slice(0, 3), (e) => {
-          _push(ssrRenderComponent(_sfc_main$d, {
+          _push(ssrRenderComponent(_sfc_main$e, {
             key: e.slug,
             e
           }, null, _parent));
@@ -1479,10 +1552,10 @@ const _sfc_main$4 = {
     ];
     return (_ctx, _push, _parent, _attrs) => {
       _push(`<div${ssrRenderAttrs(mergeProps({ class: "container-xl aq-page-head" }, _attrs))}>`);
-      _push(ssrRenderComponent(_sfc_main$e, {
+      _push(ssrRenderComponent(_sfc_main$f, {
         items: [{ label: __props.title }]
       }, null, _parent));
-      _push(ssrRenderComponent(_sfc_main$f, {
+      _push(ssrRenderComponent(_sfc_main$g, {
         title: __props.title,
         tagline: "Informations juridiques et protection de vos données",
         level: 1
@@ -1632,8 +1705,8 @@ const _sfc_main$3 = {
     const list = computed(() => filter.value === "all" ? props.articles : props.articles.filter((a) => a.region === filter.value));
     return (_ctx, _push, _parent, _attrs) => {
       _push(`<!--[--><div class="aq-pagehero"><div class="container-xl">`);
-      _push(ssrRenderComponent(_sfc_main$e, { items: [{ label: "Portraits" }] }, null, _parent));
-      _push(ssrRenderComponent(_sfc_main$f, {
+      _push(ssrRenderComponent(_sfc_main$f, { items: [{ label: "Portraits" }] }, null, _parent));
+      _push(ssrRenderComponent(_sfc_main$g, {
         title: "Portraits",
         tagline: __props.tagline,
         level: 1
@@ -1748,7 +1821,7 @@ const _sfc_main$2 = {
     });
     return (_ctx, _push, _parent, _attrs) => {
       _push(`<div${ssrRenderAttrs(mergeProps({ class: "container-xl aq-page-head mb-5" }, _attrs))}>`);
-      _push(ssrRenderComponent(_sfc_main$e, { items: [{ label: "Recherche" }] }, null, _parent));
+      _push(ssrRenderComponent(_sfc_main$f, { items: [{ label: "Recherche" }] }, null, _parent));
       _push(`<h1 class="visually-hidden">Rechercher sur Afriquinfos</h1><form role="search"><label class="visually-hidden" for="bigq">Rechercher sur Afriquinfos</label><div class="aq-bigsearch"><i class="bi bi-search" aria-hidden="true"></i><input id="bigq" name="q" type="search" autocomplete="off" placeholder="Un pays, un sujet, une personnalité…"${ssrRenderAttr("value", query.value)}></div></form><p class="fw-semibold" role="status">${ssrInterpolate(query.value.trim() ? results.value.length + " résultat" + (results.value.length > 1 ? "s" : "") + " pour « " + query.value.trim() + " »" : "Toute l’actualité, de la plus récente à la plus ancienne")}</p>`);
       if (results.value.length) {
         _push(`<div class="aq-filters" role="group" aria-label="Filtrer par rubrique"><button type="button"${ssrRenderAttr("aria-pressed", rubFilter.value === "all")}>Tout<small>${ssrInterpolate(results.value.length)}</small></button><!--[-->`);
@@ -1899,8 +1972,8 @@ const _sfc_main$1 = {
         _push(`<!---->`);
       }
       _push(`<div class="aq-pagehero"><div class="container-xl">`);
-      _push(ssrRenderComponent(_sfc_main$e, { items: crumb.value }, null, _parent));
-      _push(ssrRenderComponent(_sfc_main$f, {
+      _push(ssrRenderComponent(_sfc_main$f, { items: crumb.value }, null, _parent));
+      _push(ssrRenderComponent(_sfc_main$g, {
         title: __props.title,
         tagline: __props.tagline,
         level: 1
@@ -1976,7 +2049,19 @@ const _sfc_main$1 = {
         }, _parent));
         _push(`</li>`);
       });
-      _push(`<!--]--></ol></div><div class="aq-ad aq-ad--pave mb-4" role="complementary" aria-label="Publicité"><span>Publicité</span><b>300 × 250</b></div></div></aside></div></div>`);
+      _push(`<!--]--></ol></div><div class="mb-4">`);
+      _push(ssrRenderComponent(_sfc_main$c, {
+        slot: "pave",
+        variant: "pave",
+        format: "300 × 250"
+      }, null, _parent));
+      _push(`</div><div class="mb-4">`);
+      _push(ssrRenderComponent(_sfc_main$c, {
+        slot: "sky",
+        variant: "sky",
+        format: "160 × 600"
+      }, null, _parent));
+      _push(`</div></div></aside></div></div>`);
       _push(ssrRenderComponent(_sfc_main$9, null, null, _parent));
       _push(`<!--]-->`);
     };

@@ -48,6 +48,24 @@ class HandleInertiaRequests extends Middleware
                 'success' => $request->session()->get('success'),
                 'newsletter' => $request->session()->get('newsletter'),
             ],
+            'ads' => fn () => $this->activeAds(),
         ];
+    }
+
+    private function activeAds(): array
+    {
+        $ads = json_decode(\Illuminate\Support\Facades\DB::table('admin_data')->where('key', 'ads')->value('value') ?? '[]', true) ?: [];
+        $today = now()->toDateString();
+
+        return collect($ads)
+            ->filter(fn ($a) => ! ($a['paused'] ?? false)
+                && ($a['start'] ?? '') <= $today && ($a['end'] ?? '') >= $today)
+            ->map(fn ($a) => [
+                'slot' => $a['slot'] ?? '',
+                'advertiser' => $a['advertiser'] ?? '',
+                'name' => $a['name'] ?? '',
+                'url' => $a['url'] ?? '',
+                'visual' => $a['visual'] ?? '',
+            ])->values()->all();
     }
 }

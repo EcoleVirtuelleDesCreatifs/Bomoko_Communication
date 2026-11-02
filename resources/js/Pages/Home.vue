@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
+import AqAd from '../Components/AqAd.vue';
 import AqMedia from '../Components/AqMedia.vue';
 import ArticleCard from '../Components/ArticleCard.vue';
 import ChapterHead from '../Components/ChapterHead.vue';
@@ -198,7 +199,7 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
     </div>
   </div></section>
 
-  <div class="container-xl"><div class="aq-ad aq-ad--billboard" role="complementary" aria-label="Publicité"><span>Publicité</span><b class="d-none d-md-block">970 × 250</b><b class="d-md-none">300 × 250</b></div></div>
+  <div class="container-xl"><AqAd slot="billboard" variant="billboard" format="970 × 250" /></div>
 
   <section class="aq-section aq-section--ink" id="economie" aria-labelledby="h-economie"><div class="container-xl" v-if="eco.length">
     <ChapterHead id="economie" title="Économie" tagline="L’information économique panafricaine de référence" href="/rubrique/economie" more="Toute la rubrique" />

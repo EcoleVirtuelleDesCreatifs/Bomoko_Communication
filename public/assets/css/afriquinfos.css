@@ -319,6 +319,12 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 .aq-ad b { font-size: .8125rem; font-weight: 600; }
 .aq-ad--billboard { max-width: 970px; aspect-ratio: 970 / 250; margin: 0 auto 5.5rem; }
 .aq-ad--pave { width: 100%; max-width: 300px; aspect-ratio: 300 / 250; }
+.aq-ad--sky { width: 100%; max-width: 160px; aspect-ratio: 160 / 600; }
+.aq-ad__link { display: block; width: 100%; height: 100%; }
+.aq-ad__link img, .aq-ad__text img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.aq-ad__text { display: grid; place-items: center; align-content: center; gap: .2rem; width: 100%; height: 100%; padding: .75rem; text-align: center; }
+.aq-ad__text strong { font-size: 1rem; color: var(--text); }
+.aq-ad__text small { color: var(--muted); }
 
 /* Culture : affiches */
 .aq-rail-x { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(min(78%, 280px), 1fr); gap: 1.5rem; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; }

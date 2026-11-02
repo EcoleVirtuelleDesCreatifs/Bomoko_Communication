@@ -38,7 +38,7 @@ class FrontController extends Controller
     public function home()
     {
         $articles = $this->list($this->pub());
-        $debate = Debate::current()->latest('id')->first();
+        $debate = Debate::current()->latest('id')->first() ?? Debate::latest('id')->first();
 
         $flashRaw = json_decode(DB::table('admin_data')->where('key', 'flash')->value('value') ?? '[]', true) ?: [];
         $refs = collect($flashRaw)->pluck('articleId')->filter()->all();

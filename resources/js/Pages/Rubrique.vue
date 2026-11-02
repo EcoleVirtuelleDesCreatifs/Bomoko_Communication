@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
+import AqAd from '../Components/AqAd.vue';
 import AqMedia from '../Components/AqMedia.vue';
 import ArticleCard from '../Components/ArticleCard.vue';
 import ChapterHead from '../Components/ChapterHead.vue';
@@ -77,7 +78,7 @@ const kickerMode = computed(() => (props.mode === 'rubrique' ? null : 'rub'));
   <aside class="col-lg-4"><div class="aq-sticky"><div class="aq-side-box"><h2>Les plus lus</h2>
     <ol class="aq-top5"><li v-for="a in top5" :key="a.id"><Link :href="a.url"><span>{{ fr(a.title) }}</span></Link></li></ol>
   </div>
-  <div class="aq-ad aq-ad--pave mb-4" role="complementary" aria-label="Publicité"><span>Publicité</span><b>300 × 250</b></div></div></aside>
+  <div class="mb-4"><AqAd slot="pave" variant="pave" format="300 × 250" /></div><div class="mb-4"><AqAd slot="sky" variant="sky" format="160 × 600" /></div></div></aside>
   </div></div>
   <Newsletter />
 </template>
