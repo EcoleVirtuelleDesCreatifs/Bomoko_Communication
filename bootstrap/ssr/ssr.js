@@ -2011,7 +2011,7 @@ const _sfc_main = {
     const cur = (key) => url.value.startsWith("/rubrique/" + key) || key === "portraits" && url.value.startsWith("/portraits") || key === "afriques" && url.value.startsWith("/afriques") ? "page" : null;
     const menuRubs = computed(() => {
       var _a;
-      return (((_a = nav.value) == null ? void 0 : _a.rubriques) || []).filter((r) => r.slug !== "tips" && r.slug !== "portraits");
+      return (((_a = nav.value) == null ? void 0 : _a.rubriques) || []).filter((r) => !["tips", "portraits", "les-afriques"].includes(r.slug));
     });
     const year = (/* @__PURE__ */ new Date()).getFullYear();
     const showTop = ref(false);
@@ -2080,7 +2080,7 @@ const _sfc_main = {
     });
     return (_ctx, _push, _parent, _attrs) => {
       var _a, _b, _c, _d;
-      _push(`<!--[--><a class="visually-hidden-focusable aq-skip" href="#contenu" data-v-c0a6fc86>Aller au contenu</a><div class="aq-top" data-v-c0a6fc86><div class="container-xl" data-v-c0a6fc86><span class="aq-top__date" data-v-c0a6fc86>${ssrInterpolate(unref(today))}</span><nav aria-label="Liens utiles" data-v-c0a6fc86>`);
+      _push(`<!--[--><a class="visually-hidden-focusable aq-skip" href="#contenu" data-v-cf6ae7b5>Aller au contenu</a><div class="aq-top" data-v-cf6ae7b5><div class="container-xl" data-v-cf6ae7b5><span class="aq-top__date" data-v-cf6ae7b5>${ssrInterpolate(unref(today))}</span><nav aria-label="Liens utiles" data-v-cf6ae7b5>`);
       _push(ssrRenderComponent(unref(Link), {
         class: "d-none d-sm-inline",
         href: "/portraits",
@@ -2129,7 +2129,7 @@ const _sfc_main = {
         }),
         _: 1
       }, _parent));
-      _push(`<a class="d-none d-md-inline" href="/rss.xml" data-v-c0a6fc86><i class="bi bi-rss" aria-hidden="true" data-v-c0a6fc86></i> RSS</a><span class="aq-social aq-social--top d-none d-lg-flex" data-v-c0a6fc86>${social}</span><button class="aq-theme" type="button"${ssrRenderAttr("aria-pressed", isDark.value)} data-v-c0a6fc86><i class="${ssrRenderClass([isDark.value ? "bi-sun" : "bi-moon-stars", "bi"])}" aria-hidden="true" data-v-c0a6fc86></i><span data-v-c0a6fc86>${ssrInterpolate(isDark.value ? "Clair" : "Sombre")}</span></button></nav></div></div><header class="aq-head" data-v-c0a6fc86><div class="container-xl aq-head__row" data-v-c0a6fc86><button class="aq-icon d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#menu" aria-controls="menu" aria-label="Ouvrir le menu" data-v-c0a6fc86><i class="bi bi-list" aria-hidden="true" data-v-c0a6fc86></i></button>`);
+      _push(`<a class="d-none d-md-inline" href="/rss.xml" data-v-cf6ae7b5><i class="bi bi-rss" aria-hidden="true" data-v-cf6ae7b5></i> RSS</a><span class="aq-social aq-social--top d-none d-lg-flex" data-v-cf6ae7b5>${social}</span><button class="aq-theme" type="button"${ssrRenderAttr("aria-pressed", isDark.value)} data-v-cf6ae7b5><i class="${ssrRenderClass([isDark.value ? "bi-sun" : "bi-moon-stars", "bi"])}" aria-hidden="true" data-v-cf6ae7b5></i><span data-v-cf6ae7b5>${ssrInterpolate(isDark.value ? "Clair" : "Sombre")}</span></button></nav></div></div><header class="aq-head" data-v-cf6ae7b5><div class="container-xl aq-head__row" data-v-cf6ae7b5><button class="aq-icon d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#menu" aria-controls="menu" aria-label="Ouvrir le menu" data-v-cf6ae7b5><i class="bi bi-list" aria-hidden="true" data-v-cf6ae7b5></i></button>`);
       _push(ssrRenderComponent(unref(Link), {
         class: "aq-head__brand",
         href: "/",
@@ -2137,7 +2137,7 @@ const _sfc_main = {
       }, {
         default: withCtx((_, _push2, _parent2, _scopeId) => {
           if (_push2) {
-            _push2(`<picture class="aq-logo--light" data-v-c0a6fc86${_scopeId}><source media="(max-width: 575.98px)"${ssrRenderAttr("srcset", unref(asset)("assets/img/logo-compact.png"))} width="600" height="158" data-v-c0a6fc86${_scopeId}><img${ssrRenderAttr("src", unref(asset)("assets/img/logo-afriquinfos.png"))} alt="Afriquinfos — Ni totems, ni tabous" width="600" height="214" data-v-c0a6fc86${_scopeId}></picture><picture class="aq-logo--dark" data-v-c0a6fc86${_scopeId}><source media="(max-width: 575.98px)"${ssrRenderAttr("srcset", unref(asset)("assets/img/logo-compact-negatif.png"))} width="600" height="158" data-v-c0a6fc86${_scopeId}><img${ssrRenderAttr("src", unref(asset)("assets/img/logo-afriquinfos-negatif.png"))} alt="Afriquinfos — Ni totems, ni tabous" width="600" height="214" loading="lazy" data-v-c0a6fc86${_scopeId}></picture>`);
+            _push2(`<picture class="aq-logo--light" data-v-cf6ae7b5${_scopeId}><source media="(max-width: 575.98px)"${ssrRenderAttr("srcset", unref(asset)("assets/img/logo-compact.png"))} width="600" height="158" data-v-cf6ae7b5${_scopeId}><img${ssrRenderAttr("src", unref(asset)("assets/img/logo-afriquinfos.png"))} alt="Afriquinfos — Ni totems, ni tabous" width="600" height="214" data-v-cf6ae7b5${_scopeId}></picture><picture class="aq-logo--dark" data-v-cf6ae7b5${_scopeId}><source media="(max-width: 575.98px)"${ssrRenderAttr("srcset", unref(asset)("assets/img/logo-compact-negatif.png"))} width="600" height="158" data-v-cf6ae7b5${_scopeId}><img${ssrRenderAttr("src", unref(asset)("assets/img/logo-afriquinfos-negatif.png"))} alt="Afriquinfos — Ni totems, ni tabous" width="600" height="214" loading="lazy" data-v-cf6ae7b5${_scopeId}></picture>`);
           } else {
             return [
               createVNode("picture", { class: "aq-logo--light" }, [
@@ -2174,7 +2174,7 @@ const _sfc_main = {
         }),
         _: 1
       }, _parent));
-      _push(`<form class="aq-searchbar d-none d-lg-block" action="/recherche" role="search" data-v-c0a6fc86><i class="bi bi-search" aria-hidden="true" data-v-c0a6fc86></i><label class="visually-hidden" for="hq" data-v-c0a6fc86>Rechercher</label><input id="hq" name="q" type="search" placeholder="Rechercher une actualité, un pays, un sujet…" data-v-c0a6fc86></form><a class="aq-btn aq-btn--primary aq-head__cta d-none d-lg-inline-flex" href="/#newsletter" data-v-c0a6fc86><i class="bi bi-envelope" aria-hidden="true" data-v-c0a6fc86></i>Recevoir le brief</a>`);
+      _push(`<form class="aq-searchbar d-none d-lg-block" action="/recherche" role="search" data-v-cf6ae7b5><i class="bi bi-search" aria-hidden="true" data-v-cf6ae7b5></i><label class="visually-hidden" for="hq" data-v-cf6ae7b5>Rechercher</label><input id="hq" name="q" type="search" placeholder="Rechercher une actualité, un pays, un sujet…" data-v-cf6ae7b5></form><a class="aq-btn aq-btn--primary aq-head__cta d-none d-lg-inline-flex" href="/#newsletter" data-v-cf6ae7b5><i class="bi bi-envelope" aria-hidden="true" data-v-cf6ae7b5></i>Recevoir le brief</a>`);
       _push(ssrRenderComponent(unref(Link), {
         class: "aq-icon d-lg-none",
         href: "/recherche",
@@ -2182,7 +2182,7 @@ const _sfc_main = {
       }, {
         default: withCtx((_, _push2, _parent2, _scopeId) => {
           if (_push2) {
-            _push2(`<i class="bi bi-search" aria-hidden="true" data-v-c0a6fc86${_scopeId}></i>`);
+            _push2(`<i class="bi bi-search" aria-hidden="true" data-v-cf6ae7b5${_scopeId}></i>`);
           } else {
             return [
               createVNode("i", {
@@ -2194,7 +2194,7 @@ const _sfc_main = {
         }),
         _: 1
       }, _parent));
-      _push(`</div></header><nav class="aq-mainnav" id="mainNav" aria-label="Rubriques" data-v-c0a6fc86><div class="container-xl" data-v-c0a6fc86>`);
+      _push(`</div></header><nav class="aq-mainnav" id="mainNav" aria-label="Rubriques" data-v-cf6ae7b5><div class="container-xl" data-v-cf6ae7b5>`);
       _push(ssrRenderComponent(unref(Link), {
         class: "aq-mainnav__mini",
         href: "/",
@@ -2202,7 +2202,7 @@ const _sfc_main = {
       }, {
         default: withCtx((_, _push2, _parent2, _scopeId) => {
           if (_push2) {
-            _push2(`<img${ssrRenderAttr("src", unref(asset)("assets/img/logo-compact-negatif.png"))} alt="" width="600" height="158" loading="lazy" data-v-c0a6fc86${_scopeId}>`);
+            _push2(`<img${ssrRenderAttr("src", unref(asset)("assets/img/logo-compact-negatif.png"))} alt="" width="600" height="158" loading="lazy" data-v-cf6ae7b5${_scopeId}>`);
           } else {
             return [
               createVNode("img", {
@@ -2217,9 +2217,9 @@ const _sfc_main = {
         }),
         _: 1
       }, _parent));
-      _push(`<ul class="aq-menu d-none d-lg-flex" data-v-c0a6fc86><!--[-->`);
+      _push(`<ul class="aq-menu d-none d-lg-flex" data-v-cf6ae7b5><!--[-->`);
       ssrRenderList(menuRubs.value, (r) => {
-        _push(`<li data-v-c0a6fc86>`);
+        _push(`<li data-v-cf6ae7b5>`);
         _push(ssrRenderComponent(unref(Link), {
           href: urlRub(r.slug),
           "aria-current": cur(r.slug)
@@ -2237,11 +2237,11 @@ const _sfc_main = {
         }, _parent));
         _push(`</li>`);
       });
-      _push(`<!--]--><li class="dropdown" data-v-c0a6fc86><a href="/afriques" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" role="button"${ssrRenderAttr("aria-current", cur("afriques"))} data-v-c0a6fc86>Les Afriques <i class="bi bi-chevron-down" aria-hidden="true" data-v-c0a6fc86></i></a><ul class="dropdown-menu aq-dropdown" data-v-c0a6fc86><li data-v-c0a6fc86><a class="dropdown-item dropdown-item--all" href="/afriques" data-v-c0a6fc86>Toutes les Afriques</a></li><!--[-->`);
+      _push(`<!--]--><li class="dropdown" data-v-cf6ae7b5><a href="/afriques" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" role="button"${ssrRenderAttr("aria-current", cur("afriques"))} data-v-cf6ae7b5>Les Afriques <i class="bi bi-chevron-down" aria-hidden="true" data-v-cf6ae7b5></i></a><ul class="dropdown-menu aq-dropdown" data-v-cf6ae7b5><li data-v-cf6ae7b5><a class="dropdown-item dropdown-item--all" href="/afriques" data-v-cf6ae7b5>Toutes les Afriques</a></li><!--[-->`);
       ssrRenderList(((_a = nav.value) == null ? void 0 : _a.regions) || [], (g) => {
-        _push(`<li data-v-c0a6fc86><a class="dropdown-item"${ssrRenderAttr("href", urlRegion(g.slug))}${ssrRenderAttr("aria-current", url.value === urlRegion(g.slug) ? "page" : null)} data-v-c0a6fc86>${ssrInterpolate(g.label)}</a></li>`);
+        _push(`<li data-v-cf6ae7b5><a class="dropdown-item"${ssrRenderAttr("href", urlRegion(g.slug))}${ssrRenderAttr("aria-current", url.value === urlRegion(g.slug) ? "page" : null)} data-v-cf6ae7b5>${ssrInterpolate(g.label)}</a></li>`);
       });
-      _push(`<!--]--></ul></li><li data-v-c0a6fc86>`);
+      _push(`<!--]--></ul></li><li data-v-cf6ae7b5>`);
       _push(ssrRenderComponent(unref(Link), {
         href: "/rubrique/tips",
         "aria-current": cur("tips")
@@ -2257,7 +2257,7 @@ const _sfc_main = {
         }),
         _: 1
       }, _parent));
-      _push(`</li></ul><div class="aq-menu-scroll d-lg-none" data-v-c0a6fc86><!--[-->`);
+      _push(`</li></ul><div class="aq-menu-scroll d-lg-none" data-v-cf6ae7b5><!--[-->`);
       ssrRenderList(menuRubs.value, (r) => {
         _push(ssrRenderComponent(unref(Link), {
           key: r.slug,
@@ -2316,7 +2316,7 @@ const _sfc_main = {
         }),
         _: 1
       }, _parent));
-      _push(`</div><div class="aq-mainnav__tools ms-auto" data-v-c0a6fc86>`);
+      _push(`</div><div class="aq-mainnav__tools ms-auto" data-v-cf6ae7b5>`);
       _push(ssrRenderComponent(unref(Link), {
         class: "aq-icon aq-icon--light aq-mainnav__search",
         href: "/recherche",
@@ -2324,7 +2324,7 @@ const _sfc_main = {
       }, {
         default: withCtx((_, _push2, _parent2, _scopeId) => {
           if (_push2) {
-            _push2(`<i class="bi bi-search" aria-hidden="true" data-v-c0a6fc86${_scopeId}></i>`);
+            _push2(`<i class="bi bi-search" aria-hidden="true" data-v-cf6ae7b5${_scopeId}></i>`);
           } else {
             return [
               createVNode("i", {
@@ -2336,7 +2336,7 @@ const _sfc_main = {
         }),
         _: 1
       }, _parent));
-      _push(`</div></div></nav><div class="offcanvas offcanvas-start aq-offcanvas" tabindex="-1" id="menu" aria-labelledby="menuTitre" data-v-c0a6fc86><div class="offcanvas-header" data-v-c0a6fc86><h2 class="visually-hidden" id="menuTitre" data-v-c0a6fc86>Menu</h2><img${ssrRenderAttr("src", unref(asset)("assets/img/logo-compact-negatif.png"))} alt="Afriquinfos" width="129" height="34" loading="lazy" data-v-c0a6fc86><button type="button" class="aq-icon aq-icon--light" data-bs-dismiss="offcanvas" aria-label="Fermer le menu" data-v-c0a6fc86><i class="bi bi-x-lg" aria-hidden="true" data-v-c0a6fc86></i></button></div><div class="offcanvas-body" data-v-c0a6fc86><form class="aq-searchbar mb-3" action="/recherche" role="search" data-v-c0a6fc86><i class="bi bi-search" aria-hidden="true" data-v-c0a6fc86></i><label class="visually-hidden" for="mq" data-v-c0a6fc86>Rechercher</label><input id="mq" name="q" type="search" placeholder="Rechercher…" data-v-c0a6fc86></form><nav class="aq-offcanvas__nav" aria-label="Rubriques" data-v-c0a6fc86><!--[-->`);
+      _push(`</div></div></nav><div class="offcanvas offcanvas-start aq-offcanvas" tabindex="-1" id="menu" aria-labelledby="menuTitre" data-v-cf6ae7b5><div class="offcanvas-header" data-v-cf6ae7b5><h2 class="visually-hidden" id="menuTitre" data-v-cf6ae7b5>Menu</h2><img${ssrRenderAttr("src", unref(asset)("assets/img/logo-compact-negatif.png"))} alt="Afriquinfos" width="129" height="34" loading="lazy" data-v-cf6ae7b5><button type="button" class="aq-icon aq-icon--light" data-bs-dismiss="offcanvas" aria-label="Fermer le menu" data-v-cf6ae7b5><i class="bi bi-x-lg" aria-hidden="true" data-v-cf6ae7b5></i></button></div><div class="offcanvas-body" data-v-cf6ae7b5><form class="aq-searchbar mb-3" action="/recherche" role="search" data-v-cf6ae7b5><i class="bi bi-search" aria-hidden="true" data-v-cf6ae7b5></i><label class="visually-hidden" for="mq" data-v-cf6ae7b5>Rechercher</label><input id="mq" name="q" type="search" placeholder="Rechercher…" data-v-cf6ae7b5></form><nav class="aq-offcanvas__nav" aria-label="Rubriques" data-v-cf6ae7b5><!--[-->`);
       ssrRenderList(menuRubs.value, (r) => {
         _push(ssrRenderComponent(unref(Link), {
           key: r.slug,
@@ -2399,7 +2399,7 @@ const _sfc_main = {
         }),
         _: 1
       }, _parent));
-      _push(`</nav><p class="aq-offcanvas__label" data-v-c0a6fc86>Afriquinfos</p><nav class="aq-offcanvas__nav" aria-label="Liens utiles" data-v-c0a6fc86>`);
+      _push(`</nav><p class="aq-offcanvas__label" data-v-cf6ae7b5>Afriquinfos</p><nav class="aq-offcanvas__nav" aria-label="Liens utiles" data-v-cf6ae7b5>`);
       _push(ssrRenderComponent(unref(Link), {
         class: "is-sub",
         href: "/portraits"
@@ -2445,9 +2445,9 @@ const _sfc_main = {
         }),
         _: 1
       }, _parent));
-      _push(`<a class="is-sub" href="/rss.xml" data-v-c0a6fc86>Flux RSS</a></nav><div class="aq-social mt-4" data-v-c0a6fc86>${social}</div></div></div><main id="contenu" tabindex="-1" data-v-c0a6fc86>`);
+      _push(`<a class="is-sub" href="/rss.xml" data-v-cf6ae7b5>Flux RSS</a></nav><div class="aq-social mt-4" data-v-cf6ae7b5>${social}</div></div></div><main id="contenu" tabindex="-1" data-v-cf6ae7b5>`);
       ssrRenderSlot(_ctx.$slots, "default", {}, null, _push, _parent);
-      _push(`</main><footer class="aq-footer" data-v-c0a6fc86><div class="container-xl" data-v-c0a6fc86><div class="aq-footer__top" data-v-c0a6fc86><img${ssrRenderAttr("src", unref(asset)("assets/img/logo-afriquinfos-negatif.png"))} alt="Afriquinfos — Ni totems, ni tabous. L’actualité panafricaine" width="600" height="214" loading="lazy" data-v-c0a6fc86><div class="aq-social" data-v-c0a6fc86><a href="https://www.facebook.com/afriquinfoscom/" aria-label="Afriquinfos sur Facebook" rel="noopener" data-v-c0a6fc86><i class="bi bi-facebook" aria-hidden="true" data-v-c0a6fc86></i></a><a href="https://x.com/AfriquinfosActu" aria-label="Afriquinfos sur X" rel="noopener" data-v-c0a6fc86><i class="bi bi-twitter-x" aria-hidden="true" data-v-c0a6fc86></i></a><a href="/rss.xml" aria-label="Flux RSS" data-v-c0a6fc86><i class="bi bi-rss" aria-hidden="true" data-v-c0a6fc86></i></a></div></div><div class="row g-4" data-v-c0a6fc86><nav class="col-6 col-md-3" aria-label="Rubriques" data-v-c0a6fc86><h2 data-v-c0a6fc86>Rubriques</h2><!--[-->`);
+      _push(`</main><footer class="aq-footer" data-v-cf6ae7b5><div class="container-xl" data-v-cf6ae7b5><div class="aq-footer__top" data-v-cf6ae7b5><img${ssrRenderAttr("src", unref(asset)("assets/img/logo-afriquinfos-negatif.png"))} alt="Afriquinfos — Ni totems, ni tabous. L’actualité panafricaine" width="600" height="214" loading="lazy" data-v-cf6ae7b5><div class="aq-social" data-v-cf6ae7b5><a href="https://www.facebook.com/afriquinfoscom/" aria-label="Afriquinfos sur Facebook" rel="noopener" data-v-cf6ae7b5><i class="bi bi-facebook" aria-hidden="true" data-v-cf6ae7b5></i></a><a href="https://x.com/AfriquinfosActu" aria-label="Afriquinfos sur X" rel="noopener" data-v-cf6ae7b5><i class="bi bi-twitter-x" aria-hidden="true" data-v-cf6ae7b5></i></a><a href="/rss.xml" aria-label="Flux RSS" data-v-cf6ae7b5><i class="bi bi-rss" aria-hidden="true" data-v-cf6ae7b5></i></a></div></div><div class="row g-4" data-v-cf6ae7b5><nav class="col-6 col-md-3" aria-label="Rubriques" data-v-cf6ae7b5><h2 data-v-cf6ae7b5>Rubriques</h2><!--[-->`);
       ssrRenderList(((_c = nav.value) == null ? void 0 : _c.rubriques) || [], (r) => {
         _push(ssrRenderComponent(unref(Link), {
           key: r.slug,
@@ -2465,7 +2465,7 @@ const _sfc_main = {
           _: 2
         }, _parent));
       });
-      _push(`<!--]--></nav><nav class="col-6 col-md-3" aria-label="Les Afriques" data-v-c0a6fc86><h2 data-v-c0a6fc86>Les Afriques</h2><!--[-->`);
+      _push(`<!--]--></nav><nav class="col-6 col-md-3" aria-label="Les Afriques" data-v-cf6ae7b5><h2 data-v-cf6ae7b5>Les Afriques</h2><!--[-->`);
       ssrRenderList(((_d = nav.value) == null ? void 0 : _d.regions) || [], (g) => {
         _push(ssrRenderComponent(unref(Link), {
           key: g.slug,
@@ -2483,7 +2483,7 @@ const _sfc_main = {
           _: 2
         }, _parent));
       });
-      _push(`<!--]--></nav><nav class="col-6 col-md-3" aria-label="Afriquinfos" data-v-c0a6fc86><h2 data-v-c0a6fc86>Afriquinfos</h2>`);
+      _push(`<!--]--></nav><nav class="col-6 col-md-3" aria-label="Afriquinfos" data-v-cf6ae7b5><h2 data-v-cf6ae7b5>Afriquinfos</h2>`);
       _push(ssrRenderComponent(unref(Link), { href: "/portraits" }, {
         default: withCtx((_, _push2, _parent2, _scopeId) => {
           if (_push2) {
@@ -2520,7 +2520,7 @@ const _sfc_main = {
         }),
         _: 1
       }, _parent));
-      _push(`<a href="/rss.xml" data-v-c0a6fc86>Flux RSS</a></nav><nav class="col-6 col-md-3" aria-label="Annonceurs" data-v-c0a6fc86><h2 data-v-c0a6fc86>Annonceurs</h2>`);
+      _push(`<a href="/rss.xml" data-v-cf6ae7b5>Flux RSS</a></nav><nav class="col-6 col-md-3" aria-label="Annonceurs" data-v-cf6ae7b5><h2 data-v-cf6ae7b5>Annonceurs</h2>`);
       _push(ssrRenderComponent(unref(Link), { href: "/contact?sujet=publicite" }, {
         default: withCtx((_, _push2, _parent2, _scopeId) => {
           if (_push2) {
@@ -2557,7 +2557,7 @@ const _sfc_main = {
         }),
         _: 1
       }, _parent));
-      _push(`</nav></div><div class="aq-footer__bottom" data-v-c0a6fc86><span data-v-c0a6fc86>© ${ssrInterpolate(unref(year))} Afriquinfos. Tous droits réservés.</span><span data-v-c0a6fc86>`);
+      _push(`</nav></div><div class="aq-footer__bottom" data-v-cf6ae7b5><span data-v-cf6ae7b5>© ${ssrInterpolate(unref(year))} Afriquinfos. Tous droits réservés.</span><span data-v-cf6ae7b5>`);
       _push(ssrRenderComponent(unref(Link), { href: "/mentions-legales" }, {
         default: withCtx((_, _push2, _parent2, _scopeId) => {
           if (_push2) {
@@ -2596,7 +2596,7 @@ const _sfc_main = {
       }, _parent));
       _push(`</span></div></div></footer>`);
       if (!consent.value) {
-        _push(`<div class="aq-consent" role="dialog" aria-label="Consentement aux cookies" aria-describedby="aqConsentTxt" data-v-c0a6fc86><div class="aq-consent__txt" data-v-c0a6fc86><i class="bi bi-cookie" aria-hidden="true" data-v-c0a6fc86></i><p id="aqConsentTxt" data-v-c0a6fc86>Afriquinfos utilise des cookies pour assurer le fonctionnement du site, mémoriser vos préférences et mesurer l’audience. `);
+        _push(`<div class="aq-consent" role="dialog" aria-label="Consentement aux cookies" aria-describedby="aqConsentTxt" data-v-cf6ae7b5><div class="aq-consent__txt" data-v-cf6ae7b5><i class="bi bi-cookie" aria-hidden="true" data-v-cf6ae7b5></i><p id="aqConsentTxt" data-v-cf6ae7b5>Afriquinfos utilise des cookies pour assurer le fonctionnement du site, mémoriser vos préférences et mesurer l’audience. `);
         _push(ssrRenderComponent(unref(Link), { href: "/cookies" }, {
           default: withCtx((_, _push2, _parent2, _scopeId) => {
             if (_push2) {
@@ -2609,11 +2609,11 @@ const _sfc_main = {
           }),
           _: 1
         }, _parent));
-        _push(`</p></div><div class="aq-consent__btns" data-v-c0a6fc86><button type="button" class="aq-consent__btn aq-consent__btn--ghost" data-v-c0a6fc86>Tout refuser</button><button type="button" class="aq-consent__btn aq-consent__btn--accept" data-v-c0a6fc86>Tout accepter</button></div></div>`);
+        _push(`</p></div><div class="aq-consent__btns" data-v-cf6ae7b5><button type="button" class="aq-consent__btn aq-consent__btn--ghost" data-v-cf6ae7b5>Tout refuser</button><button type="button" class="aq-consent__btn aq-consent__btn--accept" data-v-cf6ae7b5>Tout accepter</button></div></div>`);
       } else {
         _push(`<!---->`);
       }
-      _push(`<button type="button" class="${ssrRenderClass([{ "is-on": showTop.value }, "aq-totop"])}" aria-label="Retour en haut de page" title="Retour en haut" data-v-c0a6fc86><i class="bi bi-arrow-up" aria-hidden="true" data-v-c0a6fc86></i></button><!--]-->`);
+      _push(`<button type="button" class="${ssrRenderClass([{ "is-on": showTop.value }, "aq-totop"])}" aria-label="Retour en haut de page" title="Retour en haut" data-v-cf6ae7b5><i class="bi bi-arrow-up" aria-hidden="true" data-v-cf6ae7b5></i></button><!--]-->`);
     };
   }
 };
@@ -2623,7 +2623,7 @@ _sfc_main.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Layouts/SiteLayout.vue");
   return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
 };
-const SiteLayout = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-c0a6fc86"]]);
+const SiteLayout = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-cf6ae7b5"]]);
 createServer(
   (page) => createInertiaApp({
     page,

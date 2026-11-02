@@ -25,7 +25,7 @@ const social = `
     <a href="https://www.facebook.com/afriquinfoscom/" aria-label="Afriquinfos sur Facebook" rel="noopener"><i class="bi bi-facebook" aria-hidden="true"></i></a>
     <a href="https://x.com/AfriquinfosActu" aria-label="Afriquinfos sur X" rel="noopener"><i class="bi bi-twitter-x" aria-hidden="true"></i></a>`;
 
-const menuRubs = computed(() => (nav.value?.rubriques || []).filter((r) => r.slug !== 'tips' && r.slug !== 'portraits'));
+const menuRubs = computed(() => (nav.value?.rubriques || []).filter((r) => !['tips', 'portraits', 'les-afriques'].includes(r.slug)));
 const year = new Date().getFullYear();
 
 const showTop = ref(false);
