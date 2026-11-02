@@ -175,7 +175,7 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
   </div></div></section>
 
   <section class="aq-section aq-section--white" id="afriques" aria-labelledby="h-afriques"><div class="container-xl">
-    <ChapterHead id="afriques" title="Les Afriques" tagline="Ni totems, ni tabous" href="/afriques" />
+    <ChapterHead id="afriques" title="Les Afriques" tagline="Toutes les Afriques, sans détour" href="/afriques" />
     <div class="aq-filters" role="group" aria-label="Filtrer par région">
       <button type="button" :aria-pressed="regionFilter === 'all'" @click="regionFilter = 'all'">Toutes</button>
       <button v-for="g in regions" :key="g.slug" type="button" :aria-pressed="regionFilter === g.slug" @click="regionFilter = g.slug">{{ g.label }}</button>

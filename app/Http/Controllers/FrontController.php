@@ -30,8 +30,8 @@ class FrontController extends Controller
     private function meta(array $meta = []): array
     {
         return ['meta' => $meta + [
-            'title' => 'Afriquinfos — L’actualité panafricaine, ni totems ni tabous',
-            'description' => 'Afriquinfos, le média panafricain : politique, économie, sports, société, culture, opinion et l’actualité des six régions d’Afrique.',
+            'title' => 'Afriquinfos — L’actualité du jour sur l’Afrique',
+            'description' => 'L’actualité du jour sur l’Afrique : politique, économie, sports, société, culture, opinion et les faits marquants des six régions du continent.',
         ]];
     }
 
@@ -140,7 +140,7 @@ class FrontController extends Controller
             'mode' => 'afriques',
             'slug' => 'afriques',
             'title' => 'Les Afriques',
-            'tagline' => 'Ni totems, ni tabous',
+            'tagline' => 'Toutes les Afriques, sans détour',
             'articles' => $this->list($this->pub()->whereNotNull('region_slug')),
             'top' => $this->list($this->pub()->orderByDesc('views')),
         ])->withViewData($this->meta([

@@ -1075,7 +1075,7 @@ const _sfc_main$5 = {
       _push(ssrRenderComponent(_sfc_main$f, {
         id: "afriques",
         title: "Les Afriques",
-        tagline: "Ni totems, ni tabous",
+        tagline: "Toutes les Afriques, sans détour",
         href: "/afriques"
       }, null, _parent));
       _push(`<div class="aq-filters" role="group" aria-label="Filtrer par région"><button type="button"${ssrRenderAttr("aria-pressed", regionFilter.value === "all")}>Toutes</button><!--[-->`);
