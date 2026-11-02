@@ -140,7 +140,7 @@ class FrontController extends Controller
             'mode' => 'afriques',
             'slug' => 'afriques',
             'title' => 'Les Afriques',
-            'tagline' => 'Six régions, une même exigence',
+            'tagline' => 'Ni totems, ni tabous',
             'articles' => $this->list($this->pub()->whereNotNull('region_slug')),
             'top' => $this->list($this->pub()->orderByDesc('views')),
         ])->withViewData($this->meta([
