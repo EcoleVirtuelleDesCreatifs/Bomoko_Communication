@@ -122,6 +122,7 @@
       ];
       delete o.debat;
     }
+    (o.debats || []).forEach(function (d) { if (!d.start) d.start = day(0); if (!d.end) d.end = d.start; });
     if (!o.slots) {
       o.slots = [
         { id: 'billboard', name: 'Billboard accueil', where: 'Accueil, sous la rubrique Politique', w: 970, h: 250, format: '970 × 250' },
@@ -1295,7 +1296,7 @@
   VIEWS.debat = function (v) {
     var tab = 'tous';
     function draw() {
-      var cur = currentDebat(), list = S.debats.slice().sort(function (a, b) { return b.start.localeCompare(a.start); });
+      var cur = currentDebat(), list = S.debats.slice().sort(function (a, b) { return (b.start || '').localeCompare(a.start || ''); });
       var counts = { tous: list.length, encours: 0, programme: 0, archive: 0 }; list.forEach(function (d) { counts[debatStatus(d)]++; });
       var shown = list.filter(function (d) { return tab === 'tous' || debatStatus(d) === tab; });
       var tot = cur ? cur.votes.pour + cur.votes.contre : 0, p = cur ? pct(cur) : 0;
