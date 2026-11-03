@@ -756,7 +756,7 @@
           '<div class="ad-editor__write" id="edWrite">' +
             '<label class="visually-hidden" for="edTitle">Titre</label><textarea class="ad-editor__title" id="edTitle" rows="1" placeholder="Titre de l’article">' + esc(a.title) + '</textarea><p class="ad-titlecount" id="edTitleCount" aria-live="polite"></p><p class="ad-error" id="edTitleErr"></p>' +
             '<label class="visually-hidden" for="edChapo">Chapô</label><textarea class="ad-editor__chapo" id="edChapo" rows="2" placeholder="Chapô : deux ou trois lignes qui résument l’essentiel">' + esc(a.chapo) + '</textarea><p class="ad-error" id="edChapoErr"></p>' +
-            '<div class="ad-editor__bar" role="toolbar" aria-label="Mise en forme"><button type="button" class="ad-btn ad-btn--ghost" data-ins="## "><i class="bi bi-type-h2" aria-hidden="true"></i>Intertitre</button><button type="button" class="ad-btn ad-btn--ghost" data-ins="> "><i class="bi bi-quote" aria-hidden="true"></i>Citation</button><button type="button" class="ad-btn ad-btn--ghost" data-bold><i class="bi bi-type-bold" aria-hidden="true"></i>Gras</button><button type="button" class="ad-btn ad-btn--ghost" data-imgbody><i class="bi bi-images" aria-hidden="true"></i>Image</button><span class="sep" aria-hidden="true"></span><button type="button" class="ad-btn ad-btn--ghost" data-media><i class="bi bi-image" aria-hidden="true"></i>Image de une</button><span class="ms-auto ad-hint d-none d-md-inline">Un paragraphe par ligne vide</span></div>' +
+            '<div class="ad-editor__bar" role="toolbar" aria-label="Mise en forme"><button type="button" class="ad-btn ad-btn--ghost" data-ins="## "><i class="bi bi-type-h2" aria-hidden="true"></i>Intertitre</button><button type="button" class="ad-btn ad-btn--ghost" data-ins="> "><i class="bi bi-quote" aria-hidden="true"></i>Citation</button><button type="button" class="ad-btn ad-btn--ghost" data-bold><i class="bi bi-type-bold" aria-hidden="true"></i>Gras</button><button type="button" class="ad-btn ad-btn--ghost" data-link><i class="bi bi-link-45deg" aria-hidden="true"></i>Lien</button><button type="button" class="ad-btn ad-btn--ghost" data-imgbody><i class="bi bi-images" aria-hidden="true"></i>Image</button><span class="sep" aria-hidden="true"></span><button type="button" class="ad-btn ad-btn--ghost" data-media><i class="bi bi-image" aria-hidden="true"></i>Image de une</button><span class="ms-auto ad-hint d-none d-md-inline">Un paragraphe par ligne vide</span></div>' +
             '<label class="visually-hidden" for="edBody">Texte de l’article</label><div class="ad-editor__body" id="edBody" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Rédigez l’article.">' + bodyHtml(a.body.flatMap(function (b) { return b.indexOf('<') === 0 ? htmlToBlocks(b) : [b]; })) + '</div><p class="ad-error" id="edBodyErr"></p>' +
             '<div class="ad-editor__meta tnum"><span id="edWords"></span><span id="edRead"></span><span>Raccourci : Ctrl + S pour enregistrer</span></div>' +
           '</div>' +
@@ -832,6 +832,29 @@
       b.addEventListener('click', function () {
         $('#edBody').focus();
         document.execCommand('bold');
+        markDirty(); stats();
+      });
+    });
+    $$('[data-link]', v).forEach(function (b) {
+      b.addEventListener('mousedown', function (e) { e.preventDefault(); });
+      b.addEventListener('click', function () {
+        var ed = $('#edBody'), sel = window.getSelection();
+        if (!sel.rangeCount || !ed.contains(sel.getRangeAt(0).commonAncestorContainer)) { toast('Sélectionnez le texte à transformer en lien.'); return; }
+        var range = sel.getRangeAt(0).cloneRange(), node = sel.anchorNode;
+        if (node && node.nodeType === 3) node = node.parentElement;
+        var link = node && node.closest('a');
+        if (link && !ed.contains(link)) link = null;
+        if (range.collapsed && !link) { toast('Sélectionnez le texte à transformer en lien.'); return; }
+        var url = window.prompt('Adresse du lien (https://…). Pour retirer un lien existant, videz ce champ.', link ? link.getAttribute('href') : 'https://');
+        if (url === null) return;
+        url = url.trim();
+        if (url) {
+          try { var parsed = new URL(url); if (['https:', 'http:', 'mailto:', 'tel:'].indexOf(parsed.protocol) < 0) throw new Error(); }
+          catch (e) { toast('Saisissez une adresse valide : https://, http://, mailto: ou tel:.'); return; }
+        }
+        ed.focus(); sel.removeAllRanges(); sel.addRange(range);
+        if (link) { range.selectNodeContents(link); sel.removeAllRanges(); sel.addRange(range); }
+        document.execCommand(url ? 'createLink' : 'unlink', false, url || null);
         markDirty(); stats();
       });
     });
