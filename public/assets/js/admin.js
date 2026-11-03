@@ -685,6 +685,13 @@
     el.childNodes.forEach(function (n) {
       if (n.nodeType === 3) { var t = n.textContent.trim(); if (t) out.push(t); return; }
       var tag = n.nodeName;
+      if (tag === 'A') {
+        var holder = document.createElement('div');
+        holder.appendChild(n.cloneNode(true));
+        var linkText = nodeInline(holder).trim();
+        if (linkText) out.push(linkText);
+        return;
+      }
       var imgs = n.querySelectorAll ? n.querySelectorAll('img') : [];
       if (tag === 'IMG') imgs = [n];
       if (imgs.length) {
