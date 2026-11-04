@@ -30,7 +30,7 @@ const links = [
       <template v-if="page === 'mentions-legales'">
         <h2>Éditeur du site</h2>
         <p>Le site <strong>Afriquinfos</strong> (ci-après « le Site ») est édité par <strong>Afriquinfos</strong>, média panafricain en ligne.</p>
-        <p><strong>Directeur de la publication</strong> : Gadegbeku Edem — <a href="mailto:gadegbekuedem@gmail.com">gadegbekuedem@gmail.com</a><br>
+        <p><strong>Directeur de la publication</strong> : Gadegbeku Edem<br>
         <strong>Contact rédaction</strong> : <a href="mailto:redaction@afriquinfos.com">redaction@afriquinfos.com</a></p>
         <h2>Hébergement</h2>
         <p>Le Site est hébergé par <strong>Hestia</strong>.</p>
