@@ -200,7 +200,7 @@ function sendComment() {
       <div class="aq-side-box"><h2>Les plus lus</h2>
         <ol class="aq-top5"><li v-for="x in top" :key="x.id"><Link :href="x.url"><span>{{ fr(x.title) }}</span></Link></li></ol>
       </div>
-      <AqAd slot="pave" variant="pave" format="300 × 250" />
+      <AqAd slot="pave" variant="pave" />
     </div></aside></div>
   </div></article>
 

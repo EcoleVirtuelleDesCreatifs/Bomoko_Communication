@@ -201,7 +201,7 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
     </div>
   </div></section>
 
-  <div class="container-xl"><AqAd slot="billboard" variant="billboard" format="970 × 250" /></div>
+  <div class="container-xl"><AqAd slot="billboard" variant="billboard" /></div>
 
   <section class="aq-section aq-section--ink" id="economie" aria-labelledby="h-economie"><div class="container-xl" v-if="eco.length">
     <ChapterHead id="economie" title="Économie" tagline="L’information économique panafricaine de référence" href="/rubrique/economie" more="Toute la rubrique" />

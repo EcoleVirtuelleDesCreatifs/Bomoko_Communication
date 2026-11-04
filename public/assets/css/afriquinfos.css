@@ -331,8 +331,8 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 .aq-ad { display: grid; place-items: center; align-content: center; gap: .15rem; background: var(--stone); color: var(--muted); font-size: .75rem; }
 .aq-ad b { font-size: .8125rem; font-weight: 600; }
 .aq-ad--billboard { max-width: 970px; aspect-ratio: 970 / 250; margin: 0 auto 5.5rem; }
-.aq-ad--pave { width: 100%; max-width: 300px; aspect-ratio: 300 / 250; }
-.aq-ad--sky { width: 100%; max-width: 160px; aspect-ratio: 160 / 600; }
+.aq-ad--pave { width: 100%; max-width: 300px; aspect-ratio: 300 / 250; margin-bottom: 1.5rem; }
+.aq-ad--sky { width: 100%; max-width: 160px; aspect-ratio: 160 / 600; margin-bottom: 1.5rem; }
 .aq-ad__link { display: block; width: 100%; height: 100%; }
 .aq-ad__link img, .aq-ad__text img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .aq-ad__text { display: grid; place-items: center; align-content: center; gap: .2rem; width: 100%; height: 100%; padding: .75rem; text-align: center; }

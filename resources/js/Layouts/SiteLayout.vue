@@ -126,7 +126,7 @@ onUnmounted(() => { window.removeEventListener('scroll', onScroll); revealObs?.d
     <Link class="aq-icon d-lg-none" href="/recherche" aria-label="Rechercher"><i class="bi bi-search" aria-hidden="true"></i></Link>
   </div></header>
 
-  <AqAd slot="mobile" variant="mobile" format="320 × 100" />
+  <AqAd slot="mobile" variant="mobile" />
 
   <nav class="aq-mainnav" id="mainNav" aria-label="Rubriques"><div class="container-xl">
     <Link class="aq-mainnav__mini" href="/" aria-label="Afriquinfos, accueil"><img :src="asset('assets/img/logo-compact-negatif.png')" alt="" width="600" height="158" loading="lazy"></Link>

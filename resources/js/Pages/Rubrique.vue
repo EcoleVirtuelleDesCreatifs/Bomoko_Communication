@@ -78,7 +78,7 @@ const kickerMode = computed(() => (props.mode === 'rubrique' ? null : 'rub'));
   <aside class="col-lg-4"><div class="aq-sticky"><div class="aq-side-box"><h2>Les plus lus</h2>
     <ol class="aq-top5"><li v-for="a in top5" :key="a.id"><Link :href="a.url"><span>{{ fr(a.title) }}</span></Link></li></ol>
   </div>
-  <div class="mb-4"><AqAd slot="pave" variant="pave" format="300 × 250" /></div><div class="mb-4"><AqAd slot="sky" variant="sky" format="160 × 600" /></div></div></aside>
+  <AqAd slot="pave" variant="pave" /><AqAd slot="sky" variant="sky" /></div></aside>
   </div></div>
   <Newsletter />
 </template>

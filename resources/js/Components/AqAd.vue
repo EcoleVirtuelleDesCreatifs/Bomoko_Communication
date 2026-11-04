@@ -5,7 +5,6 @@ import { usePage } from '@inertiajs/vue3';
 const props = defineProps({
     slot: { type: String, required: true },
     variant: { type: String, default: 'pave' },
-    format: { type: String, default: '300 × 250' },
 });
 
 const el = ref(null);
@@ -37,18 +36,15 @@ onBeforeUnmount(() => observer?.disconnect());
 </script>
 
 <template>
-  <div ref="el" class="aq-ad" :class="'aq-ad--' + variant" role="complementary" aria-label="Publicité">
+  <div v-if="ad" ref="el" class="aq-ad" :class="'aq-ad--' + variant" role="complementary" aria-label="Publicité">
     <span>Publicité</span>
-    <template v-if="ad">
-      <a v-if="ad.url" class="aq-ad__link" :href="ad.url" target="_blank" rel="noopener sponsored" @click="track('clk')">
-        <img v-if="ad.visual" :src="ad.visual" :alt="ad.advertiser" loading="lazy">
-        <span v-else class="aq-ad__text"><strong>{{ ad.advertiser }}</strong><small v-if="ad.name">{{ ad.name }}</small></span>
-      </a>
-      <span v-else class="aq-ad__text">
-        <img v-if="ad.visual" :src="ad.visual" :alt="ad.advertiser" loading="lazy">
-        <strong v-else>{{ ad.advertiser }}</strong><small v-if="!ad.visual && ad.name">{{ ad.name }}</small>
-      </span>
-    </template>
-    <b v-else>{{ format }}</b>
+    <a v-if="ad.url" class="aq-ad__link" :href="ad.url" target="_blank" rel="noopener sponsored" @click="track('clk')">
+      <img v-if="ad.visual" :src="ad.visual" :alt="ad.advertiser" loading="lazy">
+      <span v-else class="aq-ad__text"><strong>{{ ad.advertiser }}</strong><small v-if="ad.name">{{ ad.name }}</small></span>
+    </a>
+    <span v-else class="aq-ad__text">
+      <img v-if="ad.visual" :src="ad.visual" :alt="ad.advertiser" loading="lazy">
+      <strong v-else>{{ ad.advertiser }}</strong><small v-if="!ad.visual && ad.name">{{ ad.name }}</small>
+    </span>
   </div>
 </template>
