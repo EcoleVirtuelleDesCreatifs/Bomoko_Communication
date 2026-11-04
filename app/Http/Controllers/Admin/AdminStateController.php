@@ -378,6 +378,11 @@ class AdminStateController extends Controller
         foreach ($items as $f) {
             $id = $f['id'] ?? null;
             $old = $id ? ($serverById[$id] ?? null) : null;
+            // la version serveur est plus récente (désactivée/modifiée par un autre admin) : la garder
+            if ($old && ! empty($old['updated']) && Carbon::parse($old['updated'])->gt(Carbon::parse($f['updated'] ?? '2000-01-01'))) {
+                $out[] = $old;
+                continue;
+            }
             $f['created'] = $f['created'] ?? ($old['created'] ?? ($old ? '2000-01-01' : now()->toIso8601String()));
             $out[] = $f;
         }

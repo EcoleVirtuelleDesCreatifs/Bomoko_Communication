@@ -1321,11 +1321,12 @@
       clearTimeout(tm); tm = setTimeout(function () { save(); $('#flTrack').innerHTML = tickerHtml(); if (wasAuto !== f.auto) { var pos = e.target.selectionStart, id = e.target.id; draw(); var el = $('#' + id); el.focus(); el.setSelectionRange(pos, pos); } }, 300);
     });
     v.addEventListener('change', function (e) {
-      if (e.target.hasAttribute('data-fa')) { S.flash[+e.target.getAttribute('data-fa')].active = e.target.checked; save(); draw(); toast(e.target.checked ? 'Flash activé' : 'Flash désactivé'); return; }
+      if (e.target.hasAttribute('data-fa')) { var fa = S.flash[+e.target.getAttribute('data-fa')]; fa.active = e.target.checked; fa.updated = new Date().toISOString(); save(); draw(); toast(e.target.checked ? 'Flash activé' : 'Flash désactivé'); return; }
       if (e.target.hasAttribute('data-fs') || e.target.hasAttribute('data-fe')) {
         var fi = +(e.target.getAttribute('data-fs') || e.target.getAttribute('data-fe')), ff = S.flash[fi];
         if (e.target.hasAttribute('data-fs')) ff.start = e.target.value || ''; else ff.end = e.target.value || '';
         if (ff.start && ff.end && ff.end < ff.start) { if (e.target.hasAttribute('data-fs')) ff.end = ff.start; else ff.start = ff.end; toast('La fin ne peut pas précéder le début : ajusté'); }
+        ff.updated = new Date().toISOString();
         save(); draw();
       }
     });
@@ -1333,7 +1334,7 @@
       var b = e.target.closest('button'); if (!b) return;
       if (b.hasAttribute('data-fu') || b.hasAttribute('data-fd')) { var i = +(b.getAttribute('data-fu') || b.getAttribute('data-fd')), j = b.hasAttribute('data-fu') ? i - 1 : i + 1, t = S.flash[i]; S.flash[i] = S.flash[j]; S.flash[j] = t; save(); draw(); }
       else if (b.hasAttribute('data-fx')) { S.flash.splice(+b.getAttribute('data-fx'), 1); save(); draw(); toast('Flash retiré du bandeau'); }
-      else if (b.hasAttribute('data-fr')) { var f = S.flash[+b.getAttribute('data-fr')]; f.auto = true; syncFlash(); save(); draw(); toast('Le flash reprend le titre de l’article'); }
+      else if (b.hasAttribute('data-fr')) { var f = S.flash[+b.getAttribute('data-fr')]; f.auto = true; f.updated = new Date().toISOString(); syncFlash(); save(); draw(); toast('Le flash reprend le titre de l’article'); }
     });
     draw();
   };
