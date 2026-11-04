@@ -554,7 +554,11 @@ const _sfc_main$9 = {
       items.push({ label: a.title.length > 48 ? a.title.slice(0, 46) + "…" : a.title });
       return items;
     });
-    const fitImgs = (html) => html.replace(/<img\b([^>]*?)>/gi, (tag, attrs) => {
+    const stripFonts = (html) => html.replace(/<\/?font\b[^>]*>/gi, "").replace(/\sface="[^"]*"/gi, "").replace(/style="([^"]*)"/gi, (m, s) => {
+      s = s.replace(/font-family:[^;]+;?/gi, "").replace(/font:[^;]+;?/gi, "");
+      return s.trim() ? ` style="${s}"` : "";
+    });
+    const fitImgs = (html) => stripFonts(html).replace(/<img\b([^>]*?)>/gi, (tag, attrs) => {
       const clean = attrs.replace(/\sstyle="[^"]*"/gi, "").replace(/\swidth="[^"]*"/gi, "").replace(/\sheight="[^"]*"/gi, "");
       return `<img${clean} style="${IMG_STYLE}">`;
     });

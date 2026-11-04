@@ -30,7 +30,16 @@ const crumb = computed(() => {
 });
 
 const IMG_STYLE = 'display:block;width:auto;max-width:100%;height:auto;max-height:420px;object-fit:contain;margin:0 auto';
-const fitImgs = (html) => html.replace(/<img\b([^>]*?)>/gi, (tag, attrs) => {
+// neutralise les polices collées depuis Word/Docs par les journalistes
+const stripFonts = (html) => html
+    .replace(/<\/?font\b[^>]*>/gi, '')
+    .replace(/\sface="[^"]*"/gi, '')
+    .replace(/style="([^"]*)"/gi, (m, s) => {
+        s = s.replace(/font-family:[^;]+;?/gi, '').replace(/font:[^;]+;?/gi, '');
+        return s.trim() ? ` style="${s}"` : '';
+    });
+
+const fitImgs = (html) => stripFonts(html).replace(/<img\b([^>]*?)>/gi, (tag, attrs) => {
     const clean = attrs.replace(/\sstyle="[^"]*"/gi, '').replace(/\swidth="[^"]*"/gi, '').replace(/\sheight="[^"]*"/gi, '');
     return `<img${clean} style="${IMG_STYLE}">`;
 });
