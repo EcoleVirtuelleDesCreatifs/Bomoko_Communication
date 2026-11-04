@@ -12,6 +12,7 @@ use App\Models\Rubrique;
 use App\Models\Subscriber;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -51,6 +52,7 @@ class AdminStateController extends Controller
 
         $state = [
             'v' => 1,
+            'generatedAt' => now()->toIso8601String(),
             'users' => User::all()->map(fn ($u) => [
                 'id' => 'u'.$u->id,
                 'name' => $u->name,
@@ -212,7 +214,7 @@ class AdminStateController extends Controller
             DB::transaction(function () use ($s, $request) {
                 $this->syncRubriques($s['rubriques'] ?? []);
                 $this->syncRegions($s['regions'] ?? []);
-                $this->syncArticles($s['articles'] ?? [], $s['medias'] ?? []);
+                $this->syncArticles($s['articles'] ?? [], $s['medias'] ?? [], $s['generatedAt'] ?? null);
                 $this->syncEvents($s['agenda'] ?? []);
                 $this->syncComments($s['comments'] ?? []);
                 $this->syncSubscribers($s['subscribers'] ?? []);
@@ -224,9 +226,12 @@ class AdminStateController extends Controller
                     if (! array_key_exists($key, $s)) {
                         continue;
                     }
+                    $value = $key === 'flash'
+                        ? $this->mergeFlash(is_array($s[$key]) ? $s[$key] : [], $s['generatedAt'] ?? null)
+                        : $s[$key];
                     DB::table('admin_data')->updateOrInsert(
                         ['key' => $key],
-                        ['value' => json_encode($s[$key], JSON_UNESCAPED_UNICODE), 'updated_at' => now()]
+                        ['value' => json_encode($value, JSON_UNESCAPED_UNICODE), 'updated_at' => now()]
                     );
                 }
             });
@@ -269,15 +274,23 @@ class AdminStateController extends Controller
             ->whereNotIn('slug', Article::whereNotNull('region_slug')->pluck('region_slug'))->delete();
     }
 
-    private function syncArticles(array $items, array $medias = []): void
+    private function syncArticles(array $items, array $medias = [], ?string $loadedAt = null): void
     {
         $mediaMap = $this->resolveMedias($medias);
         $ids = collect($items)->pluck('id')->filter()->all();
         foreach ($items as $a) {
             $media = $mediaMap[$a['mediaId'] ?? ''] ?? null;
             $slug = $a['slug'] ?? $a['id'] ?? Str::slug($a['title'] ?? 'article');
-            $article = Article::where('slug', $a['id'] ?? '')->orWhere('slug', $slug)->first()
-                ?? new Article(['slug' => $a['id'] ?? $slug]);
+            $existing = Article::where('slug', $a['id'] ?? '')->orWhere('slug', $slug)->first();
+            if ($existing && $existing->updated_at) {
+                $base = $loadedAt ? Carbon::parse($loadedAt) : null;
+                $submitted = ! empty($a['updated']) ? Carbon::parse($a['updated']) : null;
+                // version plus récente en base (autre administrateur ou onglet) : ne pas écraser
+                if (! $submitted || ($existing->updated_at->gt($submitted) && (! $base || $existing->updated_at->gt($base)))) {
+                    continue;
+                }
+            }
+            $article = $existing ?? new Article(['slug' => $a['id'] ?? $slug]);
             $article->fill([
                 'slug' => $a['id'] ?? $slug,
                 'rubrique_slug' => $a['rub'] ?? $article->rubrique_slug ?? 'politique',
@@ -290,7 +303,7 @@ class AdminStateController extends Controller
                 'read_time' => $a['read'] ?? 4,
                 'tags' => $a['tags'] ?? [],
                 'ph' => $a['ph'] ?? 'ink',
-                'img' => $media ? ($media['img'] ?? $media['name'] ?? null) : ($a['img'] ?? $article->img),
+                'img' => ($a['img'] ?? '') !== '' ? $a['img'] : ($media ? ($media['img'] ?? $media['name'] ?? null) : $article->img),
                 'icon' => $a['icon'] ?? null,
                 'person' => $a['person'] ?? null,
                 'media_id' => $a['mediaId'] ?? $article->media_id,
@@ -316,6 +329,36 @@ class AdminStateController extends Controller
             }
             $article->save();
         }
+    }
+
+    private function mergeFlash(array $items, ?string $loadedAt): array
+    {
+        $server = json_decode(DB::table('admin_data')->where('key', 'flash')->value('value') ?? '[]', true) ?: [];
+        $serverById = collect($server)->keyBy('id');
+        $submitted = collect($items)->pluck('id')->filter()->all();
+        $base = $loadedAt ? Carbon::parse($loadedAt) : null;
+        $out = [];
+
+        foreach ($items as $f) {
+            $id = $f['id'] ?? null;
+            $old = $id ? ($serverById[$id] ?? null) : null;
+            $f['created'] = $f['created'] ?? ($old['created'] ?? ($old ? '2000-01-01' : now()->toIso8601String()));
+            $out[] = $f;
+        }
+
+        // flash absent de l'état reçu mais ajouté après son chargement : le conserver
+        foreach ($server as $f) {
+            $id = $f['id'] ?? null;
+            if (! $id || in_array($id, $submitted, true)) {
+                continue;
+            }
+            $created = ! empty($f['created']) ? Carbon::parse($f['created']) : null;
+            if ($created && $base && $created->gt($base)) {
+                $out[] = $f;
+            }
+        }
+
+        return $out;
     }
 
     private function resolveMedias(array $medias): array
