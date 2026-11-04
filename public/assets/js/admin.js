@@ -171,9 +171,18 @@
     if (!S || S.v !== 1) S = seed(); else migrate(S);
   }
   // les articles programmés dont l'heure est passée sont publiés
-  S.articles.forEach(function (a) { if (a.status === 'programme' && new Date(a.date).getTime() <= Date.now()) a.status = 'publie'; });
+  S.articles.forEach(function (a) { if (a.status === 'programme' && new Date(a.date).getTime() <= Date.now()) { a.status = 'publie'; a.updated = new Date().toISOString(); } });
   var saveTimer;
-  function save() { clearTimeout(saveTimer); saveTimer = setTimeout(function () { store(KEY, JSON.stringify(S)); if (window.AQ_API) { fetch(window.AQ_API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }, body: JSON.stringify(S), credentials: 'same-origin' }).then(function (r) { return r.json().then(function (j) { if (!r.ok || j.ok === false) toast('Erreur serveur : ' + (j && j.error ? j.error : 'synchronisation impossible')); else if (j.warnings && j.warnings.length) j.warnings.forEach(function (w) { toast(w); }); }).catch(function () { if (!r.ok) toast('Erreur serveur : synchronisation impossible'); }); }).catch(function () { toast('Serveur injoignable : modifications non synchronisées'); }); } }, 400); }
+  var SYNCED = {};
+  function markSynced(rows) { (rows || []).forEach(function (a) { SYNCED[a.id] = a.updated; }); }
+  markSynced(S.articles);
+  function save() { clearTimeout(saveTimer); saveTimer = setTimeout(function () { store(KEY, JSON.stringify(S)); if (window.AQ_API) {
+    // n'envoyer au serveur que les articles réellement modifiés depuis le dernier état synchronisé
+    var dirty = S.articles.filter(function (a) { return SYNCED[a.id] !== a.updated; });
+    var payload = {};
+    for (var k in S) payload[k] = S[k];
+    payload.articles = dirty;
+    fetch(window.AQ_API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }, body: JSON.stringify(payload), credentials: 'same-origin' }).then(function (r) { return r.json().then(function (j) { if (!r.ok || j.ok === false) toast('Erreur serveur : ' + (j && j.error ? j.error : 'synchronisation impossible')); else { markSynced(dirty); if (j.warnings && j.warnings.length) j.warnings.forEach(function (w) { toast(w); }); } }).catch(function () { if (!r.ok) toast('Erreur serveur : synchronisation impossible'); }); }).catch(function () { toast('Serveur injoignable : modifications non synchronisées'); }); } }, 400); }
   function log(what) { S.log.unshift({ at: new Date().toISOString(), who: ME ? ME.name : 'Système', what: what }); S.log = S.log.slice(0, 40); save(); }
 
   function art(id) { return S.articles.filter(function (a) { return a.id === id; })[0]; }
@@ -636,12 +645,13 @@
       var added = 0, updated = 0;
       rows.forEach(function (a) {
         var old = art(a.id);
-        if (!old) { S.articles.push(a); added++; return; }
+        if (!old) { S.articles.push(a); SYNCED[a.id] = a.updated; added++; return; }
         if (a.updated !== old.updated) {
           var body = old.body;
           Object.keys(old).forEach(function (k) { delete old[k]; });
           Object.assign(old, a);
           if (body !== undefined) old.body = body;
+          SYNCED[a.id] = a.updated;
           updated++;
         }
       });
@@ -683,7 +693,7 @@
       else if (b.hasAttribute('data-sort')) { var k = b.getAttribute('data-sort'); listState.dir = listState.sort === k ? -listState.dir : (k === 'title' ? 1 : -1); listState.sort = k; draw(); }
       else if (b.hasAttribute('data-page')) { listState.page += +b.getAttribute('data-page'); draw(); }
       else if (b.hasAttribute('data-trash')) { var a = art(b.getAttribute('data-trash')); a.prev = a.status; a.status = 'corbeille'; a.updated = new Date().toISOString(); log('a mis à la corbeille « ' + a.title + ' »'); save(); draw(); toast('Article mis à la corbeille'); }
-      else if (b.hasAttribute('data-restore')) { var r = art(b.getAttribute('data-restore')); r.status = r.prev && r.prev !== 'corbeille' ? r.prev : 'brouillon'; save(); draw(); toast('Article restauré : ' + STATUS[r.status]); }
+      else if (b.hasAttribute('data-restore')) { var r = art(b.getAttribute('data-restore')); r.status = r.prev && r.prev !== 'corbeille' ? r.prev : 'brouillon'; r.updated = new Date().toISOString(); save(); draw(); toast('Article restauré : ' + STATUS[r.status]); }
       else if (b.hasAttribute('data-purge')) { var p = art(b.getAttribute('data-purge')); confirmBox('Supprimer définitivement ?', '« ' + p.title + ' » sera supprimé sans retour possible.', 'Supprimer définitivement', function () { S.articles = S.articles.filter(function (x) { return x !== p; }); S.flash = S.flash.filter(function (f) { return f.articleId !== p.id; }); log('a supprimé définitivement « ' + p.title + ' »'); save(); draw(); toast('Article supprimé définitivement'); }); }
       else if (b.hasAttribute('data-dup')) { var o = art(b.getAttribute('data-dup')), c = clone(o); c.id = slugify(o.title) + '-copie-' + uid().slice(-4); c.slug = c.id; c.title = o.title + ' (copie)'; c.status = 'brouillon'; c.une = false; c.views = 0; c.date = c.updated = new Date().toISOString(); S.articles.unshift(c); log('a dupliqué « ' + o.title + ' »'); save(); draw(); toast('Copie créée en brouillon'); }
       else if (b.hasAttribute('data-preview')) { e.preventDefault(); preview(art(b.getAttribute('data-preview'))); }
