@@ -996,48 +996,53 @@ const _sfc_main$6 = {
   props: { items: { type: Array, default: () => [] } },
   setup(__props) {
     const props = __props;
-    const cur = ref(0);
     const paused = ref(false);
     const n = computed(() => props.items.length);
-    let timer = null;
-    function arm() {
-      clearInterval(timer);
-      if (!reduceMotion && n.value > 1) timer = setInterval(() => {
-        if (!paused.value) cur.value = (cur.value + 1) % n.value;
-      }, 5e3);
-    }
-    onMounted(arm);
-    onBeforeUnmount(() => clearInterval(timer));
+    const duration = computed(() => Math.max(20, n.value * 12) + "s");
     return (_ctx, _push, _parent, _attrs) => {
-      var _a, _b;
       if (n.value) {
-        _push(`<div${ssrRenderAttrs(mergeProps({ class: "aq-flashbar" }, _attrs))} data-v-875d532f><div class="container-xl" data-v-875d532f><div class="aq-flash" role="region" aria-label="Flash info" aria-roledescription="carrousel" data-v-875d532f><div class="aq-flash__label" data-v-875d532f><span class="aq-flash__dot" aria-hidden="true" data-v-875d532f></span><span data-v-875d532f><small data-v-875d532f>En direct</small><strong data-v-875d532f>Flash info</strong></span></div><div class="aq-flash__viewport aq-flash__single" aria-live="off" data-v-875d532f>`);
-        if ((_a = __props.items[cur.value]) == null ? void 0 : _a.url) {
-          _push(ssrRenderComponent(unref(Link), {
-            key: cur.value,
-            class: "aq-flash__item",
-            href: __props.items[cur.value].url,
-            role: "group",
-            "aria-roledescription": "flash",
-            "aria-label": cur.value + 1 + " sur " + n.value + " : " + __props.items[cur.value].text
-          }, {
-            default: withCtx((_, _push2, _parent2, _scopeId) => {
-              if (_push2) {
-                _push2(`${ssrInterpolate(unref(fr)(__props.items[cur.value].text))}`);
-              } else {
-                return [
-                  createTextVNode(toDisplayString(unref(fr)(__props.items[cur.value].text)), 1)
-                ];
-              }
-            }),
-            _: 1
-          }, _parent));
-        } else {
-          _push(`<span class="aq-flash__item" data-v-875d532f>${ssrInterpolate(unref(fr)((_b = __props.items[cur.value]) == null ? void 0 : _b.text))}</span>`);
-        }
-        _push(`</div>`);
+        _push(`<div${ssrRenderAttrs(mergeProps({ class: "aq-flashbar" }, _attrs))} data-v-23e0f920><div class="container-xl" data-v-23e0f920><div class="aq-flash" role="region" aria-label="Flash info" data-v-23e0f920><div class="aq-flash__label" data-v-23e0f920><span class="aq-flash__dot" aria-hidden="true" data-v-23e0f920></span><span data-v-23e0f920><small data-v-23e0f920>En direct</small><strong data-v-23e0f920>Flash info</strong></span></div><div class="aq-flash__viewport aq-flash__ticker" data-v-23e0f920><div class="aq-flash__track" style="${ssrRenderStyle({ animationDuration: duration.value, animationPlayState: paused.value || unref(reduceMotion) ? "paused" : "running" })}" data-v-23e0f920><!--[-->`);
+        ssrRenderList(2, (rep) => {
+          _push(`<!--[-->`);
+          if (_ctx.f.url) {
+            _push(`<!--[-->`);
+            ssrRenderList(__props.items, (f, i) => {
+              _push(ssrRenderComponent(unref(Link), {
+                key: rep + "-" + i,
+                class: "aq-flash__item",
+                href: f.url,
+                "aria-hidden": rep === 2
+              }, {
+                default: withCtx((_, _push2, _parent2, _scopeId) => {
+                  if (_push2) {
+                    _push2(`${ssrInterpolate(unref(fr)(f.text))}`);
+                  } else {
+                    return [
+                      createTextVNode(toDisplayString(unref(fr)(f.text)), 1)
+                    ];
+                  }
+                }),
+                _: 2
+              }, _parent));
+            });
+            _push(`<!--]-->`);
+          } else {
+            _push(`<!---->`);
+          }
+          if (!_ctx.f.url) {
+            _push(`<!--[-->`);
+            ssrRenderList(__props.items, (f, i) => {
+              _push(`<span class="aq-flash__item"${ssrRenderAttr("aria-hidden", rep === 2)} data-v-23e0f920>${ssrInterpolate(unref(fr)(f.text))}</span>`);
+            });
+            _push(`<!--]-->`);
+          } else {
+            _push(`<!---->`);
+          }
+          _push(`<!--]-->`);
+        });
+        _push(`<!--]--></div></div>`);
         if (n.value > 1) {
-          _push(`<div class="aq-flash__nav" data-v-875d532f><span class="aq-flash__pos tnum" aria-hidden="true" data-v-875d532f>${ssrInterpolate(cur.value + 1)}/${ssrInterpolate(n.value)}</span><button class="aq-flash__arrow" type="button" aria-label="Flash précédent" data-v-875d532f><i class="bi bi-chevron-left" aria-hidden="true" data-v-875d532f></i></button><button class="aq-flash__arrow" type="button" aria-label="Flash suivant" data-v-875d532f><i class="bi bi-chevron-right" aria-hidden="true" data-v-875d532f></i></button><button class="aq-flash__pause" type="button"${ssrRenderAttr("aria-label", paused.value ? "Reprendre le défilement" : "Mettre le défilement en pause")}${ssrRenderAttr("aria-pressed", paused.value)} data-v-875d532f><i class="${ssrRenderClass([paused.value ? "bi-play-fill" : "bi-pause-fill", "bi"])}" aria-hidden="true" data-v-875d532f></i></button></div>`);
+          _push(`<div class="aq-flash__nav" data-v-23e0f920><button class="aq-flash__pause" type="button"${ssrRenderAttr("aria-label", paused.value ? "Reprendre le défilement" : "Mettre le défilement en pause")}${ssrRenderAttr("aria-pressed", paused.value)} data-v-23e0f920><i class="${ssrRenderClass([paused.value ? "bi-play-fill" : "bi-pause-fill", "bi"])}" aria-hidden="true" data-v-23e0f920></i></button></div>`);
         } else {
           _push(`<!---->`);
         }
@@ -1054,7 +1059,7 @@ _sfc_main$6.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/FlashBar.vue");
   return _sfc_setup$6 ? _sfc_setup$6(props, ctx) : void 0;
 };
-const FlashBar = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["__scopeId", "data-v-875d532f"]]);
+const FlashBar = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["__scopeId", "data-v-23e0f920"]]);
 const FLASH_N = 3;
 const _sfc_main$5 = {
   __name: "Home",
