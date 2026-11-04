@@ -48,15 +48,17 @@ class AdminStateController extends Controller
     public function articles(Request $request)
     {
         $q = trim((string) $request->query('q', ''));
-        if (mb_strlen($q) < 2) {
-            return response()->json([]);
-        }
-
-        $like = '%'.str_replace(['%', '_'], ['\\%', '\\_'], $q).'%';
-        $rows = Article::where(fn ($w) => $w->where('title', 'like', $like)
+        $rows = Article::orderByDesc('published_at');
+        if (mb_strlen($q) >= 2) {
+            $like = '%'.str_replace(['%', '_'], ['\\%', '\\_'], $q).'%';
+            $rows->where(fn ($w) => $w->where('title', 'like', $like)
                 ->orWhere('slug', 'like', $like)
                 ->orWhere('author_name', 'like', $like))
-            ->orderByDesc('published_at')->limit(40)
+                ->limit(40);
+        } else {
+            $rows->limit(1500);
+        }
+        $rows = $rows
             ->get(['id', 'slug', 'rubrique_slug', 'region_slug', 'country', 'ph', 'img',
                    'image_path', 'views', 'title', 'chapo', 'author_name', 'published_at',
                    'updated_at', 'read_time', 'tags', 'status', 'meta_desc', 'is_une',

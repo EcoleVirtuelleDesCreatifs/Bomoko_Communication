@@ -578,6 +578,7 @@
           '<label class="visually-hidden" for="aRub">Rubrique</label><select class="ad-select" id="aRub">' + options(rubsSorted().map(function (r) { return { value: r.id, label: r.label }; }), listState.rub, 'Toutes les rubriques') + '</select>' +
           '<label class="visually-hidden" for="aReg">Région</label><select class="ad-select" id="aReg">' + options(regsSorted().map(function (r) { return { value: r.id, label: r.label }; }), listState.reg, 'Toutes les régions') + '</select>' +
           '<label class="visually-hidden" for="aAut">Auteur</label><select class="ad-select" id="aAut">' + options(authors.map(function (n) { return { value: n, label: n }; }), listState.author, 'Tous les auteurs') + '</select>' +
+          '<button type="button" class="ad-btn ad-btn--outline" id="aRefresh" title="Recharger la liste depuis le serveur"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i>Actualiser</button>' +
         '</div>' +
         '<div class="ad-bulk" id="bulk" hidden><span id="bulkCount"></span><button type="button" class="ad-btn ad-btn--sm" data-bulk="publie">Publier</button><button type="button" class="ad-btn ad-btn--sm" data-bulk="brouillon">Repasser en brouillon</button><button type="button" class="ad-btn ad-btn--sm" data-bulk="corbeille">Mettre à la corbeille</button><button type="button" class="ad-btn ad-btn--sm" data-bulk="restore" hidden>Restaurer</button><button type="button" class="ad-btn ad-btn--sm ms-auto" data-bulk="none">Désélectionner</button></div>' +
         '<div class="ad-tablewrap"><table class="ad-table" id="artTable"></table></div>' +
@@ -631,6 +632,28 @@
       $('#bulk').hidden = !n; $('#bulkCount').textContent = plural(n, 'article sélectionné', 'articles sélectionnés');
       $$('[data-bulk]', v).forEach(function (b) { var k = b.getAttribute('data-bulk'); if (k === 'restore') b.hidden = !trash; else if (k !== 'none') b.hidden = trash; });
     }
+    function mergeArticles(rows) {
+      var added = 0, updated = 0;
+      rows.forEach(function (a) {
+        var old = art(a.id);
+        if (!old) { S.articles.push(a); added++; return; }
+        if (a.updated !== old.updated) {
+          var body = old.body;
+          Object.keys(old).forEach(function (k) { delete old[k]; });
+          Object.assign(old, a);
+          if (body !== undefined) old.body = body;
+          updated++;
+        }
+      });
+      return added + updated;
+    }
+    function refreshArticles(done) {
+      if (!window.AQ_API) { done && done(); return; }
+      fetch(window.AQ_API.replace(/state$/, 'articles'), { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+        .then(function (r) { return r.ok ? r.json() : []; })
+        .then(function (rows) { var n = mergeArticles(rows); if (n) draw(); done && done(n); })
+        .catch(function () { done && done(0); });
+    }
     var t, sT, sSeq = 0;
     $('#aQ').addEventListener('input', function () {
       clearTimeout(t); var val = this.value;
@@ -651,6 +674,9 @@
       }, 400);
     });
     [['aRub', 'rub'], ['aReg', 'reg'], ['aAut', 'author']].forEach(function (p) { $('#' + p[0]).addEventListener('change', function () { listState[p[1]] = this.value; listState.page = 1; draw(); }); });
+    $('#aRefresh').addEventListener('click', function () { refreshArticles(function (n) { toast(n ? plural(n, 'article synchronisé', 'articles synchronisés') : 'La liste est à jour'); }); });
+    // à l'ouverture de la vue, synchroniser les articles récents avec le serveur
+    refreshArticles();
     v.addEventListener('click', function (e) {
       var b = e.target.closest('button, a'); if (!b) return;
       if (b.hasAttribute('data-t')) { listState.tab = b.getAttribute('data-t'); listState.page = 1; listState.sel = {}; draw(); }
