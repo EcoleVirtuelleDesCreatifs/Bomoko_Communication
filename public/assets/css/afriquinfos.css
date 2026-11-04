@@ -497,7 +497,7 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 .aq-figure { margin: 0 0 2.25rem; }
 .aq-figure .aq-media { aspect-ratio: 16 / 9; }
 .aq-figure figcaption { font-family: var(--serif); font-style: italic; font-size: .875rem; color: var(--muted); margin-top: .6rem; }
-.aq-figure--body img { display: block; width: 100%; height: auto; }
+.aq-figure--body img { display: block; width: auto; max-width: 100%; height: auto; max-height: 640px; margin: 0 auto; object-fit: contain; }
 .aq-prose { font-family: var(--serif); font-size: var(--aq-article-size); line-height: 1.7; max-width: 680px; }
 .aq-prose p { margin: 0 0 1.35em; }
 .aq-prose > p:first-of-type::first-letter { float: left; font-family: var(--display); font-weight: 800; font-size: 4.1em; line-height: .82; margin: .06em .12em 0 0; color: var(--orange); }
@@ -512,7 +512,7 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 .aq-prose a:hover, .aq-legacy a:hover { text-decoration-thickness: 3px; }
 .aq-prose a:focus-visible, .aq-legacy a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; border-radius: 2px; }
 [data-theme="dark"] .aq-prose a, [data-theme="dark"] .aq-legacy a { color: #ff9b66; }
-.aq-legacy img { max-width: 100%; height: auto; }
+.aq-legacy img { display: block; width: auto; max-width: 100%; height: auto; max-height: 640px; margin: 0 auto; object-fit: contain; }
 .aq-legacy ul, .aq-legacy ol { margin: 0 0 1.35em; padding-left: 1.5rem; }
 .aq-legacy blockquote { margin: 1.75em 0; padding-left: 1.5rem; border-left: 3px solid var(--orange); font-style: italic; }
 .aq-tags { display: flex; flex-wrap: wrap; gap: .5rem; margin: 2rem 0; }
