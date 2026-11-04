@@ -152,14 +152,24 @@ class FrontController extends Controller
 
     public function legacyArticle(string $rubrique, string $slug)
     {
-        $a = Article::published()->where('slug', $slug)->firstOrFail();
+        $a = Article::published()->where('slug', $slug)->first();
+        if (! $a) {
+            $new = DB::table('slug_redirects')->where('old_slug', $slug)->value('new_slug');
+            abort_unless($new, 404);
+            return redirect()->route('article.show', $new, 301);
+        }
 
         return redirect()->route('article.show', $a->slug, 301);
     }
 
     public function article(string $slug)
     {
-        $a = Article::published()->with(['rubrique', 'region'])->where('slug', $slug)->firstOrFail();
+        $a = Article::published()->with(['rubrique', 'region'])->where('slug', $slug)->first();
+        if (! $a) {
+            $new = DB::table('slug_redirects')->where('old_slug', $slug)->value('new_slug');
+            abort_unless($new, 404);
+            return redirect()->route('article.show', $new, 301);
+        }
         $a->increment('views');
         $article = $a->toPublicArray();
         $sameRub = $this->pub()->where('rubrique_slug', $a->rubrique_slug)->limit(50)

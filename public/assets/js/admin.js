@@ -18,7 +18,7 @@
   function fr(s) { return esc(s).replace(/ ([:;?!%»])/g, ' $1').replace(/« /g, '« '); }
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
-  function slugify(s) { return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80); }
+  function slugify(s) { var x = String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); if (x.length > 70) { x = x.slice(0, 70); var i = x.lastIndexOf('-'); if (i > 30) x = x.slice(0, i); } return x; }
   function initials(n) { return String(n || '?').split(/[\s,]+/).filter(Boolean).slice(0, 2).map(function (p) { return p.charAt(0).toUpperCase(); }).join(''); }
   function plural(n, one, many) { return n + ' ' + (n > 1 ? many : one); }
   function norm(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
