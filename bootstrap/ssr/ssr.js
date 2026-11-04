@@ -531,6 +531,7 @@ _sfc_main$a.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/Newsletter.vue");
   return _sfc_setup$a ? _sfc_setup$a(props, ctx) : void 0;
 };
+const IMG_STYLE = "display:block;width:auto;max-width:100%;height:auto;max-height:420px;object-fit:contain;margin:0 auto";
 const _sfc_main$9 = {
   __name: "Article",
   __ssrInlineRender: true,
@@ -553,8 +554,12 @@ const _sfc_main$9 = {
       items.push({ label: a.title.length > 48 ? a.title.slice(0, 46) + "…" : a.title });
       return items;
     });
+    const fitImgs = (html) => html.replace(/<img\b([^>]*?)>/gi, (tag, attrs) => {
+      const clean = attrs.replace(/\sstyle="[^"]*"/gi, "").replace(/\swidth="[^"]*"/gi, "").replace(/\sheight="[^"]*"/gi, "");
+      return `<img${clean} style="${IMG_STYLE}">`;
+    });
     const blocks = computed(() => (a.body || []).map((b) => {
-      if (b.startsWith("<")) return { t: "html", x: b };
+      if (b.startsWith("<")) return { t: "html", x: fitImgs(b) };
       if (b.startsWith("## ")) return { t: "h2", x: b.slice(3) };
       if (b.startsWith("> ")) return { t: "quote", x: b.slice(2) };
       const img = b.match(/^\[img:([^\]|]+)\|?([^\]]*)\]$/);
@@ -650,7 +655,7 @@ const _sfc_main$9 = {
         } else if (b.t === "html") {
           _push(`<div class="aq-legacy">${b.x ?? ""}</div>`);
         } else if (b.t === "img") {
-          _push(`<figure class="aq-figure aq-figure--body"><img${ssrRenderAttr("src", /^(https?:|data:)/.test(b.src) ? b.src : unref(asset)("storage/" + b.src))}${ssrRenderAttr("alt", b.cap)} loading="lazy">`);
+          _push(`<figure class="aq-figure aq-figure--body"><img${ssrRenderAttr("src", /^(https?:|data:)/.test(b.src) ? b.src : unref(asset)("storage/" + b.src))}${ssrRenderAttr("alt", b.cap)} loading="lazy" style="${ssrRenderStyle(IMG_STYLE)}">`);
           if (b.cap) {
             _push(`<figcaption>${ssrInterpolate(unref(fr)(b.cap))}</figcaption>`);
           } else {

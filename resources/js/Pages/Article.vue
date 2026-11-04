@@ -29,8 +29,14 @@ const crumb = computed(() => {
     return items;
 });
 
+const IMG_STYLE = 'display:block;width:auto;max-width:100%;height:auto;max-height:420px;object-fit:contain;margin:0 auto';
+const fitImgs = (html) => html.replace(/<img\b([^>]*?)>/gi, (tag, attrs) => {
+    const clean = attrs.replace(/\sstyle="[^"]*"/gi, '').replace(/\swidth="[^"]*"/gi, '').replace(/\sheight="[^"]*"/gi, '');
+    return `<img${clean} style="${IMG_STYLE}">`;
+});
+
 const blocks = computed(() => (a.body || []).map((b) => {
-    if (b.startsWith('<')) return { t: 'html', x: b };
+    if (b.startsWith('<')) return { t: 'html', x: fitImgs(b) };
     if (b.startsWith('## ')) return { t: 'h2', x: b.slice(3) };
     if (b.startsWith('> ')) return { t: 'quote', x: b.slice(2) };
     const img = b.match(/^\[img:([^\]|]+)\|?([^\]]*)\]$/);
@@ -145,7 +151,7 @@ function sendComment() {
           <blockquote v-else-if="b.t === 'quote'" v-html="inline(b.x)"></blockquote>
           <div v-else-if="b.t === 'html'" class="aq-legacy" v-html="b.x"></div>
           <figure v-else-if="b.t === 'img'" class="aq-figure aq-figure--body">
-            <img :src="/^(https?:|data:)/.test(b.src) ? b.src : asset('storage/' + b.src)" :alt="b.cap" loading="lazy">
+            <img :src="/^(https?:|data:)/.test(b.src) ? b.src : asset('storage/' + b.src)" :alt="b.cap" loading="lazy" :style="IMG_STYLE">
             <figcaption v-if="b.cap">{{ fr(b.cap) }}</figcaption>
           </figure>
           <p v-else v-html="inline(b.x)"></p>
