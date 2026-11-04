@@ -1702,13 +1702,20 @@
       $('#tmTable').innerHTML = '<thead><tr><th>Membre</th><th>Rôle</th><th>Articles</th><th>Dernière activité</th><th>Statut</th><th class="actions"><span class="visually-hidden">Actions</span></th></tr></thead><tbody>' +
         S.users.map(function (u) {
           var n = S.articles.filter(function (a) { return a.author === u.name && a.status !== 'corbeille'; }).length, me = u.id === ME.id;
-          return '<tr><td><div class="d-flex align-items-center gap-3"><span class="ad-avatar ad-avatar--sm" aria-hidden="true">' + initials(u.name) + '</span><div class="ad-title-cell" style="min-width:180px"><strong>' + esc(u.name) + (me ? ' <span class="ad-muted fw-normal">(vous)</span>' : '') + '</strong><small>' + esc(u.email) + '</small></div></div></td>' +
+          return '<tr><td><div class="d-flex align-items-center gap-3"><span class="ad-avatar ad-avatar--sm" aria-hidden="true">' + initials(u.name) + '</span><div class="ad-title-cell" style="min-width:180px">' + (isAdmin ? '<label class="visually-hidden" for="name' + u.id + '">Nom de ' + esc(u.name) + '</label><input class="ad-input" id="name' + u.id + '" data-uname="' + u.id + '" value="' + esc(u.name) + '" style="max-width:240px">' + (me ? ' <span class="ad-muted fw-normal">(vous)</span>' : '') : '<strong>' + esc(u.name) + (me ? ' <span class="ad-muted fw-normal">(vous)</span>' : '') + '</strong>') + '<small>' + esc(u.email) + '</small></div></div></td>' +
             '<td><label class="visually-hidden" for="role' + u.id + '">Rôle de ' + esc(u.name) + '</label><select class="ad-select" style="min-width:170px" id="role' + u.id + '" data-role="' + u.id + '"' + (me || !isAdmin ? ' disabled' : '') + '>' + options(Object.keys(ROLES).map(function (k) { return { value: k, label: ROLES[k] }; }), u.role) + '</select></td>' +
             '<td class="tnum">' + n + '</td><td class="ad-muted">' + (u.status === 'invite' ? '—' : rel(u.last)) + '</td><td><span class="ad-status ad-status--' + (u.status === 'invite' ? 'invite' : 'active') + '">' + (u.status === 'invite' ? 'Invitation envoyée' : 'Actif') + '</span></td>' +
             '<td class="actions">' + (me || !isAdmin ? '' : '<button type="button" class="ad-iconbtn ad-iconbtn--sm ad-iconbtn--danger" data-rmu="' + u.id + '" aria-label="Retirer l’accès de ' + esc(u.name) + '"><i class="bi bi-person-dash" aria-hidden="true"></i></button>') + '</td></tr>';
         }).join('') + '</tbody>';
     }
-    v.addEventListener('change', function (e) { if (e.target.hasAttribute('data-role')) { var u = S.users.filter(function (x) { return x.id === e.target.getAttribute('data-role'); })[0]; u.role = e.target.value; log('a donné le rôle ' + ROLES[u.role] + ' à ' + u.name); save(); toast(u.name + ' : ' + ROLES[u.role]); } });
+    v.addEventListener('change', function (e) {
+      if (e.target.hasAttribute('data-role')) { var u = S.users.filter(function (x) { return x.id === e.target.getAttribute('data-role'); })[0]; u.role = e.target.value; log('a donné le rôle ' + ROLES[u.role] + ' à ' + u.name); save(); toast(u.name + ' : ' + ROLES[u.role]); }
+      else if (e.target.hasAttribute('data-uname')) {
+        var m = S.users.filter(function (x) { return x.id === e.target.getAttribute('data-uname'); })[0], n = e.target.value.trim();
+        if (!n) { e.target.value = m.name; toast('Le nom ne peut pas être vide'); return; }
+        if (n !== m.name) { var old = m.name; m.name = n; log('a renommé ' + old + ' en ' + n); save(); draw(); toast('« ' + old + ' » est désormais « ' + n + ' »'); }
+      }
+    });
     v.addEventListener('click', function (e) {
       var b = e.target.closest('[data-rmu]'); if (!b) return;
       var u = S.users.filter(function (x) { return x.id === b.getAttribute('data-rmu'); })[0];
