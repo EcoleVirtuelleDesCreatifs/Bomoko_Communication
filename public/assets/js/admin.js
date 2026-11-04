@@ -407,6 +407,19 @@
         '<section class="ad-panel" aria-labelledby="hLog"><div class="ad-panel__head"><h2 id="hLog">Activité de l’équipe</h2></div><ul class="ad-list">' +
           S.log.slice(0, 5).map(function (l) { return '<li><span class="ad-avatar ad-avatar--sm" aria-hidden="true">' + initials(l.who) + '</span><div class="ad-list__main"><strong>' + esc(l.who) + '</strong><small>' + fr(l.what) + ', ' + rel(l.at) + '</small></div></li>'; }).join('') + '</ul></section>' +
       '</div>' +
+      ((ME.role === 'admin' || ME.role === 'chef') ? (function () {
+        var today = new Date(); today.setHours(0, 0, 0, 0);
+        var pubs = S.articles.filter(function (a) { return a.status === 'publie' && new Date(a.date) >= today; })
+          .sort(function (x, y) { return (y.date || '').localeCompare(x.date || ''); });
+        return '<section class="ad-panel" aria-labelledby="hToday"><div class="ad-panel__head"><h2 id="hToday">Publiés aujourd’hui par l’équipe</h2><span class="ad-muted" style="font-size:.8125rem">' + plural(pubs.length, 'article', 'articles') + ' mis en ligne ce jour</span></div>' +
+          (pubs.length ? '<div class="ad-tablewrap" style="max-height:420px;overflow:auto"><table class="ad-table"><thead><tr><th>Titre</th><th>Auteur</th><th>Rubrique</th><th>Heure</th></tr></thead><tbody>' +
+            pubs.map(function (a) { return '<tr><td><div class="ad-title-cell"><a href="#" data-edit="' + a.id + '">' + fr(a.title) + '</a><small>' + esc(a.country || '') + '</small></div></td>' +
+              '<td style="white-space:nowrap"><strong>' + esc(a.author || '—') + '</strong></td>' +
+              '<td>' + esc(rubLabel(a.rub) || a.rub || '—') + '</td>' +
+              '<td class="ad-muted" style="white-space:nowrap">' + new Date(a.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '</td></tr>'; }).join('') +
+          '</tbody></table></div>' : '<div class="ad-empty"><strong>Aucune publication aujourd’hui</strong>Les articles publiés par les journalistes apparaîtront ici.</div>') +
+        '</section>';
+      })() : '') +
       '<section class="ad-panel" aria-labelledby="hSubs"><div class="ad-panel__head"><h2 id="hSubs">Derniers abonnés à la newsletter</h2><a href="#newsletter">Gérer les abonnés</a></div>' +
         (S.subscribers.length ? '<div class="ad-tablewrap"><table class="ad-table"><thead><tr><th>Abonné</th><th>Pays</th><th>Inscription</th><th>Statut</th></tr></thead><tbody>' +
           S.subscribers.slice().sort(function (a, b) { return (b.since||'').localeCompare(a.since||''); }).slice(0, 6).map(function (s) { return '<tr><td><div class="ad-title-cell"><strong>' + esc(s.name) + '</strong><small>' + esc(s.email) + '</small></div></td><td>' + esc(s.country || '—') + '</td><td class="ad-muted" style="white-space:nowrap">' + rel(s.since) + '</td><td><span class="ad-status ad-status--' + (s.status === 'actif' ? 'active' : 'libre') + '">' + (s.status === 'actif' ? 'Abonné' : 'Désinscrit') + '</span></td></tr>'; }).join('') +
