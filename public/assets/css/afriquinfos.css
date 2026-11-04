@@ -329,7 +329,7 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 .aq-filters small { margin-left: .3rem; color: var(--muted); font-weight: 500; }
 
 /* Publicité */
-.aq-ad { display: grid; place-items: center; align-content: center; gap: .15rem; background: var(--stone); color: var(--muted); font-size: .75rem; }
+.aq-ad { display: grid; place-items: center; align-content: center; gap: .15rem; background: var(--stone); color: var(--muted); font-size: .75rem; overflow: hidden; }
 .aq-ad b { font-size: .8125rem; font-weight: 600; }
 .aq-ad--billboard { max-width: 970px; aspect-ratio: 970 / 250; margin: 0 auto 5.5rem; }
 .aq-ad--pave { width: 100%; max-width: 300px; aspect-ratio: 300 / 250; margin-bottom: 1.5rem; }
@@ -628,6 +628,8 @@ main:focus { outline: none; }
   .aq-filters::-webkit-scrollbar { display: none; }
   .aq-filters button { flex: none; white-space: nowrap; padding-top: .5rem; }
   .aq-ad--billboard { max-width: 300px; aspect-ratio: 300 / 250; }
+  .aq-ad--billboard .aq-ad__link { width: 100%; height: 250px; }
+  .aq-ad--billboard img { width: 100%; height: 100%; object-fit: contain; }
   .aq-section--related { padding-block: 3rem; }
   /* « Tout voir » remonte à côté du titre : un lien de moins à chercher, une ligne de gagnée */
   .aq-chapter__head { grid-template-columns: 1fr auto; margin-bottom: 1.75rem; }
