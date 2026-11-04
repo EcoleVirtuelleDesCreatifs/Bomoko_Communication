@@ -1001,14 +1001,13 @@ const _sfc_main$6 = {
     const duration = computed(() => Math.max(20, n.value * 12) + "s");
     return (_ctx, _push, _parent, _attrs) => {
       if (n.value) {
-        _push(`<div${ssrRenderAttrs(mergeProps({ class: "aq-flashbar" }, _attrs))} data-v-23e0f920><div class="container-xl" data-v-23e0f920><div class="aq-flash" role="region" aria-label="Flash info" data-v-23e0f920><div class="aq-flash__label" data-v-23e0f920><span class="aq-flash__dot" aria-hidden="true" data-v-23e0f920></span><span data-v-23e0f920><small data-v-23e0f920>En direct</small><strong data-v-23e0f920>Flash info</strong></span></div><div class="aq-flash__viewport aq-flash__ticker" data-v-23e0f920><div class="aq-flash__track" style="${ssrRenderStyle({ animationDuration: duration.value, animationPlayState: paused.value || unref(reduceMotion) ? "paused" : "running" })}" data-v-23e0f920><!--[-->`);
+        _push(`<div${ssrRenderAttrs(mergeProps({ class: "aq-flashbar" }, _attrs))} data-v-5e5b3f1c><div class="container-xl" data-v-5e5b3f1c><div class="aq-flash" role="region" aria-label="Flash info" data-v-5e5b3f1c><div class="aq-flash__label" data-v-5e5b3f1c><span class="aq-flash__dot" aria-hidden="true" data-v-5e5b3f1c></span><span data-v-5e5b3f1c><small data-v-5e5b3f1c>En direct</small><strong data-v-5e5b3f1c>Flash info</strong></span></div><div class="aq-flash__viewport aq-flash__ticker" data-v-5e5b3f1c><div class="aq-flash__track" style="${ssrRenderStyle({ animationDuration: duration.value, animationPlayState: paused.value || unref(reduceMotion) ? "paused" : "running" })}" data-v-5e5b3f1c><!--[-->`);
         ssrRenderList(2, (rep) => {
-          _push(`<!--[-->`);
-          if (_ctx.f.url) {
+          _push(`<!--[--><!--[-->`);
+          ssrRenderList(__props.items, (f, i) => {
             _push(`<!--[-->`);
-            ssrRenderList(__props.items, (f, i) => {
+            if (f.url) {
               _push(ssrRenderComponent(unref(Link), {
-                key: rep + "-" + i,
                 class: "aq-flash__item",
                 href: f.url,
                 "aria-hidden": rep === 2
@@ -1024,25 +1023,16 @@ const _sfc_main$6 = {
                 }),
                 _: 2
               }, _parent));
-            });
+            } else {
+              _push(`<span class="aq-flash__item"${ssrRenderAttr("aria-hidden", rep === 2)} data-v-5e5b3f1c>${ssrInterpolate(unref(fr)(f.text))}</span>`);
+            }
             _push(`<!--]-->`);
-          } else {
-            _push(`<!---->`);
-          }
-          if (!_ctx.f.url) {
-            _push(`<!--[-->`);
-            ssrRenderList(__props.items, (f, i) => {
-              _push(`<span class="aq-flash__item"${ssrRenderAttr("aria-hidden", rep === 2)} data-v-23e0f920>${ssrInterpolate(unref(fr)(f.text))}</span>`);
-            });
-            _push(`<!--]-->`);
-          } else {
-            _push(`<!---->`);
-          }
-          _push(`<!--]-->`);
+          });
+          _push(`<!--]--><!--]-->`);
         });
         _push(`<!--]--></div></div>`);
         if (n.value > 1) {
-          _push(`<div class="aq-flash__nav" data-v-23e0f920><button class="aq-flash__pause" type="button"${ssrRenderAttr("aria-label", paused.value ? "Reprendre le défilement" : "Mettre le défilement en pause")}${ssrRenderAttr("aria-pressed", paused.value)} data-v-23e0f920><i class="${ssrRenderClass([paused.value ? "bi-play-fill" : "bi-pause-fill", "bi"])}" aria-hidden="true" data-v-23e0f920></i></button></div>`);
+          _push(`<div class="aq-flash__nav" data-v-5e5b3f1c><button class="aq-flash__pause" type="button"${ssrRenderAttr("aria-label", paused.value ? "Reprendre le défilement" : "Mettre le défilement en pause")}${ssrRenderAttr("aria-pressed", paused.value)} data-v-5e5b3f1c><i class="${ssrRenderClass([paused.value ? "bi-play-fill" : "bi-pause-fill", "bi"])}" aria-hidden="true" data-v-5e5b3f1c></i></button></div>`);
         } else {
           _push(`<!---->`);
         }
@@ -1059,7 +1049,7 @@ _sfc_main$6.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/FlashBar.vue");
   return _sfc_setup$6 ? _sfc_setup$6(props, ctx) : void 0;
 };
-const FlashBar = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["__scopeId", "data-v-23e0f920"]]);
+const FlashBar = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["__scopeId", "data-v-5e5b3f1c"]]);
 const FLASH_N = 3;
 const _sfc_main$5 = {
   __name: "Home",

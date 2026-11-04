@@ -16,8 +16,10 @@ const duration = computed(() => Math.max(20, n.value * 12) + 's');
     <div class="aq-flash__viewport aq-flash__ticker" @mouseenter="paused = true" @mouseleave="paused = false">
       <div class="aq-flash__track" :style="{ animationDuration: duration, animationPlayState: paused || reduceMotion ? 'paused' : 'running' }">
         <template v-for="rep in 2" :key="rep">
-          <Link v-for="(f, i) in items" :key="rep + '-' + i" v-if="f.url" class="aq-flash__item" :href="f.url" :aria-hidden="rep === 2">{{ fr(f.text) }}</Link>
-          <span v-for="(f, i) in items" :key="rep + '-' + i" v-if="!f.url" class="aq-flash__item" :aria-hidden="rep === 2">{{ fr(f.text) }}</span>
+          <template v-for="(f, i) in items" :key="rep + '-' + i">
+            <Link v-if="f.url" class="aq-flash__item" :href="f.url" :aria-hidden="rep === 2">{{ fr(f.text) }}</Link>
+            <span v-else class="aq-flash__item" :aria-hidden="rep === 2">{{ fr(f.text) }}</span>
+          </template>
         </template>
       </div>
     </div>
