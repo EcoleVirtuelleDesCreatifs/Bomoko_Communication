@@ -111,6 +111,15 @@ class AdminStateController extends Controller
                 'status' => $u->status ?? 'actif',
                 'last' => optional($u->last_login_at)->toIso8601String() ?? now()->toIso8601String(),
             ])->values()->all(),
+            'sessions' => \App\Models\UserEvent::with('user:id,name,email')
+                ->latest('created_at')->limit(300)->get()
+                ->map(fn ($e) => [
+                    'who' => $e->user?->name ?? 'Compte supprimé',
+                    'email' => $e->user?->email ?? '',
+                    'event' => $e->event,
+                    'at' => optional($e->created_at)->toIso8601String(),
+                    'ip' => $e->ip,
+                ])->values()->all(),
             'rubriques' => Rubrique::all()->map(fn ($r) => [
                 'id' => $r->slug, 'label' => $r->label, 'tagline' => $r->tagline,
                 'menu' => (bool) $r->in_menu, 'order' => $r->sort,

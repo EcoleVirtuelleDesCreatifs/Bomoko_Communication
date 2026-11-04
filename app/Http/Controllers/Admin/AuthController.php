@@ -37,6 +37,7 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
         $request->user()->update(['last_login_at' => now()]);
+        $request->user()->events()->create(['event' => 'connexion', 'ip' => $request->ip()]);
 
         if ($request->header('X-Inertia')) {
             return Inertia::location($request->session()->pull('url.intended', route('admin.dashboard')));
@@ -47,6 +48,7 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        $request->user()?->events()->create(['event' => 'deconnexion', 'ip' => $request->ip()]);
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

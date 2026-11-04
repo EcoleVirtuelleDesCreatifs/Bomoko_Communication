@@ -183,7 +183,7 @@
     for (var k in S) payload[k] = S[k];
     payload.articles = dirty;
     fetch(window.AQ_API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }, body: JSON.stringify(payload), credentials: 'same-origin' }).then(function (r) { return r.json().then(function (j) { if (!r.ok || j.ok === false) toast('Erreur serveur : ' + (j && j.error ? j.error : 'synchronisation impossible')); else { markSynced(dirty); if (j.warnings && j.warnings.length) j.warnings.forEach(function (w) { toast(w); }); } }).catch(function () { if (!r.ok) toast('Erreur serveur : synchronisation impossible'); }); }).catch(function () { toast('Serveur injoignable : modifications non synchronisées'); }); } }, 400); }
-  function log(what) { S.log.unshift({ at: new Date().toISOString(), who: ME ? ME.name : 'Système', what: what }); S.log = S.log.slice(0, 40); save(); }
+  function log(what) { S.log.unshift({ at: new Date().toISOString(), who: ME ? ME.name : 'Système', what: what }); S.log = S.log.slice(0, 200); save(); }
 
   function art(id) { return S.articles.filter(function (a) { return a.id === id; })[0]; }
   function rubLabel(id) { var r = S.rubriques.filter(function (x) { return x.id === id; })[0]; return r ? r.label : id; }
@@ -1749,7 +1749,20 @@
     v.innerHTML = pagehead('Équipe', 'Les personnes qui ont accès à l’administration.', '<a class="ad-btn ad-btn--outline" href="#statistiques"><i class="bi bi-bar-chart-line" aria-hidden="true"></i>Statistiques</a><button type="button" class="ad-btn ad-btn--primary" id="tmInvite"><i class="bi bi-person-plus" aria-hidden="true"></i>Inviter</button>') +
       '<section class="ad-panel mb-4"><div class="ad-tablewrap"><table class="ad-table" id="tmTable"></table></div></section>' +
       '<section class="ad-panel"><div class="ad-panel__head"><h2>Droits par rôle</h2></div><div class="ad-tablewrap"><table class="ad-table ad-perm"><thead><tr><th>Action</th>' + Object.keys(ROLES).map(function (r) { return '<th>' + ROLES[r] + '</th>'; }).join('') + '</tr></thead><tbody>' +
-        PERMS.map(function (p) { return '<tr><td>' + p[0] + '</td>' + p.slice(1).map(function (x) { return x ? '<td class="yes"><i class="bi bi-check-lg" aria-hidden="true"></i><span class="visually-hidden">Oui</span></td>' : '<td class="no">—<span class="visually-hidden">Non</span></td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div></section>';
+        PERMS.map(function (p) { return '<tr><td>' + p[0] + '</td>' + p.slice(1).map(function (x) { return x ? '<td class="yes"><i class="bi bi-check-lg" aria-hidden="true"></i><span class="visually-hidden">Oui</span></td>' : '<td class="no">—<span class="visually-hidden">Non</span></td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div></section>' +
+      (ME.role === 'admin' ?
+      '<section class="ad-panel mt-4"><div class="ad-panel__head"><h2>Connexions des membres</h2><span class="ad-muted" style="font-size:.8125rem">Connexions et déconnexions enregistrées sur le serveur.</span></div><div class="ad-tablewrap" style="max-height:420px;overflow:auto"><table class="ad-table"><thead><tr><th>Membre</th><th>Événement</th><th>Date</th><th>Adresse IP</th></tr></thead><tbody>' +
+        ((S.sessions && S.sessions.length) ? S.sessions.map(function (s) {
+          return '<tr><td><div class="ad-title-cell"><strong>' + esc(s.who) + '</strong><small>' + esc(s.email) + '</small></div></td>' +
+            '<td><span class="ad-status ad-status--' + (s.event === 'connexion' ? 'active' : 'offline') + '">' + (s.event === 'connexion' ? 'Connexion' : 'Déconnexion') + '</span></td>' +
+            '<td class="ad-muted" style="white-space:nowrap">' + dlong(s.at) + '</td><td class="ad-muted">' + esc(s.ip || '—') + '</td></tr>';
+        }).join('') : '<tr><td colspan="4" class="ad-muted">Aucune connexion enregistrée pour le moment.</td></tr>') +
+      '</tbody></table></div></section>' +
+      '<section class="ad-panel mt-4"><div class="ad-panel__head"><h2>Historique des actions</h2><span class="ad-muted" style="font-size:.8125rem">Toutes les actions effectuées dans l’administration.</span></div><div class="ad-tablewrap" style="max-height:420px;overflow:auto"><table class="ad-table"><thead><tr><th>Qui</th><th>Action</th><th>Date</th></tr></thead><tbody>' +
+        (S.log.length ? S.log.map(function (l) {
+          return '<tr><td style="white-space:nowrap"><strong>' + esc(l.who) + '</strong></td><td>' + fr(l.what) + '</td><td class="ad-muted" style="white-space:nowrap">' + dlong(l.at) + '</td></tr>';
+        }).join('') : '<tr><td colspan="3" class="ad-muted">Aucune action enregistrée.</td></tr>') +
+      '</tbody></table></div></section>' : '');
     function draw() {
       var isAdmin = ME.role === 'admin';
       $('#tmTable').innerHTML = '<thead><tr><th>Membre</th><th>Rôle</th><th>Articles</th><th>Dernière activité</th><th>Statut</th><th class="actions"><span class="visually-hidden">Actions</span></th></tr></thead><tbody>' +

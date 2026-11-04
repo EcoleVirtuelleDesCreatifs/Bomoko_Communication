@@ -226,6 +226,7 @@ h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
 .ad-status--active { background: var(--text); color: var(--panel); }
 .ad-status--libre { color: var(--muted); border-color: var(--line); }
 .ad-status--invite { border-color: var(--orange); color: var(--accent); }
+.ad-status--offline { color: var(--muted); border-color: var(--line); }
 
 /* Barre d'outils de liste */
 .ad-tabs { display: flex; flex-wrap: wrap; gap: .25rem 1.5rem; border-bottom: 1px solid var(--line); margin-bottom: 1.25rem; }
