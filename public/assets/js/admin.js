@@ -631,8 +631,25 @@
       $('#bulk').hidden = !n; $('#bulkCount').textContent = plural(n, 'article sélectionné', 'articles sélectionnés');
       $$('[data-bulk]', v).forEach(function (b) { var k = b.getAttribute('data-bulk'); if (k === 'restore') b.hidden = !trash; else if (k !== 'none') b.hidden = trash; });
     }
-    var t;
-    $('#aQ').addEventListener('input', function () { clearTimeout(t); var val = this.value; t = setTimeout(function () { listState.q = val; listState.page = 1; draw(); }, 150); });
+    var t, sT, sSeq = 0;
+    $('#aQ').addEventListener('input', function () {
+      clearTimeout(t); var val = this.value;
+      t = setTimeout(function () { listState.q = val; listState.page = 1; draw(); }, 150);
+      // recherche élargie : interroge aussi les articles hors des 1 500 chargés
+      clearTimeout(sT);
+      if (norm(val).length < 3 || !window.AQ_API) return;
+      sT = setTimeout(function () {
+        var seq = ++sSeq;
+        fetch(window.AQ_API.replace(/state$/, 'articles') + '?q=' + encodeURIComponent(val.trim()), { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+          .then(function (r) { return r.ok ? r.json() : []; })
+          .then(function (rows) {
+            if (seq !== sSeq) return;
+            var added = 0;
+            rows.forEach(function (a) { if (!art(a.id)) { S.articles.push(a); added++; } });
+            if (added) draw();
+          }).catch(function () {});
+      }, 400);
+    });
     [['aRub', 'rub'], ['aReg', 'reg'], ['aAut', 'author']].forEach(function (p) { $('#' + p[0]).addEventListener('change', function () { listState[p[1]] = this.value; listState.page = 1; draw(); }); });
     v.addEventListener('click', function (e) {
       var b = e.target.closest('button, a'); if (!b) return;

@@ -45,6 +45,54 @@ class AdminStateController extends Controller
         ]);
     }
 
+    public function articles(Request $request)
+    {
+        $q = trim((string) $request->query('q', ''));
+        if (mb_strlen($q) < 2) {
+            return response()->json([]);
+        }
+
+        $like = '%'.str_replace(['%', '_'], ['\\%', '\\_'], $q).'%';
+        $rows = Article::where(fn ($w) => $w->where('title', 'like', $like)
+                ->orWhere('slug', 'like', $like)
+                ->orWhere('author_name', 'like', $like))
+            ->orderByDesc('published_at')->limit(40)
+            ->get(['id', 'slug', 'rubrique_slug', 'region_slug', 'country', 'ph', 'img',
+                   'image_path', 'views', 'title', 'chapo', 'author_name', 'published_at',
+                   'updated_at', 'read_time', 'tags', 'status', 'meta_desc', 'is_une',
+                   'person', 'icon', 'media_id']);
+
+        return response()->json($rows->map(fn ($a) => $this->articleItem($a))->all());
+    }
+
+    private function articleItem(Article $a): array
+    {
+        return array_filter([
+            'id' => $a->slug,
+            'slug' => $a->slug,
+            'rub' => $a->rubrique_slug,
+            'region' => $a->region_slug,
+            'country' => $a->country,
+            'ph' => $a->ph,
+            'img' => $a->img,
+            'src' => $a->image_path ? asset('storage/'.$a->image_path) : null,
+            'views' => $a->views,
+            'title' => $a->title,
+            'chapo' => $a->chapo,
+            'author' => $a->author_name,
+            'date' => optional($a->published_at)->toIso8601String(),
+            'updated' => optional($a->updated_at)->toIso8601String(),
+            'read' => $a->read_time,
+            'tags' => $a->tags ?? [],
+            'status' => $a->status,
+            'meta' => $a->meta_desc,
+            'une' => (bool) $a->is_une,
+            'person' => $a->person,
+            'icon' => $a->icon,
+            'mediaId' => $a->media_id,
+        ], fn ($v) => $v !== null);
+    }
+
     private function state(): array
     {
         $blob = DB::table('admin_data')->pluck('value', 'key')
@@ -73,30 +121,7 @@ class AdminStateController extends Controller
                        'image_path', 'views', 'title', 'chapo', 'author_name', 'published_at',
                        'updated_at', 'read_time', 'tags', 'status', 'meta_desc', 'is_une',
                        'person', 'icon', 'media_id'])
-                ->map(fn ($a) => array_filter([
-                'id' => $a->slug,
-                'slug' => $a->slug,
-                'rub' => $a->rubrique_slug,
-                'region' => $a->region_slug,
-                'country' => $a->country,
-                'ph' => $a->ph,
-                'img' => $a->img,
-                'src' => $a->image_path ? asset('storage/'.$a->image_path) : null,
-                'views' => $a->views,
-                'title' => $a->title,
-                'chapo' => $a->chapo,
-                'author' => $a->author_name,
-                'date' => optional($a->published_at)->toIso8601String(),
-                'updated' => optional($a->updated_at)->toIso8601String(),
-                'read' => $a->read_time,
-                'tags' => $a->tags ?? [],
-                'status' => $a->status,
-                'meta' => $a->meta_desc,
-                'une' => (bool) $a->is_une,
-                'person' => $a->person,
-                'icon' => $a->icon,
-                'mediaId' => $a->media_id,
-            ], fn ($v) => $v !== null))->values()->all(),
+                ->map(fn ($a) => $this->articleItem($a))->values()->all(),
             'agenda' => Event::all()->map(fn ($e) => [
                 'id' => $e->slug,
                 'date' => $e->start_date->toDateString(),

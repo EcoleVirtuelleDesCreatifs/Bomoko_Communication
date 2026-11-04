@@ -47,6 +47,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [AdminStateController::class, 'app'])->name('dashboard');
         Route::get('/api/state', [AdminStateController::class, 'show'])->name('state.show');
         Route::get('/api/article/{slug}', [AdminStateController::class, 'article'])->name('state.article');
+        Route::get('/api/articles', [AdminStateController::class, 'articles'])->name('state.articles');
         Route::post('/api/state', [AdminStateController::class, 'save'])->name('state.save');
     });
 });
