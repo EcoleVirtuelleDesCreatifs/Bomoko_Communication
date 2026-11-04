@@ -1778,12 +1778,16 @@
       '</tbody></table></div></section>' : '');
     function draw() {
       var isAdmin = ME.role === 'admin';
-      $('#tmTable').innerHTML = '<thead><tr><th>Membre</th><th>Rôle</th><th>Articles</th><th>Dernière activité</th><th>Statut</th><th class="actions"><span class="visually-hidden">Actions</span></th></tr></thead><tbody>' +
+      var today = new Date(); today.setHours(0, 0, 0, 0);
+      var logins = {};
+      (S.sessions || []).forEach(function (s) { if (s.event === 'connexion' && new Date(s.at) >= today) logins[s.who] = (logins[s.who] || 0) + 1; });
+      $('#tmTable').innerHTML = '<thead><tr><th>Membre</th><th>Rôle</th><th>Articles publiés</th><th>Aujourd’hui</th><th>Connexions du jour</th><th>Dernière activité</th><th>Statut</th><th class="actions"><span class="visually-hidden">Actions</span></th></tr></thead><tbody>' +
         S.users.map(function (u) {
-          var n = S.articles.filter(function (a) { return a.author === u.name && a.status !== 'corbeille'; }).length, me = u.id === ME.id;
+          var arts = S.articles.filter(function (a) { return a.author === u.name && a.status !== 'corbeille'; });
+          var n = arts.length, nj = arts.filter(function (a) { return a.status === 'publie' && new Date(a.date) >= today; }).length, me = u.id === ME.id;
           return '<tr><td><div class="d-flex align-items-center gap-3"><span class="ad-avatar ad-avatar--sm" aria-hidden="true">' + initials(u.name) + '</span><div class="ad-title-cell" style="min-width:180px">' + (isAdmin ? '<label class="visually-hidden" for="name' + u.id + '">Nom de ' + esc(u.name) + '</label><input class="ad-input" id="name' + u.id + '" data-uname="' + u.id + '" value="' + esc(u.name) + '" style="max-width:240px">' + (me ? ' <span class="ad-muted fw-normal">(vous)</span>' : '') : '<strong>' + esc(u.name) + (me ? ' <span class="ad-muted fw-normal">(vous)</span>' : '') + '</strong>') + '<small>' + esc(u.email) + '</small></div></div></td>' +
             '<td><label class="visually-hidden" for="role' + u.id + '">Rôle de ' + esc(u.name) + '</label><select class="ad-select" style="min-width:170px" id="role' + u.id + '" data-role="' + u.id + '"' + (me || !isAdmin ? ' disabled' : '') + '>' + options(Object.keys(ROLES).map(function (k) { return { value: k, label: ROLES[k] }; }), u.role) + '</select></td>' +
-            '<td class="tnum">' + n + '</td><td class="ad-muted">' + (u.status === 'invite' ? '—' : rel(u.last)) + '</td><td><span class="ad-status ad-status--' + (u.status === 'invite' ? 'invite' : 'active') + '">' + (u.status === 'invite' ? 'Invitation envoyée' : 'Actif') + '</span></td>' +
+            '<td class="tnum">' + n + '</td><td class="tnum">' + (nj || '—') + '</td><td class="tnum">' + (logins[u.name] || '—') + '</td><td class="ad-muted">' + (u.status === 'invite' ? '—' : rel(u.last)) + '</td><td><span class="ad-status ad-status--' + (u.status === 'invite' ? 'invite' : 'active') + '">' + (u.status === 'invite' ? 'Invitation envoyée' : 'Actif') + '</span></td>' +
             '<td class="actions">' + (me || !isAdmin ? '' : '<button type="button" class="ad-iconbtn ad-iconbtn--sm ad-iconbtn--danger" data-rmu="' + u.id + '" aria-label="Retirer l’accès de ' + esc(u.name) + '"><i class="bi bi-person-dash" aria-hidden="true"></i></button>') + '</td></tr>';
         }).join('') + '</tbody>';
     }
