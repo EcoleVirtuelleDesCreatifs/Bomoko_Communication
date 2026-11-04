@@ -36,14 +36,17 @@ onBeforeUnmount(() => observer?.disconnect());
 </script>
 
 <template>
-  <div v-if="ad" ref="el" class="aq-ad" :class="'aq-ad--' + variant" role="complementary" aria-label="Publicité">
-    <span>Publicité</span>
+  <div v-if="ad" ref="el" class="aq-ad" :class="'aq-ad--' + variant" role="complementary" aria-label="Publicité"
+       :style="variant === 'mobile' ? 'overflow:hidden;text-align:center;background:#0d0d0f' : null">
+    <span :style="variant === 'mobile' ? 'display:block;padding:.3rem .6rem .15rem;font-size:.5625rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.55);text-align:right' : null">Publicité</span>
     <a v-if="ad.url" class="aq-ad__link" :href="ad.url" target="_blank" rel="noopener sponsored" @click="track('clk')">
-      <img v-if="ad.visual" :src="ad.visual" :alt="ad.advertiser" loading="lazy">
+      <img v-if="ad.visual" :src="ad.visual" :alt="ad.advertiser" loading="lazy"
+           :style="variant === 'mobile' ? 'display:block;width:100%;max-width:100%;height:auto;max-height:100px;object-fit:contain;margin:0 auto' : null">
       <span v-else class="aq-ad__text"><strong>{{ ad.advertiser }}</strong><small v-if="ad.name">{{ ad.name }}</small></span>
     </a>
     <span v-else class="aq-ad__text">
-      <img v-if="ad.visual" :src="ad.visual" :alt="ad.advertiser" loading="lazy">
+      <img v-if="ad.visual" :src="ad.visual" :alt="ad.advertiser" loading="lazy"
+           :style="variant === 'mobile' ? 'display:block;width:100%;max-width:100%;height:auto;max-height:100px;object-fit:contain;margin:0 auto' : null">
       <strong v-else>{{ ad.advertiser }}</strong><small v-if="!ad.visual && ad.name">{{ ad.name }}</small>
     </span>
   </div>

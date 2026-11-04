@@ -1,5 +1,5 @@
 import { ref, mergeProps, unref, useSSRContext, createVNode, resolveDynamicComponent, withCtx, createTextVNode, toDisplayString, computed, onMounted, onBeforeUnmount, watch, openBlock, createBlock, Fragment, renderList, onUnmounted, createSSRApp, h } from "vue";
-import { ssrRenderAttrs, ssrRenderAttr, ssrInterpolate, ssrRenderDynamicModel, ssrRenderClass, ssrIncludeBooleanAttr, ssrRenderVNode, ssrRenderComponent, ssrRenderList, ssrLooseContain, ssrLooseEqual, ssrRenderStyle, ssrRenderSlot, renderToString } from "vue/server-renderer";
+import { ssrRenderAttrs, ssrRenderAttr, ssrInterpolate, ssrRenderDynamicModel, ssrRenderClass, ssrIncludeBooleanAttr, ssrRenderVNode, ssrRenderComponent, ssrRenderList, ssrRenderStyle, ssrLooseContain, ssrLooseEqual, ssrRenderSlot, renderToString } from "vue/server-renderer";
 import { useForm, Link, usePage, router, createInertiaApp } from "@inertiajs/vue3";
 import createServer from "@inertiajs/vue3/server";
 function fr(s) {
@@ -370,12 +370,13 @@ const _sfc_main$d = {
           ref: el,
           class: ["aq-ad", "aq-ad--" + __props.variant],
           role: "complementary",
-          "aria-label": "Publicité"
-        }, _attrs))}><span>Publicité</span>`);
+          "aria-label": "Publicité",
+          style: __props.variant === "mobile" ? "overflow:hidden;text-align:center;background:#0d0d0f" : null
+        }, _attrs))}><span style="${ssrRenderStyle(__props.variant === "mobile" ? "display:block;padding:.3rem .6rem .15rem;font-size:.5625rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.55);text-align:right" : null)}">Publicité</span>`);
         if (ad.value.url) {
           _push(`<a class="aq-ad__link"${ssrRenderAttr("href", ad.value.url)} target="_blank" rel="noopener sponsored">`);
           if (ad.value.visual) {
-            _push(`<img${ssrRenderAttr("src", ad.value.visual)}${ssrRenderAttr("alt", ad.value.advertiser)} loading="lazy">`);
+            _push(`<img${ssrRenderAttr("src", ad.value.visual)}${ssrRenderAttr("alt", ad.value.advertiser)} loading="lazy" style="${ssrRenderStyle(__props.variant === "mobile" ? "display:block;width:100%;max-width:100%;height:auto;max-height:100px;object-fit:contain;margin:0 auto" : null)}">`);
           } else {
             _push(`<span class="aq-ad__text"><strong>${ssrInterpolate(ad.value.advertiser)}</strong>`);
             if (ad.value.name) {
@@ -389,7 +390,7 @@ const _sfc_main$d = {
         } else {
           _push(`<span class="aq-ad__text">`);
           if (ad.value.visual) {
-            _push(`<img${ssrRenderAttr("src", ad.value.visual)}${ssrRenderAttr("alt", ad.value.advertiser)} loading="lazy">`);
+            _push(`<img${ssrRenderAttr("src", ad.value.visual)}${ssrRenderAttr("alt", ad.value.advertiser)} loading="lazy" style="${ssrRenderStyle(__props.variant === "mobile" ? "display:block;width:100%;max-width:100%;height:auto;max-height:100px;object-fit:contain;margin:0 auto" : null)}">`);
           } else {
             _push(`<strong>${ssrInterpolate(ad.value.advertiser)}</strong>`);
           }
