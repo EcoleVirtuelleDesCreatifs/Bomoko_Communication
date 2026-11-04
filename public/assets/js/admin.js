@@ -1019,7 +1019,7 @@
       if (wantFlash && !fl) { S.flash.unshift({ id: 'f' + uid(), articleId: a.id, text: flashTitle(a.title), auto: true, active: true, start: day(0), end: addDays(day(0), 7) }); log('a mis en flash « ' + a.title + ' »'); }
       else if (!wantFlash && fl) S.flash = S.flash.filter(function (x) { return x !== fl; });
       syncFlash();
-      log(verb + ' « ' + a.title + ' »'); save(); dirty = false; flashPrev();
+      log(verb + ' « ' + a.title + ' » — statut : ' + (STATUS[a.status] || a.status)); save(); dirty = false; flashPrev();
       var sv = $('#edSaved'); sv.classList.remove('is-dirty'); sv.textContent = 'Enregistré à ' + fmtTime.format(new Date());
       $('.ad-panel__head .ad-status', form).outerHTML = statusPill(a.status);
       $('#edStatus').value = a.status; publishLabel();
@@ -1029,7 +1029,7 @@
       collect(); if (!validate(false)) { $('#edTitle').focus(); return; }
       var st = $('#edStatus').value;
       if (st === 'publie' || st === 'programme') { if (!validate(true)) return; st = new Date(a.date) > new Date() ? 'programme' : 'publie'; }
-      persist(st, st === 'relecture' ? 'a envoyé en relecture' : st === 'brouillon' ? 'a enregistré le brouillon' : 'a mis à jour');
+      persist(st, st === 'relecture' ? 'a envoyé en relecture' : st === 'brouillon' ? 'a enregistré le brouillon' : 'a enregistré');
       toast(st === 'brouillon' ? 'Brouillon enregistré' : st === 'relecture' ? 'Envoyé en relecture' : 'Article enregistré : ' + STATUS[st]);
     }
     $('#edSave').addEventListener('click', doSave);
