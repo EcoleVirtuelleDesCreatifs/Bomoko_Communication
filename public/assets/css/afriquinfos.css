@@ -47,6 +47,7 @@
 /* ---------- Base ---------- */
 .container-xl { --bs-gutter-x: 3rem; }
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+html, body { overflow-x: clip; }
 body { background: var(--bg); color: var(--text); font-family: var(--display); font-size: 1rem; -webkit-font-smoothing: antialiased; }
 a { color: inherit; text-decoration: none; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
@@ -346,7 +347,7 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 .aq-ad--mobile { display: none; width: 100%; max-width: 100%; margin: 0; padding: 0 0 .4rem; background: #0d0d0f; text-align: center; }
 .aq-ad--mobile > span { display: block; padding: .3rem .6rem .15rem; font-size: .5625rem; letter-spacing: .08em; text-transform: uppercase; color: rgba(255, 255, 255, .55); text-align: right; }
 .aq-ad--mobile .aq-ad__link { display: block; }
-.aq-ad--mobile img { display: block; width: auto; max-width: calc(100% - 1rem); height: auto; max-height: 100px; margin: 0 auto; object-fit: contain; }
+.aq-ad--mobile img { display: block; width: 100%; max-width: 100%; height: auto; max-height: 100px; margin: 0 auto; object-fit: contain; }
 .aq-ad--mobile .aq-ad__text { min-height: 56px; }
 .aq-ad--mobile > b { display: block; padding: 1rem .5rem; font-size: .75rem; font-weight: 600; text-align: center; }
 @media (max-width: 767.98px) { .aq-ad--mobile { display: block; } }
