@@ -138,10 +138,10 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
 </script>
 
 <template>
+  <FlashBar :items="flashAll" />
   <AqSkin />
   <h1 class="visually-hidden">Afriquinfos, l’actualité panafricaine</h1>
   <div class="aq-hero">
-    <FlashBar :items="flash" />
     <section v-if="slides.length" class="aq-slider" aria-roledescription="carrousel" aria-label="À la une" @keydown="sliderKey"><div class="container-xl">
       <div class="aq-slider__stage" aria-live="off" @pointerdown="pdown" @pointerup="pup">
         <article v-for="(a, i) in slides" :key="a.id" class="aq-slide" :class="{ 'is-active': i === cur }" :id="'slide-' + i" role="group" aria-roledescription="diapositive" :aria-label="(i + 1) + ' sur ' + slides.length" :aria-hidden="i === cur ? null : 'true'">
