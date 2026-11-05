@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -31,13 +32,13 @@ class AuthController extends Controller
             'password.min' => 'Le mot de passe doit contenir au moins 6 caractères.',
         ]);
 
-        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (! Auth::attempt($credentials + ['status' => 'actif'], $request->boolean('remember'))) {
             return back()->withErrors(['email' => 'Identifiants incorrects.'])->onlyInput('email');
         }
 
         $request->session()->regenerate();
         $request->user()->update(['last_login_at' => now()]);
-        $request->user()->events()->create(['event' => 'connexion', 'ip' => $request->ip()]);
+        $this->recordSessionEvent($request, 'connexion');
 
         if ($request->header('X-Inertia')) {
             return Inertia::location($request->session()->pull('url.intended', route('admin.dashboard')));
@@ -48,7 +49,7 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()?->events()->create(['event' => 'deconnexion', 'ip' => $request->ip()]);
+        $this->recordSessionEvent($request, 'deconnexion');
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -56,16 +57,28 @@ class AuthController extends Controller
         return redirect()->route('admin.login');
     }
 
-    public function acceptForm(Request $request, \App\Models\User $user)
+    private function recordSessionEvent(Request $request, string $event): void
     {
+        try {
+            $request->user()?->events()->create(['event' => $event, 'ip' => $request->ip()]);
+        } catch (\Throwable $e) {
+            report($e);
+        }
+    }
+
+    public function acceptForm(Request $request, User $user)
+    {
+        abort_unless($user->status === 'invite', 403);
+
         return Inertia::render('Admin/AcceptInvite', [
             'email' => $user->email,
             'name' => $user->name,
         ])->withViewData(['meta' => ['title' => 'Activer votre compte — Afriquinfos', 'robots' => 'noindex, nofollow']]);
     }
 
-    public function acceptInvite(Request $request, \App\Models\User $user)
+    public function acceptInvite(Request $request, User $user)
     {
+        abort_unless($user->status === 'invite', 403);
         $request->validate([
             'password' => 'required|string|min:8|confirmed',
         ], [
@@ -82,6 +95,8 @@ class AuthController extends Controller
 
         Auth::login($user);
         $request->session()->regenerate();
+        $user->update(['last_login_at' => now()]);
+        $this->recordSessionEvent($request, 'connexion');
 
         if ($request->header('X-Inertia')) {
             return Inertia::location(route('admin.dashboard'));

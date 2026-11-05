@@ -40,7 +40,7 @@
   @if(request()->is('admin*'))<link href="{{ asset('assets/css/admin.css') }}?v={{ filemtime(public_path('assets/css/admin.css')) }}" rel="stylesheet">@endif
   <link href="{{ asset('assets/css/afriquinfos-print.css') }}" rel="stylesheet" media="print">
   @foreach(($meta['jsonld'] ?? []) as $ld)
-  <script type="application/ld+json">{!! json_encode($ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
+  <script type="application/ld+json">{!! json_encode($ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
   @endforeach
   @vite(['resources/js/app.js'])
   @inertiaHead

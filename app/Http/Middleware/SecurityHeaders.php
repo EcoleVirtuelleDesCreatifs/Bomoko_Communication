@@ -13,7 +13,9 @@ class SecurityHeaders
         $response = $next($request);
 
         $response->headers->remove('X-Powered-By');
-        if (str_contains((string) $response->headers->get('Content-Type'), 'text/html')) {
+        if ($request->is('admin', 'admin/*') || $request->user()) {
+            $response->headers->set('Cache-Control', 'private, no-store, max-age=0');
+        } elseif (str_contains((string) $response->headers->get('Content-Type'), 'text/html')) {
             $response->headers->set('Cache-Control', 'no-cache, must-revalidate');
         }
         $response->headers->set('X-Content-Type-Options', 'nosniff');

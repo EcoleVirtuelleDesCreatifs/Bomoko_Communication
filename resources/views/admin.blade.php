@@ -4,6 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Afriquinfos — Administration</title>
+  <style>
+    [hidden] { display: none !important; }
+    .ad-loading { min-height: 100vh; display: grid; place-content: center; padding: 2rem; text-align: center; font-family: Montserrat, Arial, sans-serif; background: #f7f6f2; color: #272727; }
+    [data-theme="dark"] .ad-loading { background: #0d0d0f; color: #f7f6f2; }
+  </style>
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#030304">
   <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -19,8 +24,13 @@
 <body>
   <a class="visually-hidden-focusable ad-skip" href="#view">Aller au contenu</a>
 
+  <div class="ad-loading" id="adminLoading" role="status" aria-live="polite">
+    <p>Chargement de l’administration…</p>
+    <noscript>JavaScript doit être activé pour utiliser l’administration.</noscript>
+  </div>
+
   <!-- Connexion -->
-  <section class="ad-login" id="login" aria-labelledby="loginTitle">
+  <section class="ad-login" id="login" hidden aria-labelledby="loginTitle">
     <div class="ad-login__brand">
       <img src="{{ asset('assets/img/logo-afriquinfos-negatif.png') }}" alt="Afriquinfos" width="320" height="114">
       <p class="ad-login__claim">Ni totems, ni tabous.</p>

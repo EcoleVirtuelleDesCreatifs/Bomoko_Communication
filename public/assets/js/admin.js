@@ -171,19 +171,58 @@
     if (!S || S.v !== 1) S = seed(); else migrate(S);
   }
   // les articles programmés dont l'heure est passée sont publiés
-  S.articles.forEach(function (a) { if (a.status === 'programme' && new Date(a.date).getTime() <= Date.now()) { a.status = 'publie'; a.updated = new Date().toISOString(); } });
-  var saveTimer;
-  var SYNCED = {};
+  var saveTimer, saveBusy = false, saveQueued = false;
+  var SYNCED = {}, syncedResources = {}, revisions = S.revisions || {};
+  var resourceKeys = ['rubriques', 'regions', 'agenda', 'comments', 'subscribers', 'messages', 'debats', 'users', 'flash', 'medias', 'ads', 'campaigns', 'slots', 'settings'];
   function markSynced(rows) { (rows || []).forEach(function (a) { SYNCED[a.id] = a.updated; }); }
   markSynced(S.articles);
-  function save() { clearTimeout(saveTimer); saveTimer = setTimeout(function () { store(KEY, JSON.stringify(S)); if (window.AQ_API) {
+  resourceKeys.forEach(function (k) { syncedResources[k] = JSON.stringify(S[k]); });
+  function save() { clearTimeout(saveTimer); saveTimer = setTimeout(sendChanges, 400); }
+  function sendChanges() {
+    store(KEY, JSON.stringify(S));
+    if (!window.AQ_API) return;
+    if (saveBusy) { saveQueued = true; return; }
     // n'envoyer au serveur que les articles réellement modifiés depuis le dernier état synchronisé
-    var dirty = S.articles.filter(function (a) { return SYNCED[a.id] !== a.updated; });
-    var payload = {};
-    for (var k in S) payload[k] = S[k];
-    payload.articles = dirty;
-    fetch(window.AQ_API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }, body: JSON.stringify(payload), credentials: 'same-origin' }).then(function (r) { return r.json().then(function (j) { if (!r.ok || j.ok === false) toast('Erreur serveur : ' + (j && j.error ? j.error : 'synchronisation impossible')); else { markSynced(dirty); if (j.warnings && j.warnings.length) j.warnings.forEach(function (w) { toast(w); }); } }).catch(function () { if (!r.ok) toast('Erreur serveur : synchronisation impossible'); }); }).catch(function () { toast('Serveur injoignable : modifications non synchronisées'); }); } }, 400); }
-  function log(what) { S.log.unshift({ at: new Date().toISOString(), who: ME ? ME.name : 'Système', what: what }); S.log = S.log.slice(0, 200); save(); }
+    var dirty = clone(S.articles.filter(function (a) { return SYNCED[a.id] !== a.updated; }));
+    var payload = { protocol: 2, revisions: {} }, sent = {};
+    dirty.forEach(function (a) { a.baseUpdated = SYNCED[a.id] || null; });
+    if (dirty.length) payload.articles = dirty;
+    resourceKeys.forEach(function (k) {
+      var value = JSON.stringify(S[k]);
+      if (value !== syncedResources[k]) { sent[k] = value; payload[k] = JSON.parse(value); payload.revisions[k] = revisions[k]; }
+    });
+    if (!dirty.length && !Object.keys(sent).length) return;
+    saveBusy = true;
+    var indicator = $('#edSaved');
+    if (indicator) indicator.textContent = 'Enregistrement serveur en cours…';
+    fetch(window.AQ_API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }, body: JSON.stringify(payload), credentials: 'same-origin' })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) {
+        if (!r.ok || j.ok !== true) throw new Error(j.error || j.message || 'Enregistrement refusé (HTTP ' + r.status + ')');
+        (j.articles || []).forEach(function (row) {
+          var local = art(row.id), submitted = dirty.filter(function (a) { return a.id === row.id; })[0];
+          SYNCED[row.id] = row.updated;
+          if (local && submitted) {
+            delete submitted.baseUpdated;
+            if (JSON.stringify(local) === JSON.stringify(submitted)) local.updated = row.updated;
+            else if (local.updated === row.updated) local.updated = new Date(Date.parse(row.updated) + 1).toISOString();
+          }
+        });
+        Object.keys(sent).forEach(function (k) {
+          var canonical = j.resources[k];
+          if (JSON.stringify(S[k]) === sent[k]) S[k] = canonical;
+          syncedResources[k] = JSON.stringify(canonical); revisions[k] = j.revisions[k];
+        });
+        S.log = j.log || []; S.teamStats = j.teamStats || S.teamStats; S.publishedToday = j.publishedToday || [];
+        if (sent.users) ME = S.users.filter(function (u) { return u.id === ME.id; })[0] || ME;
+        if (indicator && document.contains(indicator)) indicator.textContent = 'Sauvegarde confirmée par le serveur à ' + fmtTime.format(new Date());
+        toast('Sauvegarde confirmée par le serveur');
+        (j.warnings || []).forEach(toast);
+        if (saveQueued) { saveQueued = false; setTimeout(sendChanges, 0); }
+      }); })
+      .catch(function (e) { saveQueued = false; toast(e.message + ' — modifications conservées dans cet onglet.'); if (indicator && document.contains(indicator)) indicator.textContent = 'Non synchronisé : ' + e.message; })
+      .finally(function () { saveBusy = false; });
+  }
+  function log(what) { save(); }
 
   function art(id) { return S.articles.filter(function (a) { return a.id === id; })[0]; }
   function rubLabel(id) { var r = S.rubriques.filter(function (x) { return x.id === id; })[0]; return r ? r.label : id; }
@@ -289,10 +328,17 @@
   ];
   var TITLES = {}; NAV.forEach(function (g) { g[1].forEach(function (i) { TITLES[i[0]] = i[2]; }); }); TITLES.editeur = 'Modifier l’article';
 
+  function canOpen(route) {
+    if (ME.role === 'admin') return true;
+    if (ME.role === 'chef') return route !== 'parametres';
+    return ['articles', 'nouvel-article', 'editeur', 'portraits', 'medias'].indexOf(route) !== -1;
+  }
   function renderNav(route) {
     var cur = route === 'editeur' ? 'articles' : route;
     $('#nav').innerHTML = NAV.map(function (g) {
-      return '<p class="ad-nav__group">' + g[0] + '</p>' + g[1].map(function (i) {
+      var items = g[1].filter(function (i) { return canOpen(i[0]); });
+      if (!items.length) return '';
+      return '<p class="ad-nav__group">' + g[0] + '</p>' + items.map(function (i) {
         var cnt = i[0] === 'commentaires' ? pending() : i[0] === 'messages' ? unreadMsg() : 0;
         var badge = cnt ? '<span class="ad-badge" aria-label="' + cnt + ' en attente">' + cnt + '</span>' : '';
         return '<a href="#' + i[0] + '"' + (i[0] === cur ? ' aria-current="page"' : '') + '><i class="bi ' + i[1] + '" aria-hidden="true"></i>' + i[2] + badge + '</a>';
@@ -314,6 +360,7 @@
   var lastRoute = null;
   function render() {
     var r = routeFromHash();
+    if (!canOpen(r)) r = 'articles';
     if (dirty && lastRoute === 'editeur' && r !== 'editeur') {
       var target = r;
       history.replaceState(null, '', '#editeur');
@@ -409,7 +456,7 @@
       '</div>' +
       ((ME.role === 'admin' || ME.role === 'chef') ? (function () {
         var today = new Date(); today.setHours(0, 0, 0, 0);
-        var pubs = S.articles.filter(function (a) { return a.status === 'publie' && new Date(a.date) >= today; })
+        var pubs = (S.publishedToday || []).filter(function (a) { return new Date(a.date) >= today; })
           .sort(function (x, y) { return (y.date || '').localeCompare(x.date || ''); });
         return '<section class="ad-panel" aria-labelledby="hToday"><div class="ad-panel__head"><h2 id="hToday">Publiés aujourd’hui par l’équipe</h2><span class="ad-muted" style="font-size:.8125rem">' + plural(pubs.length, 'article', 'articles') + ' mis en ligne ce jour</span></div>' +
           (pubs.length ? '<div class="ad-tablewrap" style="max-height:420px;overflow:auto"><table class="ad-table"><thead><tr><th>Titre</th><th>Auteur</th><th>Rubrique</th><th>Heure</th></tr></thead><tbody>' +
@@ -659,11 +706,10 @@
       rows.forEach(function (a) {
         var old = art(a.id);
         if (!old) { S.articles.push(a); SYNCED[a.id] = a.updated; added++; return; }
+        if (old.updated !== SYNCED[old.id]) return;
         if (a.updated !== old.updated) {
-          var body = old.body;
           Object.keys(old).forEach(function (k) { delete old[k]; });
           Object.assign(old, a);
-          if (body !== undefined) old.body = body;
           SYNCED[a.id] = a.updated;
           updated++;
         }
@@ -691,7 +737,7 @@
           .then(function (rows) {
             if (seq !== sSeq) return;
             var added = 0;
-            rows.forEach(function (a) { if (!art(a.id)) { S.articles.push(a); added++; } });
+            rows.forEach(function (a) { if (!art(a.id)) { S.articles.push(a); SYNCED[a.id] = a.updated; added++; } });
             if (added) draw();
           }).catch(function () {});
       }, 400);
@@ -707,7 +753,7 @@
       else if (b.hasAttribute('data-page')) { listState.page += +b.getAttribute('data-page'); draw(); }
       else if (b.hasAttribute('data-trash')) { var a = art(b.getAttribute('data-trash')); a.prev = a.status; a.status = 'corbeille'; a.updated = new Date().toISOString(); log('a mis à la corbeille « ' + a.title + ' »'); save(); draw(); toast('Article mis à la corbeille'); }
       else if (b.hasAttribute('data-restore')) { var r = art(b.getAttribute('data-restore')); r.status = r.prev && r.prev !== 'corbeille' ? r.prev : 'brouillon'; r.updated = new Date().toISOString(); save(); draw(); toast('Article restauré : ' + STATUS[r.status]); }
-      else if (b.hasAttribute('data-purge')) { var p = art(b.getAttribute('data-purge')); confirmBox('Supprimer définitivement ?', '« ' + p.title + ' » sera supprimé sans retour possible.', 'Supprimer définitivement', function () { S.articles = S.articles.filter(function (x) { return x !== p; }); S.flash = S.flash.filter(function (f) { return f.articleId !== p.id; }); log('a supprimé définitivement « ' + p.title + ' »'); save(); draw(); toast('Article supprimé définitivement'); }); }
+      else if (b.hasAttribute('data-purge')) { toast('Suppression définitive désactivée : les articles sont conservés dans la corbeille.'); }
       else if (b.hasAttribute('data-dup')) { var o = art(b.getAttribute('data-dup')), c = clone(o); c.id = slugify(o.title) + '-copie-' + uid().slice(-4); c.slug = c.id; c.title = o.title + ' (copie)'; c.status = 'brouillon'; c.une = false; c.views = 0; c.date = c.updated = new Date().toISOString(); S.articles.unshift(c); log('a dupliqué « ' + o.title + ' »'); save(); draw(); toast('Copie créée en brouillon'); }
       else if (b.hasAttribute('data-preview')) { e.preventDefault(); preview(art(b.getAttribute('data-preview'))); }
       else if (b.hasAttribute('data-bulk')) {
@@ -1020,7 +1066,7 @@
       else if (!wantFlash && fl) S.flash = S.flash.filter(function (x) { return x !== fl; });
       syncFlash();
       log(verb + ' « ' + a.title + ' » — statut : ' + (STATUS[a.status] || a.status)); save(); dirty = false; flashPrev();
-      var sv = $('#edSaved'); sv.classList.remove('is-dirty'); sv.textContent = 'Enregistré à ' + fmtTime.format(new Date());
+      var sv = $('#edSaved'); sv.classList.remove('is-dirty'); sv.textContent = 'En attente de confirmation serveur…';
       $('.ad-panel__head .ad-status', form).outerHTML = statusPill(a.status);
       $('#edStatus').value = a.status; publishLabel();
       $('.ad-pagehead h1', v).textContent = 'Modifier l’article';
@@ -1030,7 +1076,7 @@
       var st = $('#edStatus').value;
       if (st === 'publie' || st === 'programme') { if (!validate(true)) return; st = new Date(a.date) > new Date() ? 'programme' : 'publie'; }
       persist(st, st === 'relecture' ? 'a envoyé en relecture' : st === 'brouillon' ? 'a enregistré le brouillon' : 'a enregistré');
-      toast(st === 'brouillon' ? 'Brouillon enregistré' : st === 'relecture' ? 'Envoyé en relecture' : 'Article enregistré : ' + STATUS[st]);
+      toast('Demande d’enregistrement — statut : ' + STATUS[st] + ' — en attente du serveur');
     }
     $('#edSave').addEventListener('click', doSave);
     form.addEventListener('submit', function (e) {
@@ -1039,13 +1085,13 @@
       if (st === 'brouillon' || st === 'relecture') {
         if (!validate(false)) { $('#edTitle').focus(); return; }
         persist(st, st === 'relecture' ? 'a envoyé en relecture' : 'a enregistré le brouillon');
-        toast(st === 'brouillon' ? 'Brouillon enregistré' : 'Envoyé en relecture');
+        toast('Demande d’enregistrement — statut : ' + STATUS[st] + ' — en attente du serveur');
         return;
       }
       if (!validate(true)) { var bad = $('[aria-invalid="true"]', form); if (bad) bad.focus(); toast('Complétez les champs signalés avant de publier'); return; }
       var future = new Date(a.date) > new Date();
       persist(future ? 'programme' : 'publie', future ? 'a programmé' : 'a publié');
-      toast(future ? 'Article programmé pour le ' + dlong(a.date) : 'Article publié');
+      toast(future ? 'Programmation demandée pour le ' + dlong(a.date) + ' — en attente du serveur' : 'Publication demandée — en attente du serveur');
     });
     v.addEventListener('keydown', function (e) { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); doSave(); } });
     $$('[data-mode]', v).forEach(function (b) {
@@ -1784,11 +1830,11 @@
       (S.sessions || []).forEach(function (s) { if (s.event === 'connexion' && new Date(s.at) >= today) logins[s.who] = (logins[s.who] || 0) + 1; });
       $('#tmTable').innerHTML = '<thead><tr><th>Membre</th><th>Rôle</th><th>Articles publiés</th><th>Aujourd’hui</th><th>Connexions du jour</th><th>Dernière activité</th><th>Statut</th><th class="actions"><span class="visually-hidden">Actions</span></th></tr></thead><tbody>' +
         S.users.map(function (u) {
-          var arts = S.articles.filter(function (a) { return a.author === u.name && a.status === 'publie'; });
-          var n = arts.length, nj = arts.filter(function (a) { return new Date(a.date) >= today; }).length, me = u.id === ME.id;
+          var stats = (S.teamStats || {})[u.id] || { total: 0, today: 0, logins: 0 };
+          var n = stats.total, nj = stats.today, me = u.id === ME.id;
           return '<tr><td><div class="d-flex align-items-center gap-3"><span class="ad-avatar ad-avatar--sm" aria-hidden="true">' + initials(u.name) + '</span><div class="ad-title-cell" style="min-width:180px">' + (isAdmin ? '<label class="visually-hidden" for="name' + u.id + '">Nom de ' + esc(u.name) + '</label><input class="ad-input" id="name' + u.id + '" data-uname="' + u.id + '" value="' + esc(u.name) + '" style="max-width:240px">' + (me ? ' <span class="ad-muted fw-normal">(vous)</span>' : '') : '<strong>' + esc(u.name) + (me ? ' <span class="ad-muted fw-normal">(vous)</span>' : '') + '</strong>') + '<small>' + esc(u.email) + '</small></div></div></td>' +
             '<td><label class="visually-hidden" for="role' + u.id + '">Rôle de ' + esc(u.name) + '</label><select class="ad-select" style="min-width:170px" id="role' + u.id + '" data-role="' + u.id + '"' + (me || !isAdmin ? ' disabled' : '') + '>' + options(Object.keys(ROLES).map(function (k) { return { value: k, label: ROLES[k] }; }), u.role) + '</select></td>' +
-            '<td class="tnum">' + n + '</td><td class="tnum">' + (nj || '—') + '</td><td class="tnum">' + (logins[u.name] || '—') + '</td><td class="ad-muted">' + (u.status === 'invite' ? '—' : rel(u.last)) + '</td><td><span class="ad-status ad-status--' + (u.status === 'invite' ? 'invite' : 'active') + '">' + (u.status === 'invite' ? 'Invitation envoyée' : 'Actif') + '</span></td>' +
+            '<td class="tnum">' + n + '</td><td class="tnum">' + (nj || '—') + '</td><td class="tnum">' + stats.logins + '</td><td class="ad-muted">' + (u.last ? rel(u.last) : 'Jamais connecté') + '</td><td><span class="ad-status ad-status--' + (u.status === 'invite' ? 'invite' : 'active') + '">' + (u.status === 'invite' ? 'Invitation envoyée' : u.status === 'suspendu' ? 'Suspendu' : 'Actif') + '</span></td>' +
             '<td class="actions">' + (me || !isAdmin ? '' : '<button type="button" class="ad-iconbtn ad-iconbtn--sm ad-iconbtn--danger" data-rmu="' + u.id + '" aria-label="Retirer l’accès de ' + esc(u.name) + '"><i class="bi bi-person-dash" aria-hidden="true"></i></button>') + '</td></tr>';
         }).join('') + '</tbody>';
     }
@@ -1803,7 +1849,7 @@
     v.addEventListener('click', function (e) {
       var b = e.target.closest('[data-rmu]'); if (!b) return;
       var u = S.users.filter(function (x) { return x.id === b.getAttribute('data-rmu'); })[0];
-      confirmBox('Retirer l’accès de ' + u.name + ' ?', 'Ses articles restent publiés ; la personne ne pourra plus se connecter.', 'Retirer l’accès', function () { S.users = S.users.filter(function (x) { return x !== u; }); log('a retiré l’accès de ' + u.name); save(); draw(); toast('Accès retiré'); });
+      confirmBox('Suspendre l’accès de ' + u.name + ' ?', 'Le compte, son historique et ses articles seront conservés.', 'Suspendre l’accès', function () { u.status = 'suspendu'; log('a suspendu l’accès de ' + u.name); save(); draw(); toast('Suspension en attente de confirmation serveur'); });
     });
     $('#tmInvite').addEventListener('click', function () {
       if (ME.role !== 'admin') { toast('Seul un administrateur peut inviter un membre'); return; }
@@ -1868,10 +1914,17 @@
   var shellBound = false;
   function start() {
     ME = currentUser();
-    if (!ME) { $('#login').hidden = false; $('#app').hidden = true; return; }
-    $('#login').hidden = true; $('#app').hidden = false;
+    if (!ME) {
+      if (window.AQ_API) { window.location.replace(window.AQ_API.replace(/\/api\/state$/, '/login')); return; }
+      $('#login').hidden = false; $('#app').hidden = true;
+      if ($('#adminLoading')) $('#adminLoading').hidden = true;
+      return;
+    }
+    $('#login').hidden = true;
     if (!shellBound) { bindShell(); shellBound = true; }
     render();
+    $('#app').hidden = false;
+    if ($('#adminLoading')) $('#adminLoading').hidden = true;
     $('#view').focus({ preventScroll: true });
   }
   bindLogin();

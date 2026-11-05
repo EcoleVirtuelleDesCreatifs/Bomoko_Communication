@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\ArticleHtml;
 use Illuminate\Database\Eloquent\Model;
 
 class Article extends Model
@@ -25,8 +26,9 @@ class Article extends Model
 
     public function scopePublished($query)
     {
-        return $query->where('status', 'publie')
-            ->where(fn ($q) => $q->whereNull('published_at')->orWhere('published_at', '<=', now()));
+        return $query->where(fn ($q) => $q->where('status', 'publie')
+            ->where(fn ($q) => $q->whereNull('published_at')->orWhere('published_at', '<=', now()))
+            ->orWhere(fn ($q) => $q->where('status', 'programme')->whereNotNull('published_at')->where('published_at', '<=', now())));
     }
 
     public function rubrique()
@@ -64,7 +66,8 @@ class Article extends Model
             'date' => optional($this->published_at)->toIso8601String(),
             'read' => $this->read_time,
             'tags' => $this->tags ?? [],
-            'body' => $this->body ?? [],
+            'body' => array_map(fn ($block) => is_string($block) && str_starts_with(ltrim($block), '<')
+                ? app(ArticleHtml::class)->sanitize($block) : $block, $this->body ?? []),
             'ph' => $this->ph,
             'img' => $this->img,
             'src' => $this->image_path ? asset('storage/'.$this->image_path) : null,

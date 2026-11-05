@@ -22,8 +22,8 @@ class FrontController extends Controller
     {
         return $query->limit($limit)
             ->get(['id', 'slug', 'rubrique_slug', 'region_slug', 'country', 'title', 'chapo',
-                   'author_name', 'published_at', 'read_time', 'tags', 'ph', 'img',
-                   'image_path', 'icon', 'views', 'is_une', 'status'])
+                'author_name', 'published_at', 'read_time', 'tags', 'ph', 'img',
+                'image_path', 'icon', 'views', 'is_une', 'status'])
             ->map->toPublicArray()->values();
     }
 
@@ -57,10 +57,12 @@ class FrontController extends Controller
                 if (! $a && ! empty($f['text'])) {
                     $a = Article::where('title', $f['text'])->first();
                 }
+
                 return [
                     'id' => (string) $f['id'],
                     'text' => $f['text'] ?? $a?->title ?? '',
-                    'url' => $a && $a->status === 'publie' ? route('article.show', $a->slug) : null,
+                    'url' => $a && in_array($a->status, ['publie', 'programme'], true)
+                        && (! $a->published_at || $a->published_at->lte(now())) ? route('article.show', $a->slug) : null,
                 ];
             })
             ->filter(fn ($f) => $f['text'] !== '')
@@ -150,13 +152,26 @@ class FrontController extends Controller
         ]));
     }
 
+    private function redirectArticle(string $slug)
+    {
+        $seen = [];
+        for ($i = 0; $i < 20; $i++) {
+            abort_if(isset($seen[$slug]), 404);
+            $seen[$slug] = true;
+            $slug = DB::table('slug_redirects')->where('old_slug', $slug)->value('new_slug');
+            abort_unless($slug, 404);
+            if (Article::published()->where('slug', $slug)->exists()) {
+                return redirect()->route('article.show', $slug, 301);
+            }
+        }
+        abort(404);
+    }
+
     public function legacyArticle(string $rubrique, string $slug)
     {
         $a = Article::published()->where('slug', $slug)->first();
         if (! $a) {
-            $new = DB::table('slug_redirects')->where('old_slug', $slug)->value('new_slug');
-            abort_unless($new, 404);
-            return redirect()->route('article.show', $new, 301);
+            return $this->redirectArticle($slug);
         }
 
         return redirect()->route('article.show', $a->slug, 301);
@@ -166,16 +181,14 @@ class FrontController extends Controller
     {
         $a = Article::published()->with(['rubrique', 'region'])->where('slug', $slug)->first();
         if (! $a) {
-            $new = DB::table('slug_redirects')->where('old_slug', $slug)->value('new_slug');
-            abort_unless($new, 404);
-            return redirect()->route('article.show', $new, 301);
+            return $this->redirectArticle($slug);
         }
-        $a->increment('views');
+        Article::withoutTimestamps(fn () => $a->increment('views'));
         $article = $a->toPublicArray();
         $sameRub = $this->pub()->where('rubrique_slug', $a->rubrique_slug)->limit(50)
             ->get(['id', 'slug', 'rubrique_slug', 'region_slug', 'country', 'title', 'chapo',
-                   'author_name', 'published_at', 'read_time', 'tags', 'ph', 'img',
-                   'image_path', 'icon', 'views', 'is_une', 'status']);
+                'author_name', 'published_at', 'read_time', 'tags', 'ph', 'img',
+                'image_path', 'icon', 'views', 'is_une', 'status']);
         $idx = $sameRub->search(fn ($x) => $x->id === $a->id);
         $related = $sameRub->reject(fn ($x) => $x->id === $a->id)->take(3)->map->toPublicArray()->values();
         $sameRegion = $a->region_slug

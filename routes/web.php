@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\FrontController;
 use App\Http\Controllers\SeoController;
+use App\Http\Middleware\EnsureActiveMember;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [FrontController::class, 'home'])->name('home');
@@ -42,8 +43,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->middleware('signed');
     });
 
-    Route::middleware('auth')->group(function () {
-        Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
+    Route::middleware(['auth', EnsureActiveMember::class])->group(function () {
         Route::get('/', [AdminStateController::class, 'app'])->name('dashboard');
         Route::get('/api/state', [AdminStateController::class, 'show'])->name('state.show');
         Route::get('/api/article/{slug}', [AdminStateController::class, 'article'])->name('state.article');
