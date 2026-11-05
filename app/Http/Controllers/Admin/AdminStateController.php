@@ -15,6 +15,7 @@ use App\Models\Subscriber;
 use App\Models\User;
 use App\Models\UserEvent;
 use App\Support\ArticleHtml;
+use App\Support\EditorialStats;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -193,6 +194,9 @@ class AdminStateController extends Controller
             $state[$key] = $blob[$key] ?? $this->defaultBlob($key);
         }
 
+        $legacyCampaigns = array_map(fn ($c) => array_merge($c, ['status' => 'historique_non_verifie']), $state['campaigns'] ?? []);
+        $state['campaigns'] = array_merge(app(NewsletterController::class)->items(), $legacyCampaigns);
+
         if (is_array($state['medias'] ?? null)) {
             $state['medias'] = array_values(array_filter($state['medias'], function ($m) {
                 $d = $m['data'] ?? '';
@@ -245,6 +249,9 @@ class AdminStateController extends Controller
             $state['revisions'][$key] = hash('sha256', json_encode($value, JSON_THROW_ON_ERROR));
         }
         $state['teamStats'] = $editor ? $this->teamStats() : [];
+        $stats = app(EditorialStats::class);
+        $state['publicationStats'] = $editor ? $stats->publications() : [];
+        $state['dashboardStats'] = $editor ? $stats->dashboard() : [];
         $state['publishedToday'] = $editor ? Article::published()->whereBetween('published_at', [now()->startOfDay(), now()->endOfDay()])
             ->orderByDesc('published_at')->get(['id', 'slug', 'rubrique_slug', 'region_slug', 'country', 'ph', 'img',
                 'image_path', 'views', 'title', 'chapo', 'author_name', 'published_at', 'updated_at', 'read_time',
@@ -341,6 +348,7 @@ class AdminStateController extends Controller
     {
         abort_unless($request->input('protocol') === 2, 409, 'Rechargez l’administration avant de sauvegarder.');
         $s = $request->json()->all();
+        abort_if(array_key_exists('campaigns', $s), 422, 'Rechargez l’administration et utilisez le formulaire newsletter dédié.');
         $admin = $request->user()->role === 'admin';
         $editor = in_array($request->user()->role, ['admin', 'chef'], true);
         $methods = ['rubriques' => 'syncRubriques', 'regions' => 'syncRegions', 'agenda' => 'syncEvents',
@@ -431,7 +439,7 @@ class AdminStateController extends Controller
 
         return response()->json(['ok' => true, 'articles' => $saved, 'revisions' => $state['revisions'],
             'resources' => array_intersect_key($state, array_diff_key($s, ['articles' => true, 'revisions' => true, 'protocol' => true])),
-            'log' => $state['log'], 'teamStats' => $state['teamStats'], 'publishedToday' => $state['publishedToday'], 'warnings' => $this->warnings]);
+            'log' => $state['log'], 'teamStats' => $state['teamStats'], 'publishedToday' => $state['publishedToday'], 'publicationStats' => $state['publicationStats'], 'dashboardStats' => $state['dashboardStats'], 'warnings' => $this->warnings]);
     }
 
     private function audit(string $action): void

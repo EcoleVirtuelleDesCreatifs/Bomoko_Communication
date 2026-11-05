@@ -1,8 +1,9 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 
-const ad = computed(() => (usePage().props.ads || []).find((a) => a.slot === 'habillage' && a.visual));
+const page = usePage();
+const ad = computed(() => (page.props.ads || []).find((a) => a.slot === 'habillage' && a.visual));
 
 function track(type) {
     if (!ad.value?.id) return;
@@ -19,13 +20,26 @@ function track(type) {
     }).catch(() => {});
 }
 
-onMounted(() => {
-    if (ad.value && window.matchMedia('(min-width: 1440px)').matches) track('imp');
-});
+const el = ref(null);
+const seen = new Set();
+let observer = null;
+function observe() {
+    observer?.disconnect();
+    if (!ad.value || !el.value || seen.has(ad.value.id) || !('IntersectionObserver' in window)) return;
+    observer = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= 0.5)) {
+            seen.add(ad.value.id); track('imp'); observer.disconnect();
+        }
+    }, { threshold: 0.5 });
+    el.value.querySelectorAll('.aq-skin__side').forEach((side) => observer.observe(side));
+}
+onMounted(observe);
+watch(() => ad.value?.id, observe, { flush: 'post' });
+onBeforeUnmount(() => observer?.disconnect());
 </script>
 
 <template>
-  <div v-if="ad" class="aq-skin" aria-hidden="true">
+  <div v-if="ad" ref="el" class="aq-skin" role="complementary" aria-label="Publicité">
     <component :is="ad.url ? 'a' : 'span'" v-for="side in ['l', 'r']" :key="side"
       class="aq-skin__side" :class="'aq-skin__side--' + side"
       :href="ad.url || null" :target="ad.url ? '_blank' : null" :rel="ad.url ? 'noopener sponsored' : null"

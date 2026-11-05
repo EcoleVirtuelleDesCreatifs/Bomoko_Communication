@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 
 const props = defineProps({
@@ -8,7 +8,8 @@ const props = defineProps({
 });
 
 const el = ref(null);
-const ad = computed(() => (usePage().props.ads || []).find((a) => a.slot === props.slot));
+const page = usePage();
+const ad = computed(() => (page.props.ads || []).find((a) => a.slot === props.slot));
 let observer = null;
 
 function xsrf() {
@@ -25,13 +26,19 @@ function track(type) {
     }).catch(() => {});
 }
 
-onMounted(() => {
-    if (!ad.value || !el.value || !('IntersectionObserver' in window)) return;
+const seen = new Set();
+function observe() {
+    observer?.disconnect();
+    if (!ad.value || !el.value || seen.has(ad.value.id) || !('IntersectionObserver' in window)) return;
     observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) { track('imp'); observer.disconnect(); }
+        if (entries[0].isIntersecting && entries[0].intersectionRatio >= 0.5) {
+            seen.add(ad.value.id); track('imp'); observer.disconnect();
+        }
     }, { threshold: 0.5 });
     observer.observe(el.value);
-});
+}
+onMounted(observe);
+watch(() => ad.value?.id, observe, { flush: 'post' });
 onBeforeUnmount(() => observer?.disconnect());
 </script>
 

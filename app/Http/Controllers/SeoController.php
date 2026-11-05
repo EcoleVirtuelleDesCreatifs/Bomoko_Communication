@@ -3,13 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\Region;
+use App\Models\Rubrique;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 
 class SeoController extends Controller
 {
     public function rss()
     {
-        $articles = Article::published()->with('rubrique')->orderByDesc('published_at')->limit(30)->get();
+        $articles = Article::published()->with('rubrique')->orderByDesc('published_at')->limit(30)
+            ->get(['slug', 'title', 'chapo', 'rubrique_slug', 'author_name', 'published_at']);
 
         $items = $articles->map(function ($a) {
             return '    <item>'."\n"
@@ -46,19 +50,43 @@ class SeoController extends Controller
             ."Disallow: /recherche\n"
             ."Disallow: /*?sujet=\n"
             ."Disallow: /*?_=\n"
-            ."\n"
-            ."User-agent: *\n"
             ."Disallow: /admin/api\n"
             ."\n"
-            ."Sitemap: ".url('/sitemap.xml')."\n";
+            .'Sitemap: '.url('/sitemap.xml')."\n";
 
         return response($txt, 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
     }
 
     public function sitemap()
     {
+        $pages = max(1, (int) ceil(Article::published()->count() / 5000));
+        $locations = [route('sitemap.pages')];
+        for ($page = 1; $page <= $pages; $page++) {
+            $locations[] = route('sitemap.articles', ['page' => $page]);
+        }
+        $body = collect($locations)->map(fn ($url) => '<sitemap><loc>'.e($url).'</loc></sitemap>')->implode("\n");
+
+        return response('<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'.$body.'</sitemapindex>', 200,
+            ['Content-Type' => 'application/xml; charset=UTF-8']);
+    }
+
+    public function articles(int $page)
+    {
+        $pages = max(1, (int) ceil(Article::published()->count() / 5000));
+        abort_if($page < 1 || $page > $pages, 404);
+        $urls = Article::published()->orderBy('id')->offset(($page - 1) * 5000)->limit(5000)
+            ->get(['slug', 'image_path', 'updated_at'])->map(fn ($a) => [
+                'loc' => route('article.show', $a->slug), 'lastmod' => $a->updated_at?->toW3cString(),
+                'freq' => 'daily', 'priority' => '0.9', 'img' => $a->image_path ? asset('storage/'.$a->image_path) : null,
+            ])->all();
+
+        return $this->urlset($urls);
+    }
+
+    public function pages()
+    {
         $latest = Article::published()->max('updated_at');
-        $lastmod = $latest ? \Illuminate\Support\Carbon::parse($latest)->toW3cString() : now()->toW3cString();
+        $lastmod = $latest ? Carbon::parse($latest)->toW3cString() : now()->toW3cString();
         $urls = [
             ['loc' => url('/'), 'priority' => '1.0', 'freq' => 'hourly', 'lastmod' => $lastmod],
             ['loc' => url('/afriques'), 'priority' => '0.8', 'freq' => 'hourly'],
@@ -70,24 +98,25 @@ class SeoController extends Controller
             ['loc' => url('/cookies'), 'priority' => '0.2', 'freq' => 'yearly'],
         ];
 
-        foreach (\App\Models\Rubrique::where('slug', '!=', 'portraits')->get() as $r) {
+        foreach (Rubrique::where('slug', '!=', 'portraits')->get() as $r) {
             $urls[] = ['loc' => url('/rubrique/'.$r->slug), 'priority' => '0.8', 'freq' => 'hourly'];
         }
-        foreach (\App\Models\Region::all() as $r) {
+        foreach (Region::all() as $r) {
             $urls[] = ['loc' => url('/afriques/'.$r->slug), 'priority' => '0.7', 'freq' => 'hourly'];
         }
-        foreach (Article::published()->orderByDesc('published_at')->limit(5000)
-                     ->get(['slug', 'image_path', 'updated_at']) as $a) {
-            $urls[] = ['loc' => route('article.show', $a->slug), 'lastmod' => $a->updated_at->toW3cString(), 'priority' => '0.9', 'freq' => 'daily', 'img' => $a->image_path ? asset('storage/'.$a->image_path) : null];
-        }
 
+        return $this->urlset($urls);
+    }
+
+    private function urlset(array $urls)
+    {
         $body = collect($urls)->map(function ($u) {
             return "  <url>\n    <loc>".e($u['loc'])."</loc>\n"
                 .(isset($u['lastmod']) ? '    <lastmod>'.$u['lastmod']."</lastmod>\n" : '')
                 .'    <changefreq>'.$u['freq']."</changefreq>\n"
                 .'    <priority>'.$u['priority']."</priority>\n"
                 .(! empty($u['img']) ? '    <image:image><image:loc>'.e($u['img']).'</image:loc></image:image>'."\n" : '')
-                ."  </url>";
+                .'  </url>';
         })->implode("\n");
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n"

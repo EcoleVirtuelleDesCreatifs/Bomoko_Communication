@@ -27,11 +27,11 @@
           <h1 style="margin:0 0 16px;color:#1a1918;font-size:26px;line-height:1.25;font-weight:800;">Bienvenue {{ $subscriber->name ? ' '.$subscriber->name : '' }}!</h1>
           <p style="margin:0 0 16px;color:#46413c;font-size:15px;line-height:1.65;">
             Votre adresse <strong>{{ $subscriber->email }}</strong> est désormais abonnée au brief Afriquinfos :
-            chaque matin, l’essentiel de l’actualité panafricaine — politique, économie, société, culture et sports —
+            l’essentiel de l’actualité panafricaine — politique, économie, société, culture et sports —
             sélectionné par notre rédaction. Ni totems, ni tabous.
           </p>
           <p style="margin:0 0 28px;color:#46413c;font-size:15px;line-height:1.65;">
-            Votre premier brief arrive <strong>demain matin</strong>. En attendant, retrouvez toute l’actualité sur le site.
+            Vous recevrez les prochaines éditions préparées par notre rédaction. En attendant, retrouvez toute l’actualité sur le site.
           </p>
           <table role="presentation" cellpadding="0" cellspacing="0"><tr>
             <td style="background:#de5011;border-radius:6px;">

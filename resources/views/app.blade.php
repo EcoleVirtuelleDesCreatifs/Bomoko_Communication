@@ -36,9 +36,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-  <link href="{{ asset('assets/css/afriquinfos.css') }}?v={{ filemtime(public_path('assets/css/afriquinfos.css')) }}" rel="stylesheet">
-  @if(request()->is('admin*'))<link href="{{ asset('assets/css/admin.css') }}?v={{ filemtime(public_path('assets/css/admin.css')) }}" rel="stylesheet">@endif
-  <link href="{{ asset('assets/css/afriquinfos-print.css') }}" rel="stylesheet" media="print">
+  <link href="{{ \App\Support\SiteAssets::url('afriquinfos.css') }}" rel="stylesheet">
+  @if(request()->is('admin*'))<link href="{{ \App\Support\SiteAssets::url('admin.css') }}" rel="stylesheet">@endif
+  <link href="{{ \App\Support\SiteAssets::url('afriquinfos-print.css') }}" rel="stylesheet" media="print">
   @foreach(($meta['jsonld'] ?? []) as $ld)
   <script type="application/ld+json">{!! json_encode($ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
   @endforeach

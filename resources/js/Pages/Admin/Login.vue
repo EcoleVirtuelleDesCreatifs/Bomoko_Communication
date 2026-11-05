@@ -1,10 +1,11 @@
 <script setup>
 import { ref } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
 import { asset } from '../../utils';
 
 const form = useForm({ email: '', password: '', remember: false });
 const show = ref(false);
+const page = usePage();
 
 function submit() { form.post('/admin/login'); }
 </script>
@@ -12,7 +13,7 @@ function submit() { form.post('/admin/login'); }
 <template>
   <section class="ad-login" aria-labelledby="loginTitle">
     <div class="ad-login__brand">
-      <img :src="asset('assets/img/logo-afriquinfos-negatif.png')" alt="Afriquinfos" width="320" height="114">
+      <img :src="page.props.siteAssets?.['assets/img/logo-afriquinfos-negatif.png'] || asset('assets/img/logo-afriquinfos-negatif.png')" alt="Afriquinfos" width="320" height="114">
       <p class="ad-login__claim">Ni totems, ni tabous.</p>
       <p class="ad-login__sub">Espace de rédaction et d’administration</p>
     </div>

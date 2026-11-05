@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import AqAd from '../Components/AqAd.vue';
 import AqMedia from '../Components/AqMedia.vue';
@@ -112,26 +112,32 @@ function pup(e) {
 }
 
 // Sondage débat
-const voted = ref(typeof window !== 'undefined' ? store('aq-vote') : null);
+const voted = ref(props.debate?.voted || null);
+const voting = ref(false);
+const voteError = ref('');
+const counts = ref(props.debate?.base || null);
+watch(() => props.debate, (debate) => { counts.value = debate?.base || null; voted.value = debate?.voted || null; voteError.value = ''; });
 const poll = computed(() => {
-    if (!props.debate) return null;
-    const pour = props.debate.base.pour + (voted.value === 'pour' ? 1 : 0);
-    const contre = props.debate.base.contre + (voted.value === 'contre' ? 1 : 0);
-    const total = pour + contre;
-    return { pour, contre, total, pctP: Math.round((pour / total) * 100), pctC: 100 - Math.round((pour / total) * 100) };
+    if (!counts.value) return null;
+    const pour = Number(counts.value.pour), contre = Number(counts.value.contre), total = pour + contre;
+    const pctP = total ? Math.round((pour / total) * 100) : 0;
+    return { pour, contre, total, pctP, pctC: total ? 100 - pctP : 0 };
 });
 const pollLabel = computed(() => poll.value ? poll.value.pctP + ' % pour, ' + poll.value.pctC + ' % contre' : '');
-function vote(side) {
-    voted.value = side;
-    store('aq-vote', side);
-    if (props.debate?.id) {
-        fetch('/debat/' + props.debate.id + '/vote', {
+async function vote(side) {
+    if (!props.debate?.open || voted.value || voting.value) return;
+    voting.value = true; voteError.value = '';
+    try {
+        const response = await fetch('/debat/' + props.debate.id + '/vote', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-XSRF-TOKEN': decodeURIComponent((document.cookie.match(/XSRF-TOKEN=([^;]+)/) || [])[1] || '') },
-            body: JSON.stringify({ side }),
-            credentials: 'same-origin',
-        }).catch(() => {});
-    }
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-XSRF-TOKEN': decodeURIComponent((document.cookie.match(/XSRF-TOKEN=([^;]+)/) || [])[1] || '') },
+            body: JSON.stringify({ side }), credentials: 'same-origin',
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Le vote n’a pas été enregistré.');
+        counts.value = { pour: data.pour, contre: data.contre }; voted.value = data.side;
+    } catch (error) { voteError.value = error.message; }
+    finally { voting.value = false; }
 }
 
 const two = (n) => (n < 10 ? '0' + n : String(n));
@@ -262,13 +268,15 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
       </div>
       <div class="aq-poll"><p class="aq-poll__ask">Et vous, qu’en pensez-vous ?</p>
         <div class="aq-poll__buttons">
-          <button type="button" class="aq-btn aq-btn--ink" :aria-pressed="voted === 'pour'" @click="vote('pour')">Je suis pour</button>
-          <button type="button" class="aq-btn aq-btn--outline" :aria-pressed="voted === 'contre'" @click="vote('contre')">Je suis contre</button>
+          <button type="button" class="aq-btn aq-btn--ink" :aria-pressed="voted === 'pour'" :disabled="voting || !!voted || !debate.open" @click="vote('pour')">Je suis pour</button>
+          <button type="button" class="aq-btn aq-btn--outline" :aria-pressed="voted === 'contre'" :disabled="voting || !!voted || !debate.open" @click="vote('contre')">Je suis contre</button>
         </div>
-        <div v-if="voted && poll">
+        <p v-if="voteError" role="alert">{{ voteError }}</p>
+        <p v-if="!debate.open" class="aq-poll__thanks">Ce débat est fermé aux votes.</p>
+        <div v-if="(voted || !debate.open) && poll">
           <div class="aq-poll__bar" role="img" :aria-label="pollLabel"><span class="aq-poll__pour" :style="{ width: poll.pctP + '%' }"></span><span class="aq-poll__contre" :style="{ width: poll.pctC + '%' }"></span></div>
           <p class="aq-poll__legend"><b>{{ poll.pctP }} %</b> pour, <b>{{ poll.pctC }} %</b> contre, <b>{{ poll.total }}</b> votes</p>
-          <p class="aq-poll__thanks" role="status">Vote enregistré : vous êtes {{ voted }}. Vous pouvez changer d’avis à tout moment.</p>
+          <p v-if="voted" class="aq-poll__thanks" role="status">Vote confirmé : vous êtes {{ voted }}. Un vote par navigateur et par débat.</p>
         </div>
       </div>
     </div>

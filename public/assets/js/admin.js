@@ -173,7 +173,7 @@
   // les articles programmés dont l'heure est passée sont publiés
   var saveTimer, saveBusy = false, saveQueued = false;
   var SYNCED = {}, syncedResources = {}, revisions = S.revisions || {};
-  var resourceKeys = ['rubriques', 'regions', 'agenda', 'comments', 'subscribers', 'messages', 'debats', 'users', 'flash', 'medias', 'ads', 'campaigns', 'slots', 'settings'];
+  var resourceKeys = ['rubriques', 'regions', 'agenda', 'comments', 'subscribers', 'messages', 'debats', 'users', 'flash', 'medias', 'ads', 'slots', 'settings'];
   function markSynced(rows) { (rows || []).forEach(function (a) { SYNCED[a.id] = a.updated; }); }
   markSynced(S.articles);
   resourceKeys.forEach(function (k) { syncedResources[k] = JSON.stringify(S[k]); });
@@ -213,6 +213,7 @@
           syncedResources[k] = JSON.stringify(canonical); revisions[k] = j.revisions[k];
         });
         S.log = j.log || []; S.teamStats = j.teamStats || S.teamStats; S.publishedToday = j.publishedToday || [];
+        S.publicationStats = j.publicationStats || S.publicationStats; S.dashboardStats = j.dashboardStats || S.dashboardStats;
         if (sent.users) ME = S.users.filter(function (u) { return u.id === ME.id; })[0] || ME;
         if (indicator && document.contains(indicator)) indicator.textContent = 'Sauvegarde confirmée par le serveur à ' + fmtTime.format(new Date());
         toast('Sauvegarde confirmée par le serveur');
@@ -390,12 +391,12 @@
     var days = [], max = 0;
     for (var i = 13; i >= 0; i--) {
       var d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() - i);
-      var seedN = d.getDate() * 37 + d.getMonth() * 11;
-      var val = Math.round(4200 + (seedN % 23) * 140 + (d.getDay() === 0 || d.getDay() === 6 ? -900 : 300) + (13 - i) * 60);
+      var val = +((S.dashboardStats || {}).dailyViews || {})[fmtDay(d)] || 0;
       days.push({ d: d, v: val }); if (val > max) max = val;
     }
     var week = days.slice(7).reduce(function (s, x) { return s + x.v; }, 0);
-    var counts = rubsSorted().map(function (r) { return { label: r.label, n: S.articles.filter(function (a) { return a.rub === r.id && a.status === 'publie'; }).length }; }).filter(function (x) { return x.n; }).sort(function (a, b) { return b.n - a.n; });
+    var totals = S.dashboardStats || {};
+    var counts = totals.rubriques || [];
     var cmax = Math.max.apply(null, counts.map(function (c) { return c.n; }));
     var recent = S.articles.filter(function (a) { return a.status !== 'corbeille'; }).sort(function (a, b) { return b.updated.localeCompare(a.updated); }).slice(0, 6);
     var top = pub.slice().sort(function (a, b) { return b.views - a.views; }).slice(0, 5);
@@ -407,7 +408,7 @@
     S.agenda.filter(function (e) { return e.date >= nowDay; }).sort(function (a, b) { return a.date.localeCompare(b.date); }).slice(0, 1).forEach(function (e) { todo.push(['bi-calendar-event', 'Prochain événement : ' + e.title + ' (' + dshort(e.date) + ')', '#agenda']); });
 
     // graphique en barres (SVG)
-    var W = 720, H = 240, pl = 44, pr = 8, pt = 16, pb = 28, step = Math.ceil(max / 4 / 1000) * 1000, top_ = step * 4;
+    var W = 720, H = 240, pl = 44, pr = 8, pt = 16, pb = 28, step = Math.max(1, Math.ceil(max / 4 / 1000) * 1000), top_ = step * 4;
     var bw = (W - pl - pr) / days.length, svg = '';
     for (var g = 0; g <= 4; g++) {
       var y = pt + (H - pt - pb) * (1 - g / 4);
@@ -425,9 +426,9 @@
     v.innerHTML = pagehead((hour < 18 ? 'Bonjour, ' : 'Bonsoir, ') + ME.name.split(' ')[0], 'Voici l’état de la rédaction, ' + new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date()) + '.',
       '<a class="ad-btn ad-btn--outline" href="#medias"><i class="bi bi-upload" aria-hidden="true"></i>Importer un visuel</a><a class="ad-btn ad-btn--primary" href="#nouvel-article"><i class="bi bi-plus-lg" aria-hidden="true"></i>Nouvel article</a>') +
       '<div class="ad-grid ad-grid--kpi mb-4">' +
-        '<a href="#articles" data-tab="publie" class="ad-panel ad-kpi"><p class="ad-kpi__label">Articles publiés</p><p class="ad-kpi__value">' + pub.length + '</p><p class="ad-kpi__hint">Dont ' + pub.filter(function (a) { return a.une; }).length + ' à la une</p></a>' +
-        '<a href="#articles" data-tab="programme" class="ad-panel ad-kpi"><p class="ad-kpi__label">Programmés</p><p class="ad-kpi__value">' + prog.length + '</p><p class="ad-kpi__hint">' + (prog[0] ? 'Prochain ' + rel(prog[0].date) : 'Aucun article en attente') + '</p></a>' +
-        '<a href="#articles" data-tab="relecture" class="ad-panel ad-kpi"><p class="ad-kpi__label">Brouillons et relectures</p><p class="ad-kpi__value">' + draft.length + '</p><p class="ad-kpi__hint">' + S.articles.filter(function (a) { return a.status === 'relecture'; }).length + ' en relecture</p></a>' +
+        '<a href="#articles" data-tab="publie" class="ad-panel ad-kpi"><p class="ad-kpi__label">Articles publiés</p><p class="ad-kpi__value">' + (totals.published || 0) + '</p><p class="ad-kpi__hint">Dont ' + (totals.featured || 0) + ' à la une</p></a>' +
+        '<a href="#articles" data-tab="programme" class="ad-panel ad-kpi"><p class="ad-kpi__label">Programmés</p><p class="ad-kpi__value">' + (totals.scheduled || 0) + '</p><p class="ad-kpi__hint">' + (prog[0] ? 'Prochain ' + rel(prog[0].date) : 'Aucun article en attente') + '</p></a>' +
+        '<a href="#articles" data-tab="relecture" class="ad-panel ad-kpi"><p class="ad-kpi__label">Brouillons et relectures</p><p class="ad-kpi__value">' + (totals.drafts || 0) + '</p><p class="ad-kpi__hint">' + (totals.review || 0) + ' en relecture</p></a>' +
         '<a href="#commentaires" class="ad-panel ad-kpi ad-kpi--dark"><p class="ad-kpi__label">Commentaires à modérer</p><p class="ad-kpi__value">' + pending() + '</p><p class="ad-kpi__hint">' + fmtNum.format(subs) + ' abonnés à la newsletter</p></a>' +
       '</div>' +
       '<div class="ad-grid ad-grid--2 mb-4">' +
@@ -435,7 +436,7 @@
           '<div class="ad-panel__body"><div class="ad-chart" id="chart"><svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Lectures quotidiennes sur 14 jours, de ' + fmtNum.format(Math.min.apply(null, days.map(function (x) { return x.v; }))) + ' à ' + fmtNum.format(max) + '">' + svg + '</svg><div class="ad-tip" id="tip"></div></div>' +
           '<details class="ad-datatable mt-3"><summary>Voir les données</summary><div class="ad-tablewrap"><table class="ad-table"><thead><tr><th>Jour</th><th class="num">Lectures</th></tr></thead><tbody>' +
             days.map(function (x) { return '<tr><td>' + dshort(x.d.toISOString()) + '</td><td class="num">' + fmtNum.format(x.v) + '</td></tr>'; }).join('') + '</tbody></table></div></details></div>' +
-          '<div class="ad-panel__foot">Données de démonstration : à relier à votre outil de mesure d’audience.</div></section>' +
+          '<div class="ad-panel__foot">Pages articles consultées depuis l’activation du compteur quotidien. Aucun historique antérieur n’est simulé ; il ne s’agit pas de visiteurs uniques.</div></section>' +
         '<section class="ad-panel" aria-labelledby="hRub"><div class="ad-panel__head"><h2 id="hRub">Articles publiés par rubrique</h2></div><div class="ad-panel__body"><div class="ad-hbars">' +
           counts.map(function (c) { return '<div class="ad-hbar"><span>' + esc(c.label) + '</span><div class="ad-hbar__track"><div class="ad-hbar__fill" style="width:' + (c.n / cmax * 100) + '%"></div></div><b>' + c.n + '</b></div>'; }).join('') +
         '</div></div></section>' +
@@ -515,13 +516,7 @@
   }
   // toutes les publications : historique de démonstration + articles publiés dans l'administration
   function publications() {
-    var list = [], h = S.history, now = new Date();
-    if (h) Object.keys(h.counts).forEach(function (name) {
-      var d = parseDay(h.start);
-      h.counts[name].forEach(function (n) { var k = fmtDay(d); for (var i = 0; i < n; i++) list.push({ author: name, day: k }); d.setDate(d.getDate() + 1); });
-    });
-    S.articles.forEach(function (a) { if (a.status === 'publie' && new Date(a.date) <= now) list.push({ author: a.author, day: fmtDay(new Date(a.date)) }); });
-    return list;
+    return S.publicationStats || [];
   }
   function memberKey(author) { return S.users.some(function (u) { return u.name === author; }) ? author : EXT; }
   function niceStep(v) { var steps = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000]; for (var i = 0; i < steps.length; i++) if (steps[i] * 4 >= v) return steps[i]; return Math.ceil(v / 4000) * 1000; }
@@ -564,9 +559,9 @@
   VIEWS.statistiques = function (v) {
     var pubs = publications();
     // index : membre → jour → nombre
-    var idx = {}; pubs.forEach(function (p) { var m = memberKey(p.author); (idx[m] = idx[m] || {})[p.day] = (idx[m][p.day] || 0) + 1; });
-    var members = S.users.map(function (u) { return { key: u.name, name: u.name, role: ROLES[u.role], status: u.status }; });
-    if (idx[EXT]) members.push({ key: EXT, name: 'Contributeurs extérieurs', role: 'Tribunes et invités' });
+    var idx = {}; pubs.forEach(function (p) { var m = p.member; (idx[m] = idx[m] || {})[p.day] = (idx[m][p.day] || 0) + p.count; });
+    var members = S.users.map(function (u) { return { key: u.id, name: u.name, role: ROLES[u.role], status: u.status }; });
+    if (idx[EXT]) members.push({ key: EXT, name: 'Articles sans compte identifié', role: 'Signatures historiques ou extérieures' });
     function series(keys, g, bks) {
       var map = {}; bks.forEach(function (b) { map[b.key] = 0; });
       keys.forEach(function (k) { var days = idx[k] || {}; Object.keys(days).forEach(function (d) { var bk = bucketOf(d, g); if (bk in map) map[bk] += days[d]; }); });
@@ -618,7 +613,7 @@
               '<td style="min-width:140px"><div class="ad-hbar ad-hbar--inline"><div class="ad-hbar__track"><div class="ad-hbar__fill" style="width:' + share + '%"></div></div><b class="tnum">' + share + ' %</b></div></td>' +
               '<td class="ad-muted" style="white-space:nowrap">' + (r.last ? dshort(r.last + 'T12:00:00') : '—') + '</td></tr>';
           }).join('') + '</tbody><tfoot><tr><td><strong>Toute l’équipe</strong></td><td class="num">' + teamRow.today + '</td><td class="num">' + teamRow.week + '</td><td class="num">' + teamRow.month + '</td><td class="num"><b>' + teamRow.total + '</b></td><td class="num">' + f1(teamRow.avg) + '</td><td>' + spark(teamRow.s) + '</td><td></td><td></td></tr></tfoot></table></div>' +
-          '<div class="ad-panel__foot">Avant le ' + (S.history ? dshort(S.history.end + 'T12:00:00') : '—') + ' : historique de démonstration. Ensuite : articles réellement publiés dans l’administration.</div></section>';
+          '<div class="ad-panel__foot">Publications réelles agrégées en base sur les 24 derniers mois. Les signatures sans compte identifiable restent regroupées à part.</div></section>';
       bindChart('stChart', items);
     }
     v.addEventListener('click', function (e) {
@@ -1533,18 +1528,25 @@
   VIEWS.newsletter = function (v) {
     var q = '';
     var active = S.subscribers.filter(function (s) { return s.status === 'actif'; }).length;
-    v.innerHTML = pagehead('Newsletter', 'Le brief panafricain : abonnés et envois.', '<button type="button" class="ad-btn ad-btn--outline" id="nlExport"><i class="bi bi-download" aria-hidden="true"></i>Exporter (CSV)</button><button type="button" class="ad-btn ad-btn--primary" id="nlCompose"><i class="bi bi-send" aria-hidden="true"></i>Préparer un envoi</button>') +
-      '<div class="ad-grid ad-grid--kpi mb-4"><div class="ad-panel ad-kpi"><p class="ad-kpi__label">Abonnés actifs</p><p class="ad-kpi__value" id="nlActive">' + active + '</p></div><div class="ad-panel ad-kpi"><p class="ad-kpi__label">Désinscrits</p><p class="ad-kpi__value">' + (S.subscribers.length - active) + '</p></div><div class="ad-panel ad-kpi"><p class="ad-kpi__label">Envois</p><p class="ad-kpi__value">' + S.campaigns.length + '</p><p class="ad-kpi__hint">' + (S.campaigns[0] ? 'Dernier : ' + dshort(S.campaigns[0].date) : '') + '</p></div></div>' +
+    v.innerHTML = pagehead('Newsletter', 'Le brief panafricain : abonnés et envois.', '<button type="button" class="ad-btn ad-btn--outline" id="nlRefresh">Actualiser les campagnes</button><button type="button" class="ad-btn ad-btn--outline" id="nlExport"><i class="bi bi-download" aria-hidden="true"></i>Exporter (CSV)</button><button type="button" class="ad-btn ad-btn--primary" id="nlCompose"><i class="bi bi-send" aria-hidden="true"></i>Préparer un envoi</button>') +
+      '<div class="ad-grid ad-grid--kpi mb-4"><div class="ad-panel ad-kpi"><p class="ad-kpi__label">Abonnés actifs</p><p class="ad-kpi__value" id="nlActive">' + active + '</p></div><div class="ad-panel ad-kpi"><p class="ad-kpi__label">Désinscrits</p><p class="ad-kpi__value">' + (S.subscribers.length - active) + '</p></div><div class="ad-panel ad-kpi"><p class="ad-kpi__label">Campagnes enregistrées</p><p class="ad-kpi__value">' + S.campaigns.length + '</p><p class="ad-kpi__hint">' + (S.campaigns[0] ? 'Dernier : ' + dshort(S.campaigns[0].date) : '') + '</p></div></div>' +
       '<div class="ad-grid ad-grid--2"><section class="ad-panel"><div class="ad-toolbar"><div class="ad-search"><i class="bi bi-search" aria-hidden="true"></i><label class="visually-hidden" for="nlQ">Rechercher un abonné</label><input class="ad-input" id="nlQ" type="search" placeholder="Nom, e-mail ou pays…"></div><button type="button" class="ad-btn ad-btn--dark ad-btn--sm" id="nlAdd"><i class="bi bi-person-plus" aria-hidden="true"></i>Ajouter</button></div><div class="ad-tablewrap"><table class="ad-table" id="nlTable"></table></div></section>' +
-      '<section class="ad-panel"><div class="ad-panel__head"><h2>Derniers envois</h2></div><ul class="ad-list" id="nlCamp"></ul></section></div>';
+      '<section class="ad-panel"><div class="ad-panel__head"><h2>Campagnes et état réel du traitement</h2></div><ul class="ad-list" id="nlCamp"></ul></section></div>';
     function draw() {
       var list = S.subscribers.filter(function (s) { return !q || norm(s.name + ' ' + s.email + ' ' + s.country).indexOf(norm(q)) > -1; }).sort(function (a, b) { return (b.since||'').localeCompare(a.since||''); });
       $('#nlTable').innerHTML = '<thead><tr><th>Abonné</th><th>Pays</th><th>Inscription</th><th>Statut</th><th class="actions"><span class="visually-hidden">Actions</span></th></tr></thead><tbody>' +
         (list.length ? list.map(function (s) { return '<tr><td><div class="ad-title-cell" style="min-width:200px"><strong>' + esc(s.name) + '</strong><small>' + esc(s.email) + '</small></div></td><td>' + esc(s.country) + '</td><td class="ad-muted">' + dshort(s.since) + '</td><td><span class="ad-status ad-status--' + (s.status === 'actif' ? 'active' : 'libre') + '">' + (s.status === 'actif' ? 'Abonné' : 'Désinscrit') + '</span></td><td class="actions">' + (s.status === 'actif' ? '<button type="button" class="ad-btn ad-btn--ghost ad-btn--sm" data-unsub="' + s.id + '">Désinscrire</button>' : '<button type="button" class="ad-btn ad-btn--ghost ad-btn--sm" data-resub="' + s.id + '">Réinscrire</button>') + '</td></tr>'; }).join('') : '<tr><td colspan="5"><div class="ad-empty"><strong>Aucun abonné</strong>Aucun abonné ne correspond à « ' + esc(q) + ' ».</div></td></tr>') + '</tbody>';
-      $('#nlCamp').innerHTML = S.campaigns.map(function (c) { return '<li><span class="ad-list__icon"><i class="bi bi-' + (c.status === 'programmee' ? 'clock' : 'envelope-check') + '" aria-hidden="true"></i></span><div class="ad-list__main"><strong>' + fr(c.subject) + '</strong><small>' + (c.status === 'programmee' ? 'Programmé pour le ' + dlong(c.date) : 'Envoyé le ' + dlong(c.date)) + ', ' + plural(c.recipients, 'destinataire', 'destinataires') + '</small></div></li>'; }).join('');
+      var labels = { programmee: 'Programmée', en_cours: 'En cours', envoyee: 'Traitée', echec: 'Terminée avec erreurs', historique_non_verifie: 'Historique non vérifié' };
+      $('#nlCamp').innerHTML = S.campaigns.map(function (c) { return '<li><span class="ad-list__icon"><i class="bi bi-envelope" aria-hidden="true"></i></span><div class="ad-list__main"><strong>' + fr(c.subject) + '</strong><small>' + esc(labels[c.status] || c.status) + ' · ' + dlong(c.date) + (c.status === 'historique_non_verifie' ? '' : ' · ' + (c.sent || 0) + ' acceptés par le transport · ' + (c.failed || 0) + ' échecs') + '</small></div></li>'; }).join('');
       $('#nlActive').textContent = S.subscribers.filter(function (s) { return s.status === 'actif'; }).length;
     }
     $('#nlQ').addEventListener('input', function () { q = this.value; draw(); });
+    $('#nlRefresh').addEventListener('click', function () {
+      fetch(window.AQ_API.replace(/state$/, 'newsletter/campaigns'), { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+        .then(function (r) { if (!r.ok) throw new Error('Actualisation refusée'); return r.json(); })
+        .then(function (rows) { S.campaigns = rows.concat(S.campaigns.filter(function (c) { return c.status === 'historique_non_verifie'; })); draw(); })
+        .catch(function (e) { toast(e.message); });
+    });
     v.addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return;
       var id = b.getAttribute('data-unsub') || b.getAttribute('data-resub');
@@ -1591,14 +1593,25 @@
             return ids;
           }
           prev(); b.addEventListener('input', prev); b.addEventListener('change', prev);
-          $('#cpTest', b).addEventListener('click', function () { toast('E-mail de test envoyé à ' + ME.email); });
-          $('#cpGo', b).addEventListener('click', function () {
-            var ids = prev(), d = new Date($('#cpD', b).value);
-            var err = !$('#cpS', b).value.trim() ? 'Ajoutez un objet.' : !ids.length ? 'Choisissez au moins un article.' : isNaN(d) || d < new Date() ? 'Choisissez une date d’envoi à venir.' : '';
+          var clientKey = uid();
+          function submitEdition(test) {
+            var ids = prev(), d = new Date($('#cpD', b).value), button = $(test ? '#cpTest' : '#cpGo', b);
+            var err = !$('#cpS', b).value.trim() ? 'Ajoutez un objet.' : !ids.length ? 'Choisissez au moins un article.' : !test && (isNaN(d) || d < new Date()) ? 'Choisissez une date d’envoi à venir.' : '';
             $('#cpErr', b).textContent = err; if (err) return;
-            S.campaigns.unshift({ id: 'k' + uid(), subject: $('#cpS', b).value.trim(), date: d.toISOString(), status: 'programmee', recipients: S.subscribers.filter(function (s) { return s.status === 'actif'; }).length });
-            log('a programmé la newsletter « ' + $('#cpS', b).value.trim() + ' »'); save(); close(); draw(); toast('Envoi programmé pour le ' + dlong(d.toISOString()));
-          });
+            button.disabled = true;
+            var payload = { client_key: clientKey, subject: $('#cpS', b).value.trim(), intro: $('#cpI', b).value.trim(), articles: ids };
+            if (!test) payload.date = d.toISOString();
+            fetch(window.AQ_API.replace(/state$/, 'newsletter/' + (test ? 'test' : 'campaigns')), {
+              method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+              credentials: 'same-origin', body: JSON.stringify(payload)
+            }).then(function (r) { return r.json().then(function (j) {
+              if (!r.ok || !j.ok) throw new Error(j.error || j.message || 'Enregistrement refusé');
+              if (test) toast(j.message);
+              else { S.campaigns = j.campaigns.concat(S.campaigns.filter(function (c) { return c.status === 'historique_non_verifie'; })); close(); draw(); toast('Campagne enregistrée. L’expédition nécessite le planificateur serveur actif.'); }
+            }); }).catch(function (e) { $('#cpErr', b).textContent = e.message; }).finally(function () { button.disabled = false; });
+          }
+          $('#cpTest', b).addEventListener('click', function () { submitEdition(true); });
+          $('#cpGo', b).addEventListener('click', function () { submitEdition(false); });
         });
     }
     draw();
@@ -1879,7 +1892,7 @@
         '<section class="ad-panel" id="st-pub"><div class="ad-panel__head"><h2>Publication</h2></div><div class="ad-panel__body">' + field('stPer', 'Articles par page de rubrique', '<input class="ad-input" type="number" min="6" max="48" id="stPer" value="' + esc(s.perPage) + '" style="max-width:140px">') +
           '<div class="ad-field"><label class="ad-switch"><input type="checkbox" id="stMod"' + (s.moderation ? ' checked' : '') + '>Modérer les commentaires avant publication</label></div>' +
           '<div class="ad-field"><label class="ad-switch"><input type="checkbox" id="stMaint"' + (s.maintenance ? ' checked' : '') + '>Mode maintenance (le site affiche une page d’attente)</label></div></div></section>' +
-        '<section class="ad-panel" id="st-data"><div class="ad-panel__head"><h2>Données de démonstration</h2></div><div class="ad-panel__body"><p class="ad-muted mt-0">Cette maquette garde vos modifications dans ce navigateur. Réinitialisez pour revenir aux contenus de départ.</p><button type="button" class="ad-btn ad-btn--outline" id="stReset"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>Réinitialiser les données</button></div></section>' +
+        '<section class="ad-panel" id="st-data"><div class="ad-panel__head"><h2>Conservation des données</h2></div><div class="ad-panel__body"><p class="ad-muted mt-0">Les contenus sont enregistrés sur le serveur. Aucune réinitialisation de démonstration n’est disponible dans cette administration.</p></div></section>' +
       '</div></div>';
     $$('[data-scroll]', v).forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); $(a.getAttribute('href')).scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' }); }); });
     $('#stSave').addEventListener('click', function () {
@@ -1891,11 +1904,7 @@
       Object.assign(s, { name: $('#stName').value.trim(), timezone: $('#stTz').value, slogan: $('#stSlogan').value.trim(), emailRedaction: $('#stMailR').value.trim(), emailPub: $('#stMailP').value.trim(), facebook: $('#stFb').value.trim(), x: $('#stX').value.trim(), linkedin: $('#stLi').value.trim(), youtube: $('#stYt').value.trim(), perPage: per, moderation: $('#stMod').checked, maintenance: $('#stMaint').checked });
       log('a modifié les paramètres'); save(); toast('Paramètres enregistrés');
     });
-    $('#stReset').addEventListener('click', function () {
-      confirmBox('Réinitialiser les données ?', 'Tous les articles, réglages et modifications faits dans cette maquette seront remplacés par les contenus de départ.', 'Réinitialiser', function () {
-        var me = ME.id; S = seed(); save(); ME = S.users.filter(function (u) { return u.id === me; })[0] || S.users[0]; try { sessionStorage.setItem('aq-admin-user', ME.id); } catch (e) {} listState.sel = {}; render(); toast('Données de démonstration rétablies');
-      });
-    });
+
   };
 
   /* ===================== Démarrage ===================== */

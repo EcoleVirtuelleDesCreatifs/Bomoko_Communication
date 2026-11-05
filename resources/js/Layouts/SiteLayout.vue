@@ -5,6 +5,7 @@ import AqAd from '../Components/AqAd.vue';
 import { todayLong, store, asset } from '../utils';
 
 const page = usePage();
+const logoAsset = (p) => page.props.siteAssets?.[p] || asset(p);
 const nav = computed(() => page.props.nav);
 const url = computed(() => page.url);
 
@@ -117,8 +118,8 @@ onUnmounted(() => { window.removeEventListener('scroll', onScroll); revealObs?.d
   <header class="aq-head"><div class="container-xl aq-head__row">
     <button class="aq-icon d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#menu" aria-controls="menu" aria-label="Ouvrir le menu"><i class="bi bi-list" aria-hidden="true"></i></button>
     <Link class="aq-head__brand" href="/" aria-label="Afriquinfos, accueil">
-      <picture class="aq-logo--light"><source media="(max-width: 575.98px)" :srcset="asset('assets/img/logo-compact.png')" width="600" height="158"><img :src="asset('assets/img/logo-afriquinfos.png')" alt="Afriquinfos — Ni totems, ni tabous" width="600" height="214"></picture>
-      <picture class="aq-logo--dark"><source media="(max-width: 575.98px)" :srcset="asset('assets/img/logo-compact-negatif.png')" width="600" height="158"><img :src="asset('assets/img/logo-afriquinfos-negatif.png')" alt="Afriquinfos — Ni totems, ni tabous" width="600" height="214" loading="lazy"></picture>
+      <picture class="aq-logo--light"><source media="(max-width: 575.98px)" :srcset="logoAsset('assets/img/logo-compact.png')" width="600" height="158"><img :src="logoAsset('assets/img/logo-afriquinfos.png')" alt="Afriquinfos — Ni totems, ni tabous" width="600" height="214"></picture>
+      <picture class="aq-logo--dark"><source media="(max-width: 575.98px)" :srcset="logoAsset('assets/img/logo-compact-negatif.png')" width="600" height="158"><img :src="logoAsset('assets/img/logo-afriquinfos-negatif.png')" alt="Afriquinfos — Ni totems, ni tabous" width="600" height="214" loading="lazy"></picture>
     </Link>
     <form class="aq-searchbar d-none d-lg-block" action="/recherche" role="search"><i class="bi bi-search" aria-hidden="true"></i>
       <label class="visually-hidden" for="hq">Rechercher</label><input id="hq" name="q" type="search" placeholder="Rechercher une actualité, un pays, un sujet…"></form>
@@ -129,7 +130,7 @@ onUnmounted(() => { window.removeEventListener('scroll', onScroll); revealObs?.d
   <AqAd slot="mobile" variant="mobile" />
 
   <nav class="aq-mainnav" id="mainNav" aria-label="Rubriques"><div class="container-xl">
-    <Link class="aq-mainnav__mini" href="/" aria-label="Afriquinfos, accueil"><img :src="asset('assets/img/logo-compact-negatif.png')" alt="" width="600" height="158" loading="lazy"></Link>
+    <Link class="aq-mainnav__mini" href="/" aria-label="Afriquinfos, accueil"><img :src="logoAsset('assets/img/logo-compact-negatif.png')" alt="" width="600" height="158" loading="lazy"></Link>
     <ul class="aq-menu d-none d-lg-flex">
       <li v-for="r in menuRubs" :key="r.slug"><Link :href="urlRub(r.slug)" :aria-current="cur(r.slug)">{{ r.label }}</Link></li>
       <li class="dropdown"><a href="/afriques" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" role="button" :aria-current="cur('afriques')">Les Afriques <i class="bi bi-chevron-down" aria-hidden="true"></i></a>
@@ -145,7 +146,7 @@ onUnmounted(() => { window.removeEventListener('scroll', onScroll); revealObs?.d
   </div></nav>
 
   <div class="offcanvas offcanvas-start aq-offcanvas" tabindex="-1" id="menu" aria-labelledby="menuTitre"><div class="offcanvas-header">
-    <h2 class="visually-hidden" id="menuTitre">Menu</h2><img :src="asset('assets/img/logo-compact-negatif.png')" alt="Afriquinfos" width="129" height="34" loading="lazy">
+    <h2 class="visually-hidden" id="menuTitre">Menu</h2><img :src="logoAsset('assets/img/logo-compact-negatif.png')" alt="Afriquinfos" width="129" height="34" loading="lazy">
     <button type="button" class="aq-icon aq-icon--light" data-bs-dismiss="offcanvas" aria-label="Fermer le menu"><i class="bi bi-x-lg" aria-hidden="true"></i></button></div>
     <div class="offcanvas-body"><form class="aq-searchbar mb-3" action="/recherche" role="search"><i class="bi bi-search" aria-hidden="true"></i><label class="visually-hidden" for="mq">Rechercher</label><input id="mq" name="q" type="search" placeholder="Rechercher…"></form>
     <nav class="aq-offcanvas__nav" aria-label="Rubriques">
@@ -159,7 +160,7 @@ onUnmounted(() => { window.removeEventListener('scroll', onScroll); revealObs?.d
   <main id="contenu" tabindex="-1"><slot /></main>
 
   <footer class="aq-footer"><div class="container-xl"><div class="aq-footer__top">
-    <img :src="asset('assets/img/logo-afriquinfos-negatif.png')" alt="Afriquinfos — Ni totems, ni tabous. L’actualité panafricaine" width="600" height="214" loading="lazy">
+    <img :src="logoAsset('assets/img/logo-afriquinfos-negatif.png')" alt="Afriquinfos — Ni totems, ni tabous. L’actualité panafricaine" width="600" height="214" loading="lazy">
     <div class="aq-social"><a href="https://www.facebook.com/afriquinfoscom/" aria-label="Afriquinfos sur Facebook" rel="noopener"><i class="bi bi-facebook" aria-hidden="true"></i></a><a href="https://x.com/AfriquinfosActu" aria-label="Afriquinfos sur X" rel="noopener"><i class="bi bi-twitter-x" aria-hidden="true"></i></a><a href="/rss.xml" aria-label="Flux RSS"><i class="bi bi-rss" aria-hidden="true"></i></a></div></div>
     <div class="row g-4">
       <nav class="col-6 col-md-3" aria-label="Rubriques"><h2>Rubriques</h2><Link v-for="r in nav?.rubriques || []" :key="r.slug" :href="urlRub(r.slug)">{{ r.label }}</Link></nav>

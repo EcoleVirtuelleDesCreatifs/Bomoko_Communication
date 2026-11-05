@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\NewsletterWelcome;
 use App\Models\Article;
-use App\Models\Comment;
 use App\Models\ContactMessage;
 use App\Models\Debate;
 use App\Models\Subscriber;
+use App\Support\Advertising;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class FormController extends Controller
 {
@@ -55,13 +57,13 @@ class FormController extends Controller
 
         if ($subscriber->wasRecentlyCreated || $subscriber->wasChanged('status')) {
             try {
-                Mail::to($subscriber->email)->send(new \App\Mail\NewsletterWelcome($subscriber));
+                Mail::to($subscriber->email)->send(new NewsletterWelcome($subscriber));
             } catch (\Throwable $e) {
                 report($e);
             }
         }
 
-        return back()->with('newsletter', 'Inscription confirmée : votre premier brief arrive demain matin.');
+        return back()->with('newsletter', 'Votre inscription est enregistrée. Vous recevrez les prochaines éditions publiées par la rédaction.');
     }
 
     public function unsubscribe(Request $request)
@@ -74,6 +76,7 @@ class FormController extends Controller
 
     public function comment(Request $request, Article $article)
     {
+        abort_unless(Article::published()->whereKey($article->id)->exists(), 404);
         // Honeypot anti-spam : un humain ne remplit jamais ce champ
         if ($request->filled('website')) {
             return back();
@@ -105,12 +108,31 @@ class FormController extends Controller
     public function vote(Request $request, Debate $debate)
     {
         $data = $request->validate(['side' => 'required|in:pour,contre']);
-        $debate->increment('votes_'.$data['side']);
+        $token = $request->cookie('aq-voter') ?: $request->session()->get('debate_voter');
+        if (! is_string($token) || ! Str::isUuid($token)) {
+            $token = (string) Str::uuid();
+        }
+        $request->session()->put('debate_voter', $token);
+        $voted = DB::transaction(function () use ($debate, $data, $token) {
+            $current = Debate::whereKey($debate->id)->lockForUpdate()->firstOrFail();
+            $today = now()->toDateString();
+            abort_if(($current->start_date && $current->start_date->toDateString() > $today)
+                || ($current->end_date && $current->end_date->toDateString() < $today), 422, 'Ce débat est fermé.');
+            $inserted = DB::table('debate_votes')->insertOrIgnore([
+                'debate_id' => $current->id, 'voter_hash' => hash('sha256', $token), 'side' => $data['side'], 'created_at' => now(),
+            ]);
+            if ($inserted) {
+                $current->increment('votes_'.$data['side']);
+            }
+
+            return (bool) $inserted;
+        });
+        $debate->refresh();
 
         return response()->json([
-            'pour' => $debate->votes_pour,
-            'contre' => $debate->votes_contre,
-        ]);
+            'pour' => $debate->votes_pour, 'contre' => $debate->votes_contre, 'recorded' => $voted,
+            'side' => DB::table('debate_votes')->where('debate_id', $debate->id)->where('voter_hash', hash('sha256', $token))->value('side'),
+        ])->cookie('aq-voter', $token, 525600, '/', null, $request->isSecure(), true, false, 'lax');
     }
 
     public function adEvent(Request $request)
@@ -121,6 +143,8 @@ class FormController extends Controller
             'type' => 'required|in:imp,clk',
         ]);
 
+        $campaign = collect(Advertising::active())->first(fn ($ad) => (string) $ad['id'] === $data['ad'] && $ad['slot'] === $data['slot']);
+        abort_unless($campaign, 422, 'Campagne inactive ou emplacement invalide.');
         $col = $data['type'] === 'imp' ? 'impressions' : 'clicks';
         DB::table('ad_metrics')->insertOrIgnore(['ad_key' => $data['ad'], 'created_at' => now(), 'updated_at' => now()]);
         DB::table('ad_metrics')->where('ad_key', $data['ad'])->increment($col);

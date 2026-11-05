@@ -4,7 +4,7 @@ Média panafricain reconstruit depuis la maquette statique (`assets/js/data.js`,
 
 ## Stack
 
-- **Laravel 13** + **Inertia.js** (`inertia-laravel` v3) + **Vue 3** + **Vite 5** (Node 18)
+- **Laravel 13** + **Inertia.js** (`inertia-laravel` v3) + **Vue 3** + **Vite 6.4.5** (compatible Node 18 ; privilégier un Node LTS maintenu pour les déploiements futurs)
 - **SSR** : `bootstrap/ssr/ssr.js` servi par `node` sur `127.0.0.1:13714` (config `inertia.ssr`)
 - **BDD** : MySQL/MariaDB XAMPP (`afriquinfos`), socket `/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock`
 - Design repris de la maquette : `public/assets/css/afriquinfos.css`, `admin.css`, images `public/assets/img`
@@ -24,7 +24,7 @@ Compte admin de démo : `awa.kone@afriquinfos.com` / `afriquinfos` → `/admin`
 ## Architecture
 
 - `app/Http/Controllers/FrontController.php` : pages publiques (home, rubrique, afriques, article, portraits, agendas, recherche, contact). Chaque `Inertia::render` passe `withViewData(['meta' => ...])` → title/description/OG/canonical/JSON-LD côté serveur dans `resources/views/app.blade.php`.
-- `SeoController` : `/rss.xml`, `/sitemap.xml` (robots.txt dans `public/`).
+- `SeoController` : `/rss.xml`, `/robots.txt`, `/sitemap.xml` (index), `/sitemaps/pages.xml` et `/sitemaps/articles-{page}.xml` (5 000 articles par page). Ces ressources sont dynamiques ; vérifier qu’aucun ancien fichier statique ni règle Nginx/CDN ne les masque.
 - `FormController` : contact, newsletter, vote débat.
 - `Admin/*` : `AuthController` (session, page de login Inertia `Admin/Login`), `AdminStateController` — l'admin est la **maquette `admin/` servie telle quelle** (`resources/views/admin.blade.php` + `public/assets/js/admin.js`), hydratée par `window.AQ_STATE` depuis la BDD ; `save()` poste uniquement les articles et sections modifiés vers `POST /admin/api/state`, avec contrôle de version et confirmation serveur.
 - `resources/js/Pages` : pages Inertia du **front** (layout `SiteLayout`). L'admin n'est PAS en Inertia — ne pas recréer de pages `Pages/Admin/*` sauf `Admin/Login`.
@@ -47,3 +47,8 @@ Metas par page rendues côté serveur + SSR complet, JSON-LD (NewsArticle, Bread
 - Ne jamais exécuter `migrate:fresh`, les seeders ou `articles:fix-slugs --apply` sur une base contenant des données à préserver sans demande explicite.
 - La synchronisation admin utilise désormais `protocol: 2`, des révisions par section et `baseUpdated` par article. Les anciens clients sont refusés avec HTTP 409 ; recharger les onglets après déploiement.
 - La migration `2026_11_05_000001_create_admin_audit_events_table` ajoute uniquement la table du journal serveur. Déployer les dépendances Composer et appliquer cette migration avant de rouvrir l’administration.
+- La migration `2026_11_05_000002_create_editorial_delivery_tables` ajoute les votes uniques par navigateur, les lectures quotidiennes et les campagnes/envois newsletter ; aucun article existant n’est réécrit.
+- `php artisan site:diagnose` est un diagnostic en lecture seule (chemins, anciens fichiers SEO, tables, transport mail et santé SSR), sans secrets.
+- Les campagnes newsletter nécessitent un transport réel et un cron `schedule:run` chaque minute. `newsletter:send-due --limit=100` traite un lot, conserve les réussites/échecs et ne réessaie pas automatiquement les envois ambigus ou échoués. Ne pas exécuter la commande sur une base réelle pour tester sans autorisation d’envoyer des e-mails.
+- Les anciennes campagnes JSON sont conservées et affichées « Historique non vérifié » ; elles ne sont pas automatiquement expédiées.
+- Les CSS, scripts admin et logos utilisent `SiteAssets` et `/site-assets/{version}/{file}/content` avec empreinte de contenu dans le chemin, sans dépendre du cache des paramètres d’URL.

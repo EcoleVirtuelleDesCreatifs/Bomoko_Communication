@@ -19,7 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-  <link href="{{ asset('assets/css/admin.css') }}?v={{ filemtime(public_path('assets/css/admin.css')) }}" rel="stylesheet">
+  <link href="{{ \App\Support\SiteAssets::url('admin.css') }}" rel="stylesheet">
 </head>
 <body>
   <a class="visually-hidden-focusable ad-skip" href="#view">Aller au contenu</a>
@@ -32,7 +32,7 @@
   <!-- Connexion -->
   <section class="ad-login" id="login" hidden aria-labelledby="loginTitle">
     <div class="ad-login__brand">
-      <img src="{{ asset('assets/img/logo-afriquinfos-negatif.png') }}" alt="Afriquinfos" width="320" height="114">
+      <img src="{{ \App\Support\SiteAssets::url('logo-afriquinfos-negatif.png') }}" alt="Afriquinfos" width="320" height="114">
       <p class="ad-login__claim">Ni totems, ni tabous.</p>
       <p class="ad-login__sub">Espace de rédaction et d’administration</p>
     </div>
@@ -52,7 +52,7 @@
   <div class="ad-app" id="app" hidden>
     <aside class="ad-side" id="side" aria-label="Navigation de l’administration">
       <div class="ad-side__head">
-        <a href="#tableau-de-bord" class="ad-side__logo"><img src="{{ asset('assets/img/logo-compact-negatif.png') }}" alt="Afriquinfos, administration" width="150" height="40"></a>
+        <a href="#tableau-de-bord" class="ad-side__logo"><img src="{{ \App\Support\SiteAssets::url('logo-compact-negatif.png') }}" alt="Afriquinfos, administration" width="150" height="40"></a>
         <button type="button" class="ad-iconbtn ad-iconbtn--light d-lg-none" id="sideClose" aria-label="Fermer le menu"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
       </div>
       <nav class="ad-nav" id="nav"></nav>
@@ -117,7 +117,7 @@
     window.AQ_LOGOUT = @json(route('admin.logout'));
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
-  <script src="{{ asset('assets/js/data.js') }}?v={{ filemtime(public_path('assets/js/data.js')) }}" charset="utf-8" defer></script>
-  <script src="{{ asset('assets/js/admin.js') }}?v={{ filemtime(public_path('assets/js/admin.js')) }}" charset="utf-8" defer></script>
+  <script src="{{ \App\Support\SiteAssets::url('data.js') }}" charset="utf-8" defer></script>
+  <script src="{{ \App\Support\SiteAssets::url('admin.js') }}" charset="utf-8" defer></script>
 </body>
 </html>

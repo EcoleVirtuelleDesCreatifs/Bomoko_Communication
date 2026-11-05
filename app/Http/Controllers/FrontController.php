@@ -39,6 +39,9 @@ class FrontController extends Controller
     {
         $articles = $this->list($this->pub());
         $debate = Debate::current()->latest('id')->first() ?? Debate::latest('id')->first();
+        $voter = request()->cookie('aq-voter') ?: request()->session()->get('debate_voter');
+        $voted = $debate && is_string($voter) ? DB::table('debate_votes')->where('debate_id', $debate->id)
+            ->where('voter_hash', hash('sha256', $voter))->value('side') : null;
 
         $flashRaw = json_decode(DB::table('admin_data')->where('key', 'flash')->value('value') ?? '[]', true) ?: [];
         $refs = collect($flashRaw)->pluck('articleId')->filter()->all();
@@ -78,6 +81,9 @@ class FrontController extends Controller
             ]),
             'debate' => $debate ? [
                 'id' => $debate->id,
+                'voted' => $voted,
+                'open' => (! $debate->start_date || $debate->start_date->toDateString() <= now()->toDateString())
+                    && (! $debate->end_date || $debate->end_date->toDateString() >= now()->toDateString()),
                 'question' => $debate->question,
                 'pour' => ['text' => $debate->pour_text, 'who' => $debate->pour_who],
                 'contre' => ['text' => $debate->contre_text, 'who' => $debate->contre_who],
@@ -184,6 +190,8 @@ class FrontController extends Controller
             return $this->redirectArticle($slug);
         }
         Article::withoutTimestamps(fn () => $a->increment('views'));
+        DB::table('article_daily_views')->insertOrIgnore(['day' => now()->toDateString(), 'views' => 0]);
+        DB::table('article_daily_views')->where('day', now()->toDateString())->increment('views');
         $article = $a->toPublicArray();
         $sameRub = $this->pub()->where('rubrique_slug', $a->rubrique_slug)->limit(50)
             ->get(['id', 'slug', 'rubrique_slug', 'region_slug', 'country', 'title', 'chapo',

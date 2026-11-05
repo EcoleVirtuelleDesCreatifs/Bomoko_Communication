@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\Admin\AdminStateController;
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\NewsletterController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\FrontController;
 use App\Http\Controllers\SeoController;
+use App\Http\Controllers\SiteAssetController;
 use App\Http\Middleware\EnsureActiveMember;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +30,10 @@ Route::post('/ad-event', [FormController::class, 'adEvent'])->middleware('thrott
 Route::post('/article/{article}/commentaire', [FormController::class, 'comment'])
     ->middleware('throttle:5,1')->name('article.comment');
 
+Route::get('/site-assets/{version}/{file}/content', [SiteAssetController::class, 'show'])
+    ->where(['version' => '[a-f0-9]{20}', 'file' => '[a-zA-Z0-9_.-]+'])->name('site.asset');
+Route::get('/sitemaps/pages.xml', [SeoController::class, 'pages'])->name('sitemap.pages');
+Route::get('/sitemaps/articles-{page}.xml', [SeoController::class, 'articles'])->whereNumber('page')->name('sitemap.articles');
 Route::get('/rss.xml', [SeoController::class, 'rss'])->name('rss');
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
@@ -50,6 +56,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/api/article/{slug}', [AdminStateController::class, 'article'])->name('state.article');
         Route::get('/api/articles', [AdminStateController::class, 'articles'])->name('state.articles');
         Route::post('/api/state', [AdminStateController::class, 'save'])->name('state.save');
+        Route::get('/api/newsletter/campaigns', [NewsletterController::class, 'index'])->name('newsletter.index');
+        Route::post('/api/newsletter/campaigns', [NewsletterController::class, 'store'])->middleware('throttle:10,1')->name('newsletter.store');
+        Route::post('/api/newsletter/test', [NewsletterController::class, 'test'])->middleware('throttle:3,1')->name('newsletter.test');
     });
 });
 

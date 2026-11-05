@@ -15,6 +15,8 @@ class SecurityHeaders
         $response->headers->remove('X-Powered-By');
         if ($request->is('admin', 'admin/*') || $request->user()) {
             $response->headers->set('Cache-Control', 'private, no-store, max-age=0');
+        } elseif ($request->routeIs('rss', 'robots', 'sitemap', 'sitemap.*')) {
+            $response->headers->set('Cache-Control', 'public, max-age=300, s-maxage=300, must-revalidate');
         } elseif (str_contains((string) $response->headers->get('Content-Type'), 'text/html')) {
             $response->headers->set('Cache-Control', 'no-cache, must-revalidate');
         }

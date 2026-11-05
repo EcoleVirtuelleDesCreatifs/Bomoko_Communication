@@ -2,6 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Region;
+use App\Models\Rubrique;
+use App\Support\Advertising;
+use App\Support\SiteAssets;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -37,9 +41,10 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
+            'siteAssets' => fn () => SiteAssets::map(),
             'nav' => fn () => [
-                'rubriques' => \App\Models\Rubrique::where('in_menu', true)->orderBy('sort')->get(['slug', 'label', 'tagline']),
-                'regions' => \App\Models\Region::orderBy('sort')->get(['slug', 'label']),
+                'rubriques' => Rubrique::where('in_menu', true)->orderBy('sort')->get(['slug', 'label', 'tagline']),
+                'regions' => Region::orderBy('sort')->get(['slug', 'label']),
             ],
             'auth' => fn () => [
                 'user' => $request->user()?->only('name', 'email', 'role'),
@@ -54,12 +59,7 @@ class HandleInertiaRequests extends Middleware
 
     private function activeAds(): array
     {
-        $ads = json_decode(\Illuminate\Support\Facades\DB::table('admin_data')->where('key', 'ads')->value('value') ?? '[]', true) ?: [];
-        $today = now()->toDateString();
-
-        return collect($ads)
-            ->filter(fn ($a) => ! ($a['paused'] ?? false)
-                && ($a['start'] ?? '') <= $today && ($a['end'] ?? '') >= $today)
+        return collect(Advertising::active())
             ->map(fn ($a) => [
                 'id' => $a['id'] ?? '',
                 'slot' => $a['slot'] ?? '',
