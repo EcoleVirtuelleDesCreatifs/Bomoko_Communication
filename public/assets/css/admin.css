@@ -349,6 +349,7 @@ h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
 .ad-preview__by { font-size: .8125rem; color: var(--muted); padding: .85rem 0; border-block: 1px solid var(--line); margin-bottom: 1.5rem; }
 .ad-preview__cover { position: relative; aspect-ratio: 16 / 9; overflow: hidden; margin-bottom: 1.75rem; clip-path: polygon(0 0, calc(100% - 28px) 0, 100% 43px, 100% 100%, 0 100%); }
 .ad-prose { max-width: 680px; }
+.ad-preview > h1, .ad-preview__chapo, .ad-prose { margin-inline: auto; }
 .ad-prose, .ad-editor__body { font-family: var(--serif); font-size: max(1rem, calc(var(--aq-article-size) + var(--aq-article-size-adjustment, 0rem))); line-height: 1.8; min-width: 0; text-align: justify; text-align-last: auto; text-justify: inter-word; -webkit-hyphens: auto; hyphens: auto; hyphenate-limit-chars: 6 3 3; overflow-wrap: break-word; word-break: normal; }
 .ad-prose *, .ad-editor__body * { font-family: var(--serif) !important; }
 .ad-prose p, .ad-editor__body p { margin: 0 0 1.15em; }

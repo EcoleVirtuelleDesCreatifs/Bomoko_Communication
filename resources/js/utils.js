@@ -96,3 +96,67 @@ export function asset(p) {
     const base = (typeof document !== 'undefined' && document.querySelector('meta[name="asset-url"]')?.content) || '';
     return base + '/' + String(p).replace(/^\//, '');
 }
+
+export function createHomeMediaMotion(root, browser = typeof window !== 'undefined' ? window : null) {
+    if (!root || !browser) return { refresh() {}, destroy() {} };
+    const preference = browser.matchMedia('(prefers-reduced-motion: reduce)');
+    const seen = new WeakSet(), pending = new Set(), waiting = new Map();
+    let observer = null, destroyed = false;
+    function clearWaiting(frame) {
+        const entry = waiting.get(frame);
+        if (!entry) return;
+        entry.image.removeEventListener('load', entry.ready);
+        entry.image.removeEventListener('error', entry.ready);
+        waiting.delete(frame);
+    }
+    function reveal(frame) {
+        clearWaiting(frame);
+        frame.classList.remove('aq-home-media-pending');
+        pending.delete(frame);
+        seen.add(frame);
+        observer?.unobserve(frame);
+    }
+    function stop() {
+        observer?.disconnect(); observer = null;
+        pending.forEach((frame) => { clearWaiting(frame); frame.classList.remove('aq-home-media-pending'); });
+        pending.clear();
+    }
+    function refresh() {
+        if (destroyed) return;
+        if (preference.matches || typeof browser.IntersectionObserver !== 'function') { stop(); return; }
+        if (!observer) observer = new browser.IntersectionObserver((entries, activeObserver) => {
+            if (activeObserver && activeObserver !== observer) return;
+            entries.forEach(({ target: frame, isIntersecting }) => {
+                if (destroyed || preference.matches || !pending.has(frame) || !isIntersecting || waiting.has(frame)) return;
+                const image = frame.querySelector('img');
+                if (!image || image.complete) { reveal(frame); return; }
+                const ready = () => reveal(frame);
+                waiting.set(frame, { image, ready });
+                image.addEventListener('load', ready);
+                image.addEventListener('error', ready);
+            });
+        }, { threshold: 0.08, rootMargin: '0px 0px -3% 0px' });
+        pending.forEach((frame) => {
+            if (root.contains(frame)) return;
+            clearWaiting(frame); observer.unobserve(frame);
+            frame.classList.remove('aq-home-media-pending'); pending.delete(frame);
+        });
+        root.querySelectorAll('.aq-media, .aq-slide__media, .aq-poster, .aq-portrait__visual').forEach((frame) => {
+            if (seen.has(frame) || pending.has(frame) || frame.closest('.aq-slide') || !frame.querySelector('img')) return;
+            const rect = frame.getBoundingClientRect();
+            if (rect.top < browser.innerHeight && rect.bottom > 0 && rect.left < browser.innerWidth && rect.right > 0) { reveal(frame); return; }
+            frame.classList.add('aq-home-media-pending'); pending.add(frame); observer.observe(frame);
+        });
+    }
+    if (preference.addEventListener) preference.addEventListener('change', refresh);
+    else preference.addListener(refresh);
+    refresh();
+    return {
+        refresh,
+        destroy() {
+            destroyed = true; stop();
+            if (preference.removeEventListener) preference.removeEventListener('change', refresh);
+            else preference.removeListener(refresh);
+        },
+    };
+}

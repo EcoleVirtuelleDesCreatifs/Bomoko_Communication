@@ -106,6 +106,107 @@ test('invalid preview responses report an error rather than rendering or changin
   assert.equal(article.body, undefined);
 });
 
+async function homeMediaMotion({ reduced = false, supported = true, loaded = true } = {}) {
+  const { createHomeMediaMotion } = await import('../../resources/js/utils.js');
+  const { document, Event } = parseHTML('<html><body><div class="aq-home"><div class="aq-slide"><a class="aq-slide__media"><img></a></div><div class="aq-media" id="above"><img></div><div class="aq-media" id="below"><img></div><div class="aq-ad"><img id="ad"></div></div></body></html>');
+  const root = document.querySelector('.aq-home'), above = document.querySelector('#above'), below = document.querySelector('#below');
+  root.querySelectorAll('.aq-media, .aq-slide__media').forEach(frame => {
+    frame.getBoundingClientRect = () => ({ top: frame === above ? 100 : 1100, bottom: frame === above ? 300 : 1300, left: 0, right: 400 });
+    Object.defineProperty(frame.querySelector('img'), 'complete', { get: () => loaded });
+  });
+  const preference = document.createElement('span'); preference.matches = reduced;
+  const observers = [];
+  class Observer {
+    constructor(callback) { this.callback = callback; this.targets = new Set(); this.disconnected = false; observers.push(this); }
+    observe(target) { this.targets.add(target); }
+    unobserve(target) { this.targets.delete(target); }
+    disconnect() { this.targets.clear(); this.disconnected = true; }
+  }
+  const browser = { innerHeight: 800, innerWidth: 1200, matchMedia: () => preference };
+  if (supported) browser.IntersectionObserver = Observer;
+  const motion = createHomeMediaMotion(root, browser);
+  return { root, document, Event, above, below, preference, observers, motion };
+}
+
+test('home image motion safely does nothing without a browser or a mounted root', async () => {
+  const { createHomeMediaMotion } = await import('../../resources/js/utils.js');
+  const motion = createHomeMediaMotion(null);
+  assert.doesNotThrow(() => { motion.refresh(); motion.destroy(); });
+});
+
+test('home photos reveal once on entry without delaying above-fold images or ads', async () => {
+  const e = await homeMediaMotion();
+  assert.equal(e.above.classList.contains('aq-home-media-pending'), false);
+  assert.equal(e.below.classList.contains('aq-home-media-pending'), true);
+  assert.equal(e.observers[0].targets.size, 1);
+  e.observers[0].callback([{ target: e.below, isIntersecting: false }]);
+  assert.ok(e.below.classList.contains('aq-home-media-pending'));
+  e.observers[0].callback([{ target: e.below, isIntersecting: true }]);
+  assert.equal(e.below.classList.contains('aq-home-media-pending'), false);
+  e.motion.refresh();
+  assert.equal(e.observers[0].targets.size, 0);
+  e.motion.destroy();
+});
+
+test('home photo motion respects reduced motion changes and unsupported browsers', async () => {
+  const e = await homeMediaMotion({ reduced: true });
+  assert.equal(e.observers.length, 0);
+  e.preference.matches = false; e.preference.dispatchEvent(new e.Event('change'));
+  assert.equal(e.observers.length, 1);
+  assert.ok(e.below.classList.contains('aq-home-media-pending'));
+  e.preference.matches = true; e.preference.dispatchEvent(new e.Event('change'));
+  assert.equal(e.below.classList.contains('aq-home-media-pending'), false);
+  assert.equal(e.observers[0].disconnected, true);
+  e.motion.destroy();
+  e.preference.matches = false; e.preference.dispatchEvent(new e.Event('change'));
+  assert.equal(e.observers.length, 1);
+  const unsupported = await homeMediaMotion({ supported: false });
+  assert.equal(unsupported.observers.length, 0);
+  assert.equal(unsupported.below.classList.contains('aq-home-media-pending'), false);
+  unsupported.motion.destroy();
+});
+
+test('lazy home photos reveal after loading and are cleaned up after unmount', async () => {
+  const e = await homeMediaMotion({ loaded: false });
+  e.observers[0].callback([{ target: e.below, isIntersecting: true }]);
+  assert.ok(e.below.classList.contains('aq-home-media-pending'));
+  e.below.querySelector('img').dispatchEvent(new e.Event('load'));
+  assert.equal(e.below.classList.contains('aq-home-media-pending'), false);
+  e.motion.destroy();
+  assert.equal(e.observers[0].disconnected, true);
+  e.motion.refresh();
+  assert.equal(e.observers.length, 1);
+});
+
+test('home motion handles filtered cards and ignores callbacks after it is destroyed', async () => {
+  const e = await homeMediaMotion({ loaded: false });
+  const observer = e.observers[0];
+  observer.callback([{ target: e.below, isIntersecting: true }], observer);
+  e.below.remove();
+  const frame = e.document.createElement('div');
+  frame.className = 'aq-media'; frame.innerHTML = '<img>';
+  frame.getBoundingClientRect = () => ({ top: 1200, bottom: 1400, left: 0, right: 400 });
+  e.root.appendChild(frame);
+  e.motion.refresh();
+  assert.equal(observer.targets.has(e.below), false);
+  assert.equal(observer.targets.has(frame), true);
+  assert.equal(e.below.classList.contains('aq-home-media-pending'), false);
+  e.motion.destroy();
+  observer.callback([{ target: frame, isIntersecting: true }], observer);
+  assert.equal(frame.classList.contains('aq-home-media-pending'), false);
+});
+
+test('home image effects are scoped, use fine-pointer hover and disable motion when requested', () => {
+  const css = fs.readFileSync(path.join(__dirname, '../../public/assets/css/afriquinfos.css'), 'utf8');
+  const home = fs.readFileSync(path.join(__dirname, '../../resources/js/Pages/Home.vue'), 'utf8');
+  assert.match(css, /\.aq-home \.aq-media > img/);
+  assert.match(css, /@media \(hover: hover\) and \(pointer: fine\)/);
+  assert.match(css, /\.aq-home \.aq-home-media-pending > img/);
+  assert.match(css, /opacity: 1 !important; transform: none !important; transition: none !important/);
+  assert.match(home, /createHomeMediaMotion\(homeRoot.value\)/);
+  assert.match(home, /mediaMotion\?\.destroy\(\)/);
+});
+
 function notification() {
   const { document, Event } = parseHTML('<html><body><div class="ad-toast" id="toast" role="status" aria-live="polite" hidden></div></body></html>');
   const timers = new Map();
@@ -319,6 +420,21 @@ test('reading size controls change only the adjustment and safely bound stored p
   assert.equal(properties.get('--aq-article-size-adjustment'), '0.375rem');
   assert.equal(properties.has('--aq-article-size'), false);
   assert.match(vue, /removeProperty\('--aq-article-size-adjustment'\)/);
+});
+
+test('article text columns are centered below the full-width cover without centering paragraph text', () => {
+  const css = name => fs.readFileSync(path.join(__dirname, '../../public/assets/css/' + name), 'utf8');
+  const rules = (text, selector) => Array.from(text.matchAll(/([^{}]+)\{([^{}]*)\}/g))
+    .filter(m => m[1].split(',').map(s => s.trim()).includes(selector)).map(m => m[2]).join(' ');
+  const publicCss = css('afriquinfos.css'), adminCss = css('admin.css');
+  for (const name of ['aq-article__title', 'aq-article__chapo', 'aq-prose', 'aq-tags', 'aq-author', 'aq-comments', 'aq-prevnext']) {
+    assert.match(rules(publicCss, '.aq-article .' + name), /margin-inline: auto/, name);
+  }
+  assert.match(rules(publicCss, '.aq-prose'), /max-width: 680px/);
+  assert.match(rules(publicCss, '.aq-prose'), /text-align: justify/);
+  for (const selector of ['.ad-preview > h1', '.ad-preview__chapo', '.ad-prose']) {
+    assert.match(rules(adminCss, selector), /margin-inline: auto/, selector);
+  }
 });
 
 test('article typography stays identical in editor, preview and public stylesheet', () => {

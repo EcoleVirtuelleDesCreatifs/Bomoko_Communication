@@ -9,7 +9,7 @@ import ChapterHead from '../Components/ChapterHead.vue';
 import EventItem from '../Components/EventItem.vue';
 import FlashBar from '../Components/FlashBar.vue';
 import Newsletter from '../Components/Newsletter.vue';
-import { fr, initials, kicker, reduceMotion, rel, store } from '../utils';
+import { createHomeMediaMotion, fr, initials, kicker, rel, store } from '../utils';
 
 const props = defineProps({
     articles: { type: Array, required: true },
@@ -17,6 +17,9 @@ const props = defineProps({
     events: { type: Array, default: () => [] },
     debate: { type: Object, default: null },
 });
+
+const homeRoot = ref(null);
+let mediaMotion = null;
 
 const sorted = computed(() => [...props.articles].sort((a, b) => b.date.localeCompare(a.date)));
 const byRub = (r) => sorted.value.filter((a) => a.rub === r);
@@ -82,9 +85,15 @@ onMounted(() => {
     progress.value = slides.value.map((_, k) => (k === 0 ? 1 : 0));
     const rail = document.getElementById('cultureRail');
     if (rail) checkRail();
+    mediaMotion = createHomeMediaMotion(homeRoot.value);
     window.addEventListener('resize', checkRail);
 });
-onBeforeUnmount(() => window.removeEventListener('resize', checkRail));
+watch([() => props.articles, regionFilter], () => mediaMotion?.refresh(), { flush: 'post' });
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', checkRail);
+    mediaMotion?.destroy();
+    mediaMotion = null;
+});
 
 const railNav = ref(false);
 function checkRail() {
@@ -96,7 +105,7 @@ function railScroll(dir) {
     if (!rail) return;
     const item = rail.firstElementChild;
     const step = item ? item.getBoundingClientRect().width + 20 : 280;
-    rail.scrollBy({ left: step * dir, behavior: reduceMotion ? 'auto' : 'smooth' });
+    rail.scrollBy({ left: step * dir, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
 }
 
 function sliderKey(e) {
@@ -144,6 +153,7 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
 </script>
 
 <template>
+  <div class="aq-home" ref="homeRoot">
   <FlashBar :items="flashAll" />
   <AqSkin />
   <h1 class="visually-hidden">Afriquinfos, l’actualité panafricaine</h1>
@@ -301,6 +311,7 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
   </div></section>
 
   <Newsletter />
+  </div>
 </template>
 
 <style scoped>
