@@ -178,6 +178,23 @@
   markSynced(S.articles);
   resourceKeys.forEach(function (k) { syncedResources[k] = JSON.stringify(S[k]); });
   function save() { clearTimeout(saveTimer); saveTimer = setTimeout(sendChanges, 400); }
+  function mediaDelta(base, rows) {
+    var previous = new Map(base.map(function (m) { return [m.id, m]; }));
+    var next = new Map(rows.map(function (m) { return [m.id, m]; }));
+    var changes = rows.filter(function (m) { return JSON.stringify(m) !== JSON.stringify(previous.get(m.id)); });
+    var deleted = base.filter(function (m) { return !next.has(m.id); }).map(function (m) { return m.id; });
+    var bases = Object.create(null);
+    changes.forEach(function (m) { bases[m.id] = previous.get(m.id) || null; });
+    deleted.forEach(function (id) { bases[id] = previous.get(id); });
+    return { changes: changes, deleted: deleted, bases: bases };
+  }
+  function rebaseMedias(canonical, submitted, local) {
+    var pending = mediaDelta(submitted, local);
+    var rows = new Map(canonical.map(function (m) { return [m.id, m]; }));
+    pending.deleted.forEach(function (id) { rows.delete(id); });
+    pending.changes.forEach(function (m) { rows.set(m.id, m); });
+    return Array.from(rows.values());
+  }
   function sendChanges() {
     store(KEY, JSON.stringify(S));
     if (!window.AQ_API) return;
@@ -189,7 +206,16 @@
     if (dirty.length) payload.articles = dirty;
     resourceKeys.forEach(function (k) {
       var value = JSON.stringify(S[k]);
-      if (value !== syncedResources[k]) { sent[k] = value; payload[k] = JSON.parse(value); payload.revisions[k] = revisions[k]; }
+      if (value === syncedResources[k]) return;
+      if (k === 'medias') {
+        var delta = mediaDelta(JSON.parse(syncedResources[k] || '[]'), S[k]);
+        if (!delta.changes.length && !delta.deleted.length) { syncedResources[k] = value; return; }
+        sent[k] = value; payload[k] = delta.changes; payload.mediaSync = 'delta';
+        payload.mediaBase = delta.bases; payload.mediaDeleted = delta.deleted;
+      } else {
+        sent[k] = value; payload[k] = JSON.parse(value);
+      }
+      payload.revisions[k] = revisions[k];
     });
     if (!dirty.length && !Object.keys(sent).length) return;
     saveBusy = true;
@@ -209,7 +235,8 @@
         });
         Object.keys(sent).forEach(function (k) {
           var canonical = j.resources[k];
-          if (JSON.stringify(S[k]) === sent[k]) S[k] = canonical;
+          if (k === 'medias') S[k] = rebaseMedias(canonical, JSON.parse(sent[k]), S[k]);
+          else if (JSON.stringify(S[k]) === sent[k]) S[k] = canonical;
           syncedResources[k] = JSON.stringify(canonical); revisions[k] = j.revisions[k];
         });
         S.log = j.log || []; S.teamStats = j.teamStats || S.teamStats; S.publishedToday = j.publishedToday || [];
@@ -768,71 +795,55 @@
 
   /* ===================== Aperçu d'article ===================== */
   function inline(s) { return fr(s).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>'); }
-  function htmlToInline(s) {
-    return s.replace(/<a\s[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, '[$2]($1)')
-      .replace(/<(?:strong|b|em|i)>([\s\S]*?)<\/(?:strong|b|em|i)>/gi, '**$1**')
-      .replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '')
-      .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#0?39;|&apos;/g, '’')
-      .replace(/\s+/g, ' ').trim();
-  }
-  function nodeInline(el) {
-    var out = '';
-    el.childNodes.forEach(function (n) {
-      if (n.nodeType === 3) { out += n.textContent; return; }
-      var tag = n.nodeName;
-      if (tag === 'STRONG' || tag === 'B' || tag === 'EM' || tag === 'I') out += '**' + nodeInline(n) + '**';
-      else if (tag === 'A') { var href = n.getAttribute('href') || ''; out += /^https?:\/\//.test(href) ? '[' + nodeInline(n) + '](' + href + ')' : nodeInline(n); }
-      else if (tag === 'BR') out += ' ';
-      else out += nodeInline(n);
+  function cleanArticleHtml(html) {
+    var root = document.createElement('div');
+    root.innerHTML = html;
+    root.querySelectorAll('script,style,iframe,object,embed,svg,math,template').forEach(function (n) { n.remove(); });
+    var tags = ['P', 'DIV', 'BR', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'STRONG', 'B', 'EM', 'I', 'U', 'S', 'DEL', 'SUB', 'SUP', 'SPAN', 'A', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'FIGURE', 'FIGCAPTION', 'IMG', 'HR', 'TABLE', 'THEAD', 'TBODY', 'TFOOT', 'TR', 'TH', 'TD', 'CAPTION', 'PRE', 'CODE'];
+    root.querySelectorAll('*').forEach(function (n) {
+      if (tags.indexOf(n.nodeName) < 0) { n.replaceWith.apply(n, Array.from(n.childNodes)); return; }
+      var formats = [];
+      if (/^(bold|[6-9]00)$/.test(n.style.fontWeight || '') && !/^(STRONG|B)$/.test(n.nodeName)) formats.push('strong');
+      if (n.style.fontStyle === 'italic' && !/^(EM|I)$/.test(n.nodeName)) formats.push('em');
+      if (/underline/.test(n.style.textDecoration || '') && n.nodeName !== 'U') formats.push('u');
+      formats.forEach(function (tag) {
+        var wrapper = document.createElement(tag);
+        while (n.firstChild) wrapper.appendChild(n.firstChild);
+        n.appendChild(wrapper);
+      });
+      var allowed = { A: ['href', 'title'], IMG: ['src', 'alt', 'title', 'data-mid'], OL: ['start', 'reversed', 'type'], LI: ['value'], TD: ['colspan', 'rowspan'], TH: ['colspan', 'rowspan', 'scope'] }[n.nodeName] || [];
+      if (/^(P|DIV|H[1-6])$/.test(n.nodeName)) {
+        var align = n.style.textAlign || n.getAttribute('align') || '';
+        if (/^(left|center|right|justify)$/.test(align)) { n.setAttribute('align', align); allowed.push('align'); }
+      }
+      Array.from(n.attributes).forEach(function (a) { if (allowed.indexOf(a.name) < 0) n.removeAttribute(a.name); });
+      if (n.nodeName === 'A') {
+        var href = (n.getAttribute('href') || '').trim();
+        if (!/^(https?:|mailto:|tel:|\/(?!\/)|#)/i.test(href)) n.removeAttribute('href');
+        n.setAttribute('rel', 'noopener noreferrer');
+      }
+      if (n.nodeName === 'IMG') {
+        var src = (n.getAttribute('src') || '').trim();
+        if (!/^(https?:|\/(?!\/)|data:image\/(?:png|jpeg|gif|webp);base64,)/i.test(src)) n.removeAttribute('src');
+      }
     });
-    return out;
+    return root.innerHTML;
   }
   function richBlocks(el) {
-    var out = [];
-    el.childNodes.forEach(function (n) {
-      if (n.nodeType === 3) { var t = n.textContent.trim(); if (t) out.push(t); return; }
-      var tag = n.nodeName;
-      if (tag === 'A') {
-        var holder = document.createElement('div');
-        holder.appendChild(n.cloneNode(true));
-        var linkText = nodeInline(holder).trim();
-        if (linkText) out.push(linkText);
-        return;
-      }
-      var imgs = n.querySelectorAll ? n.querySelectorAll('img') : [];
-      if (tag === 'IMG') imgs = [n];
-      if (imgs.length) {
-        var txt = nodeInline(n).replace(/\s+/g, ' ').trim();
-        if (txt) out.push(txt);
-        imgs.forEach(function (im) {
-          var ref = im.getAttribute('data-mid') || im.getAttribute('src') || '';
-          var cap = (im.getAttribute('alt') || '').replace(/[|\]]/g, ' ').trim();
-          if (ref) out.push('[img:' + ref + (cap ? '|' + cap : '') + ']');
-        });
-        return;
-      }
-      var t = nodeInline(n).replace(/\s+/g, ' ').trim();
-      if (!t) return;
-      if (tag === 'H1' || tag === 'H2' || tag === 'H3') out.push('## ' + t);
-      else if (tag === 'BLOCKQUOTE') out.push('> ' + t);
-      else out.push(t);
-    });
-    return out;
-  }
-  function htmlToBlocks(html) {
-    var parts = html.match(/<(?:h2|p|blockquote)[^>]*>[\s\S]*?<\/(?:h2|p|blockquote)>/gi) || [html];
-    return parts.map(function (h) {
-      var isH2 = /^<h2/i.test(h), inner = h.replace(/^<[^>]+>/, '').replace(/<\/[^>]+>\s*$/, '');
-      var t = htmlToInline(inner);
-      return t ? (isH2 ? '## ' + t : t) : null;
-    }).filter(Boolean);
+    var html = cleanArticleHtml(el.innerHTML), root = document.createElement('div');
+    root.innerHTML = html;
+    return root.textContent.trim() || root.querySelector('img') ? [/^\s*</.test(html) ? html : '<div>' + html + '</div>'] : [];
   }
   function bodyHtml(body) {
     return body.map(function (p) {
+      if (p.trim().charAt(0) === '<') return cleanArticleHtml(p);
       if (p.indexOf('## ') === 0) return '<h2>' + inline(p.slice(3)) + '</h2>';
-      if (p.indexOf('> ') === 0) return '<blockquote>« ' + inline(p.slice(2)) + ' »</blockquote>';
+      if (p.indexOf('> ') === 0) return '<blockquote>' + inline(p.slice(2)) + '</blockquote>';
       var img = p.match(/^\[img:([^\]|]+)\|?([^\]]*)\]$/);
-      if (img) return '<figure class="ad-figure"><img src="' + esc(img[1]) + '" alt="' + esc(img[2]) + '">' + (img[2] ? '<figcaption>' + esc(img[2]) + '</figcaption>' : '') + '</figure>';
+      if (img) {
+        var src = /^(https?:|data:|\/)/i.test(img[1]) ? img[1] : (window.AQ_ASSET || '') + '/storage/' + img[1];
+        return cleanArticleHtml('<figure><img src="' + esc(src) + '" alt="' + esc(img[2]) + '">' + (img[2] ? '<figcaption>' + esc(img[2]) + '</figcaption>' : '') + '</figure>');
+      }
       return '<p>' + inline(p) + '</p>';
     }).join('');
   }
@@ -871,7 +882,7 @@
             '<label class="visually-hidden" for="edTitle">Titre</label><textarea class="ad-editor__title" id="edTitle" rows="1" placeholder="Titre de l’article">' + esc(a.title) + '</textarea><p class="ad-titlecount" id="edTitleCount" aria-live="polite"></p><p class="ad-error" id="edTitleErr"></p>' +
             '<label class="visually-hidden" for="edChapo">Chapô</label><textarea class="ad-editor__chapo" id="edChapo" rows="2" placeholder="Chapô : deux ou trois lignes qui résument l’essentiel">' + esc(a.chapo) + '</textarea><p class="ad-error" id="edChapoErr"></p>' +
             '<div class="ad-editor__bar" role="toolbar" aria-label="Mise en forme"><button type="button" class="ad-btn ad-btn--ghost" data-ins="## "><i class="bi bi-type-h2" aria-hidden="true"></i>Intertitre</button><button type="button" class="ad-btn ad-btn--ghost" data-ins="> "><i class="bi bi-quote" aria-hidden="true"></i>Citation</button><button type="button" class="ad-btn ad-btn--ghost" data-bold><i class="bi bi-type-bold" aria-hidden="true"></i>Gras</button><button type="button" class="ad-btn ad-btn--ghost" data-link><i class="bi bi-link-45deg" aria-hidden="true"></i>Lien</button><button type="button" class="ad-btn ad-btn--ghost" data-imgbody><i class="bi bi-images" aria-hidden="true"></i>Image</button><span class="sep" aria-hidden="true"></span><button type="button" class="ad-btn ad-btn--ghost" data-media><i class="bi bi-image" aria-hidden="true"></i>Image de une</button><span class="ms-auto ad-hint d-none d-md-inline">Un paragraphe par ligne vide</span></div>' +
-            '<label class="visually-hidden" for="edBody">Texte de l’article</label><div class="ad-editor__body" id="edBody" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Rédigez l’article.">' + bodyHtml(a.body.flatMap(function (b) { return b.indexOf('<') === 0 ? htmlToBlocks(b) : [b]; })) + '</div><p class="ad-error" id="edBodyErr"></p>' +
+            '<label class="visually-hidden" for="edBody">Texte de l’article</label><div class="ad-editor__body" id="edBody" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Rédigez l’article.">' + bodyHtml(a.body) + '</div><p class="ad-error" id="edBodyErr"></p>' +
             '<div class="ad-editor__meta tnum"><span id="edWords"></span><span id="edRead"></span><span>Raccourci : Ctrl + S pour enregistrer</span></div>' +
           '</div>' +
           '<div id="edPrev" hidden></div>' +

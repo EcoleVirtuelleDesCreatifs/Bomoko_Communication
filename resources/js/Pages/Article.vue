@@ -45,7 +45,7 @@ const fitImgs = (html) => stripFonts(html).replace(/<img\b([^>]*?)>/gi, (tag, at
 });
 
 const blocks = computed(() => (a.body || []).map((b) => {
-    if (b.startsWith('<')) return { t: 'html', x: fitImgs(b) };
+    if (b.trimStart().startsWith('<')) return { t: 'html', x: fitImgs(b) };
     if (b.startsWith('## ')) return { t: 'h2', x: b.slice(3) };
     if (b.startsWith('> ')) return { t: 'quote', x: b.slice(2) };
     const img = b.match(/^\[img:([^\]|]+)\|?([^\]]*)\]$/);

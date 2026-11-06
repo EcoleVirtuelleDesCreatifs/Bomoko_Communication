@@ -374,6 +374,8 @@ class AdminStateController extends Controller
             'flash.*.text' => 'required|string|max:1000', 'flash.*.start' => 'nullable|date_format:Y-m-d',
             'flash.*.end' => 'nullable|date_format:Y-m-d',
             'medias.*.id' => 'required|string|max:255', 'medias.*.data' => 'required|string',
+            'mediaSync' => 'sometimes|in:delta', 'mediaBase' => 'required_if:mediaSync,delta|array',
+            'mediaBase.*' => 'nullable|array', 'mediaDeleted' => 'sometimes|array', 'mediaDeleted.*' => 'required|string|max:255|distinct',
         ]);
         $this->warnings = [];
         $saved = [];
@@ -382,8 +384,14 @@ class AdminStateController extends Controller
                 DB::table('admin_data')->insertOrIgnore(['key' => '_sync_lock', 'value' => '{}', 'updated_at' => now()]);
                 DB::table('admin_data')->where('key', '_sync_lock')->lockForUpdate()->first();
                 $current = $this->state();
+                $mediaDelta = ($s['mediaSync'] ?? null) === 'delta';
+                if ($mediaDelta) {
+                    $storedMedias = DB::table('admin_data')->where('key', 'medias')->value('value');
+                    $mediaRows = $storedMedias === null ? $current['medias'] : json_decode($storedMedias, true, 512, JSON_THROW_ON_ERROR);
+                    $s['medias'] = $this->mergeMediaChanges($mediaRows, $s['medias'] ?? [], $s['mediaBase'], $s['mediaDeleted'] ?? []);
+                }
                 foreach ($keys as $key) {
-                    if (! array_key_exists($key, $s) || $key === 'articles') {
+                    if (! array_key_exists($key, $s) || $key === 'articles' || ($key === 'medias' && $mediaDelta)) {
                         continue;
                     }
                     abort_unless(($s['revisions'][$key] ?? null) === ($current['revisions'][$key] ?? null), 409,
@@ -478,9 +486,32 @@ class AdminStateController extends Controller
 
     }
 
+    private function mergeMediaChanges(array $current, array $changes, array $bases, array $deleted): array
+    {
+        $items = collect($current)->keyBy('id')->all();
+        abort_if(count($items) !== count($current), 409, 'La médiathèque contient des identifiants en double : vérification nécessaire avant modification.');
+        $updates = collect($changes)->keyBy('id')->all();
+        abort_if(count($updates) !== count($changes) || array_intersect(array_keys($updates), $deleted) !== [], 422, 'Opérations média contradictoires.');
+        foreach (array_merge(array_keys($updates), $deleted) as $id) {
+            abort_unless(array_key_exists($id, $bases), 422, 'Version initiale du média manquante.');
+            $existing = $items[$id] ?? null;
+            $incoming = $updates[$id] ?? null;
+            abort_if($existing != $bases[$id] && $existing != $incoming, 409,
+                'Conflit sur le média '.$id.' : ce visuel a été modifié par un autre rédacteur. Votre article reste conservé dans cet onglet.');
+            if ($incoming === null) {
+                unset($items[$id]);
+            } else {
+                $items[$id] = $incoming;
+            }
+        }
+
+        return array_values($items);
+    }
+
     private function syncArticles(array $items, array $medias = []): array
     {
         $mediaMap = $this->resolveMedias($medias);
+        $mediaSources = array_map(fn ($media) => isset($media['path']) ? asset('storage/'.$media['path']) : $media['img'], $mediaMap);
         $saved = [];
         foreach ($items as $a) {
             $media = $mediaMap[$a['mediaId'] ?? ''] ?? null;
@@ -526,7 +557,10 @@ class AdminStateController extends Controller
                 'meta_desc' => $a['meta'] ?? null,
             ]);
             if (array_key_exists('body', $a)) {
-                $article->body = collect($a['body'])->map(function ($b) use ($mediaMap) {
+                $article->body = collect($a['body'])->map(function ($b) use ($mediaMap, $mediaSources) {
+                    if (str_starts_with(ltrim($b), '<')) {
+                        return app(ArticleHtml::class)->sanitize($b, $mediaSources);
+                    }
                     if (is_string($b) && preg_match('/^\[img:([^\]|]+)\|?(.*)\]$/', $b, $mm) && isset($mediaMap[$mm[1]])) {
                         return '[img:'.$mediaMap[$mm[1]]['path'].($mm[2] !== '' ? '|'.$mm[2] : '').']';
                     }

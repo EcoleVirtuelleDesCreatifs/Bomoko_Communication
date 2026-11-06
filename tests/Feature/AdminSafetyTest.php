@@ -66,6 +66,74 @@ class AdminSafetyTest extends TestCase
         $this->assertSame('Titre modifié explicitement', $article->fresh()->title);
     }
 
+    public function test_editor_html_and_media_survive_save_admin_reload_and_public_rendering(): void
+    {
+        $user = User::factory()->create(['role' => 'admin', 'status' => 'actif']);
+        $article = $this->articleFixture();
+        $state = $this->actingAs($user)->getJson('/admin/api/state')->assertOk()->json();
+        $item = $state['articles'][0];
+        $item['baseUpdated'] = $item['updated'];
+        $item['body'] = ['<div><p align="center">Premier<br><em>Suite</em></p><h2>Intertitre</h2><ol start="3"><li>Un</li><li>Deux</li></ol><figure><img src="data:image/png;base64,AAAA" data-mid="m123" alt="Photo"><figcaption>Légende</figcaption></figure><p>Fin</p></div>'];
+        $this->postJson('/admin/api/state', [
+            'protocol' => 2, 'articles' => [$item], 'revisions' => $state['revisions'],
+            'medias' => [['id' => 'm123', 'data' => 'https://example.test/storage/medias/photo.jpg'], ['id' => 'external', 'data' => 'https://example.test/external.jpg']],
+        ])->assertOk();
+        $stored = $article->fresh()->body[0];
+        foreach (['<br', '<em>Suite</em>', '<h2>Intertitre</h2>', '<ol start="3">', '<figcaption>Légende</figcaption>', 'align="center"', '/storage/medias/photo.jpg'] as $markup) {
+            $this->assertStringContainsString($markup, $stored);
+        }
+        $this->assertStringNotContainsString('data-mid', $stored);
+        $this->assertStringNotContainsString('base64', $stored);
+        $this->assertSame($stored, $article->fresh()->toPublicArray()['body'][0]);
+        $this->assertSame([$stored], $this->getJson('/admin/api/article/'.$article->slug)->assertOk()->json('body'));
+        $this->assertSame(75, $article->fresh()->views);
+    }
+
+    public function test_concurrent_media_additions_do_not_block_a_journalist_article(): void
+    {
+        $user = User::factory()->create(['role' => 'journaliste', 'status' => 'actif']);
+        $article = $this->articleFixture();
+        $article->update(['user_id' => $user->id, 'author_name' => $user->name, 'status' => 'brouillon']);
+        $state = $this->actingAs($user)->getJson('/admin/api/state')->assertOk()->json();
+        $first = ['id' => 'first', 'data' => 'https://example.test/storage/first.jpg'];
+        $second = ['id' => 'second', 'data' => 'https://example.test/storage/second.jpg'];
+        $this->postJson('/admin/api/state', ['protocol' => 2, 'revisions' => $state['revisions'], 'medias' => [$first], 'mediaSync' => 'delta', 'mediaBase' => ['first' => null], 'mediaDeleted' => []])->assertOk();
+        $this->postJson('/admin/api/state', ['protocol' => 2, 'revisions' => $state['revisions'], 'medias' => [$second]])->assertStatus(409);
+        $item = $state['articles'][0];
+        $item['baseUpdated'] = $item['updated'];
+        $item['status'] = 'relecture';
+        $item['mediaId'] = 'second';
+        $this->postJson('/admin/api/state', ['protocol' => 2, 'revisions' => $state['revisions'], 'articles' => [$item], 'medias' => [$second], 'mediaSync' => 'delta', 'mediaBase' => ['second' => null], 'mediaDeleted' => []])
+            ->assertOk()->assertJsonCount(2, 'resources.medias');
+        $this->assertSame('relecture', $article->fresh()->status);
+        $this->assertSame('second.jpg', $article->fresh()->image_path);
+    }
+
+    public function test_media_deltas_reject_conflicting_edits_and_preserve_unrelated_images(): void
+    {
+        $user = User::factory()->create(['role' => 'admin', 'status' => 'actif']);
+        $this->actingAs($user);
+        $original = ['id' => 'first', 'data' => 'https://example.test/first.jpg', 'name' => 'Original'];
+        $other = ['id' => 'second', 'data' => 'https://example.test/second.jpg'];
+        $hidden = ['id' => 'hidden', 'data' => 'ancienne légende non affichée'];
+        DB::table('admin_data')->insert(['key' => 'medias', 'value' => json_encode([$original, $other, $hidden]), 'updated_at' => now()]);
+        $changed = [...$original, 'name' => 'Version récente'];
+        $payload = ['protocol' => 2, 'revisions' => [], 'mediaSync' => 'delta', 'medias' => [$changed], 'mediaBase' => ['first' => $original], 'mediaDeleted' => []];
+        $this->postJson('/admin/api/state', $payload)->assertOk()->assertJsonCount(2, 'resources.medias');
+        $payload['medias'][0]['name'] = 'Ancien onglet';
+        $this->postJson('/admin/api/state', $payload)->assertStatus(409);
+        $payload['medias'] = [];
+        $payload['mediaDeleted'] = ['first'];
+        $this->postJson('/admin/api/state', $payload)->assertStatus(409);
+        $payload['mediaBase']['first'] = $changed;
+        $this->postJson('/admin/api/state', $payload)->assertOk()->assertJsonCount(1, 'resources.medias')->assertJsonPath('resources.medias.0.id', 'second');
+        $this->assertSame([$other, $hidden], json_decode(DB::table('admin_data')->where('key', 'medias')->value('value'), true));
+        $payload['medias'] = [$other];
+        $payload['mediaBase'] = [];
+        $payload['mediaDeleted'] = [];
+        $this->postJson('/admin/api/state', $payload)->assertStatus(422);
+    }
+
     public function test_unrelated_sections_are_not_deleted_when_saving_an_article(): void
     {
         $user = User::factory()->create(['role' => 'admin', 'status' => 'actif']);

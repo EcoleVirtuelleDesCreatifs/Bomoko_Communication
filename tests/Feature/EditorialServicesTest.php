@@ -11,6 +11,7 @@ use App\Models\Subscriber;
 use App\Models\User;
 use App\Support\SiteAssets;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -26,6 +27,48 @@ class EditorialServicesTest extends TestCase
 
         return Article::create(['slug' => 'article-public', 'title' => 'Article public', 'rubrique_slug' => 'culture',
             'status' => 'publie', 'published_at' => now()->subHour(), 'body' => ['Texte original']]);
+    }
+
+    public function test_layout_audit_streams_all_statuses_and_leaves_every_article_unchanged(): void
+    {
+        $article = $this->article();
+        $rows = [];
+        for ($i = 0; $i < 101; $i++) {
+            $rows[] = ['slug' => 'audit-archive-'.$i, 'title' => 'Archive '.$i, 'rubrique_slug' => 'culture',
+                'status' => 'publie', 'body' => json_encode(['Paragraphe court.'])];
+        }
+        DB::table('articles')->insert($rows);
+        $compressed = $article->replicate()->fill(['slug' => 'audit-compressed', 'status' => 'programme', 'body' => [str_repeat('Une phrase longue.Suite sans espace. ', 50)]]);
+        $compressed->save();
+        $newlines = $article->replicate()->fill(['slug' => 'audit-newlines', 'title' => 'Titre <info>conservé</info>', 'status' => 'brouillon', 'body' => ["Premier **paragraphe**.\r\n\r\n## Intertitre\n\nUn [lien](https://example.test/source)."]]);
+        $newlines->save();
+        $article->replicate()->fill(['slug' => 'audit-html', 'body' => ['<div>'.str_repeat('<p>'.str_repeat('Paragraphe structuré. ', 10).'</p>', 10).'</div>']])->save();
+        $article->replicate()->fill(['slug' => 'audit-image', 'status' => 'corbeille', 'body' => ['<p><img src="data:image/png;base64,AAAA" alt="Photo"></p>']])->save();
+        $before = DB::table('articles')->orderBy('id')->get()->toJson();
+
+        $this->assertSame(0, Artisan::call('articles:audit-layout', ['--json' => true]));
+        $report = collect(explode("\n", trim(Artisan::output())))->map(fn ($line) => json_decode($line, true, 512, JSON_THROW_ON_ERROR));
+        $summary = $report->last();
+        $this->assertTrue($summary['read_only']);
+        $this->assertSame(Article::count(), $summary['scanned']);
+        $this->assertSame(3, $summary['flagged']);
+        $this->assertSame(1, $summary['proposals']);
+        $proposal = $report->firstWhere('slug', 'audit-newlines');
+        $this->assertSame($newlines->body, $proposal['original_body']);
+        $this->assertSame(['Premier **paragraphe**.', '## Intertitre', 'Un [lien](https://example.test/source).'], $proposal['proposed_body']);
+        $this->assertSame($newlines->title, $proposal['title']);
+        $this->assertSame(hash('sha256', $newlines->getRawOriginal('body')), $proposal['base_body_sha256']);
+        $this->assertNull($report->firstWhere('slug', 'audit-compressed')['proposed_body']);
+        $this->assertSame($before, DB::table('articles')->orderBy('id')->get()->toJson());
+    }
+
+    public function test_layout_audit_filters_statuses_and_rejects_unknown_values(): void
+    {
+        $article = $this->article();
+        $article->replicate()->fill(['slug' => 'audit-draft', 'status' => 'brouillon'])->save();
+        $this->assertSame(0, Artisan::call('articles:audit-layout', ['--json' => true, '--status' => ['publie']]));
+        $this->assertSame(1, json_decode(trim(Artisan::output()), true, 512, JSON_THROW_ON_ERROR)['scanned']);
+        $this->artisan('articles:audit-layout', ['--status' => ['incorrect']])->assertFailed();
     }
 
     public function test_sitemap_is_paginated_and_does_not_omit_articles_after_5000(): void
