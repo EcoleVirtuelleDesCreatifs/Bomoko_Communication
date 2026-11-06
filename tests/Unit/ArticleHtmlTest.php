@@ -28,6 +28,34 @@ class ArticleHtmlTest extends TestCase
         $this->assertNull($audit->inspect(['Texte sur une ligne.'])['proposed_body']);
     }
 
+    public function test_editor_whitespace_breaks_survive_safe_public_rendering(): void
+    {
+        $input = "<p><span style=\"white-space:pre-wrap;font-family:Georgia\">Premier\n\n<strong>Second\nSuite</strong></span></p>";
+        $output = (new ArticleHtml)->sanitize($input);
+        $this->assertSame(3, substr_count($output, '<br'));
+        $this->assertStringContainsString('Second<br', $output);
+        $this->assertStringNotContainsString('style=', $output);
+        $this->assertSame($output, (new ArticleHtml)->sanitize($output));
+    }
+
+    public function test_supported_inline_styles_become_safe_semantic_formatting(): void
+    {
+        $input = '<p style="text-align:justify;font-family:Georgia"><span style="font-weight:700;font-style:italic;text-decoration:underline">Important</span></p>';
+        $output = (new ArticleHtml)->sanitize($input);
+        $this->assertStringContainsString('align="justify"', $output);
+        $this->assertStringContainsString('<u><em><strong>Important</strong></em></u>', $output);
+        $this->assertStringNotContainsString('style=', $output);
+        $this->assertSame($output, (new ArticleHtml)->sanitize($output));
+    }
+
+    public function test_normal_html_indentation_and_code_do_not_gain_artificial_breaks(): void
+    {
+        $input = "<div>\n<p>Premier</p>\n<p>Second</p>\n<pre>Code\nSuite</pre></div>";
+        $output = (new ArticleHtml)->sanitize($input);
+        $this->assertStringNotContainsString('<br', $output);
+        $this->assertStringContainsString("Code\nSuite", $output);
+    }
+
     public function test_editor_structure_survives_public_sanitization(): void
     {
         $input = '<div><p>Premier paragraphe<br>Suite <em>italique</em>.</p><h2>Intertitre</h2><ol start="3"><li>Premier point</li><li>Deuxième point</li></ol><blockquote>Une citation</blockquote><figure><img src="/storage/photo.jpg" alt="Photo"><figcaption>Légende</figcaption></figure></div>';

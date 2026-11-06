@@ -30,6 +30,7 @@ Compte admin de démo : `awa.kone@afriquinfos.com` / `afriquinfos` → `/admin`
 - `resources/js/Pages` : pages Inertia du **front** (layout `SiteLayout`). L'admin n'est PAS en Inertia — ne pas recréer de pages `Pages/Admin/*` sauf `Admin/Login`.
 - `resources/js/utils.js` : helpers FR (typographie, dates relatives).
 - Articles : `body` = JSON de blocs (HTML riche ou anciens blocs `## ` intertitre, `> ` citation, `[img:…]`). L’éditeur doit conserver la structure HTML, sans conversion en texte simplifié ; `ArticleHtml` assure le nettoyage serveur et la résolution des images `data-mid`. `person` = fiche portrait, `ph` = aplat de démonstration (`image_path` pour une vraie photo).
+- Le collage dans l’éditeur est normalisé avant affichage : paragraphes/sauts de ligne du texte brut et formatage HTML autorisé. Les styles de retours à la ligne `white-space: pre-wrap/pre-line/pre/break-spaces` sont convertis en `<br>` avant retrait des styles ; ne pas convertir les simples indentations du HTML ni les retours de `pre`/`code`. Le serveur préserve aussi gras, italique, soulignement et alignement sous forme sémantique, sans autoriser de CSS arbitraire ni réécrire les articles à la lecture.
 
 ## Modèle de données
 

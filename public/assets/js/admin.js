@@ -799,13 +799,31 @@
     var root = document.createElement('div');
     root.innerHTML = html;
     root.querySelectorAll('script,style,iframe,object,embed,svg,math,template').forEach(function (n) { n.remove(); });
+    var walker = document.createTreeWalker(root, 4), texts = [], text;
+    while ((text = walker.nextNode())) texts.push(text);
+    texts.forEach(function (n) {
+      if (!/[\r\n]/.test(n.nodeValue) || n.parentElement.closest('pre,code')) return;
+      var parent = n.parentElement, mode = '';
+      while (parent && parent !== root) {
+        mode = parent.style.whiteSpace || '';
+        if (mode) break;
+        parent = parent.parentElement;
+      }
+      if (!/^(pre|pre-wrap|pre-line|break-spaces)$/.test(mode.toLowerCase().replace(/\s*!important\s*$/, '').trim())) return;
+      var fragment = document.createDocumentFragment();
+      n.nodeValue.replace(/\r\n?/g, '\n').split('\n').forEach(function (line, i) {
+        if (i) fragment.appendChild(document.createElement('br'));
+        fragment.appendChild(document.createTextNode(line));
+      });
+      n.replaceWith(fragment);
+    });
     var tags = ['P', 'DIV', 'BR', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'STRONG', 'B', 'EM', 'I', 'U', 'S', 'DEL', 'SUB', 'SUP', 'SPAN', 'A', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'FIGURE', 'FIGCAPTION', 'IMG', 'HR', 'TABLE', 'THEAD', 'TBODY', 'TFOOT', 'TR', 'TH', 'TD', 'CAPTION', 'PRE', 'CODE'];
     root.querySelectorAll('*').forEach(function (n) {
       if (tags.indexOf(n.nodeName) < 0) { n.replaceWith.apply(n, Array.from(n.childNodes)); return; }
       var formats = [];
       if (/^(bold|[6-9]00)$/.test(n.style.fontWeight || '') && !/^(STRONG|B)$/.test(n.nodeName)) formats.push('strong');
       if (n.style.fontStyle === 'italic' && !/^(EM|I)$/.test(n.nodeName)) formats.push('em');
-      if (/underline/.test(n.style.textDecoration || '') && n.nodeName !== 'U') formats.push('u');
+      if (/underline/.test(n.style.textDecoration || n.style.textDecorationLine || '') && n.nodeName !== 'U') formats.push('u');
       formats.forEach(function (tag) {
         var wrapper = document.createElement(tag);
         while (n.firstChild) wrapper.appendChild(n.firstChild);
@@ -846,6 +864,15 @@
       }
       return '<p>' + inline(p) + '</p>';
     }).join('');
+  }
+  function articlePasteHtml(clipboard) {
+    if (!clipboard) return null;
+    var html = clipboard.getData('text/html'), text = clipboard.getData('text/plain');
+    if (!html && !text) return null;
+    if (!html) html = text.replace(/\r\n?/g, '\n').split(/\n[\t ]*\n/).map(function (p) {
+      return '<p>' + (esc(p).replace(/\n/g, '<br>') || '<br>') + '</p>';
+    }).join('');
+    return cleanArticleHtml(html);
   }
   function previewHtml(a) {
     return '<article class="ad-preview"><span class="ad-preview__tag">' + esc(rubLabel(a.rub)) + (a.country ? ', ' + esc(a.country) : '') + '</span><h1>' + fr(a.title || 'Titre de l’article') + '</h1>' +
@@ -920,6 +947,14 @@
       '</form>';
 
     var form = $('#edForm');
+    $('#edBody').addEventListener('paste', function (e) {
+      var html = articlePasteHtml(e.clipboardData);
+      if (html === null) return;
+      e.preventDefault();
+      this.focus();
+      document.execCommand('insertHTML', false, html);
+      markDirty(); stats();
+    });
     function grow(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
     ['edTitle', 'edChapo'].forEach(function (id) { var el = $('#' + id); grow(el); el.addEventListener('input', function () { grow(el); }); });
 

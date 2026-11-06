@@ -53,6 +53,39 @@ test('editor preview keeps safe formatting without executable markup or pasted f
   assert.doesNotMatch(html, /onclick|onerror|javascript:|<script|font-family/);
 });
 
+test('pasted HTML line breaks survive removal of editor-only whitespace styles', () => {
+  const { document, ctx } = editor();
+  ctx.el = document.createElement('div');
+  ctx.el.innerHTML = '<p><span style="white-space:pre-wrap">Premier\n\n<span style="font-weight:700">Second\nSuite</span></span></p>';
+  const html = vm.runInContext('bodyHtml(richBlocks(el))', ctx);
+  const result = document.createElement('div');
+  result.innerHTML = html;
+  assert.equal(result.querySelectorAll('br').length, 3);
+  assert.equal(result.querySelector('strong').textContent, 'SecondSuite');
+  assert.doesNotMatch(html, /style=/);
+});
+
+test('plain text paste becomes paragraphs and line breaks before being shown in the editor', () => {
+  const { document, ctx } = editor();
+  ctx.clipboard = { getData: type => type === 'text/plain' ? 'Premier\r\nSuite\r\n\r\nSecond <test>' : '' };
+  const html = vm.runInContext('articlePasteHtml(clipboard)', ctx);
+  const result = document.createElement('div');
+  result.innerHTML = html;
+  assert.equal(result.querySelectorAll('p').length, 2);
+  assert.equal(result.querySelectorAll('br').length, 1);
+  assert.match(result.textContent, /Second <test>/);
+  ctx.el = result;
+  assert.equal(vm.runInContext('bodyHtml(richBlocks(el))', ctx), html);
+});
+
+test('normal HTML indentation and preformatted code are not converted into extra breaks', () => {
+  const { ctx } = editor();
+  ctx.html = '<div>\n<p>Premier</p>\n<p>Second</p>\n<pre>Code\nSuite</pre></div>';
+  const html = vm.runInContext('cleanArticleHtml(html)', ctx);
+  assert.doesNotMatch(html, /<br/);
+  assert.match(html, /Code\nSuite/);
+});
+
 test('legacy body images use the same storage URL as the public article', () => {
   const { ctx } = editor();
   assert.match(vm.runInContext('bodyHtml(["[img:medias/photo.jpg|Légende]"])', ctx), /src="https:\/\/example.test\/storage\/medias\/photo.jpg"/);

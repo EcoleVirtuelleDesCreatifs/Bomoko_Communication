@@ -209,6 +209,22 @@ class AdminSafetyTest extends TestCase
         $this->assertSame('Ancien nom', $article->fresh()->author_name);
     }
 
+    public function test_admin_and_public_share_preserved_formatting_without_rewriting_legacy_html(): void
+    {
+        $user = User::factory()->create(['role' => 'admin', 'status' => 'actif']);
+        $article = $this->articleFixture();
+        $html = "<p style=\"text-align:justify\"><span style=\"white-space:pre-wrap;font-weight:700\">Premier\n\nSecond</span></p>";
+        $article->update(['body' => [$html]]);
+        $before = $article->fresh()->getRawOriginal();
+        $body = $this->actingAs($user)->getJson('/admin/api/article/'.$article->slug)->assertOk()->json('body');
+        $this->assertSame($article->fresh()->toPublicArray()['body'], $body);
+        $this->assertSame(2, substr_count($body[0], '<br'));
+        $this->assertStringContainsString('<strong>', $body[0]);
+        $this->assertStringContainsString('align="justify"', $body[0]);
+        $this->assertStringNotContainsString('style=', $body[0]);
+        $this->assertSame($before, $article->fresh()->getRawOriginal());
+    }
+
     public function test_public_rendering_does_not_modify_stored_html_or_editorial_timestamp(): void
     {
         $article = $this->articleFixture();
