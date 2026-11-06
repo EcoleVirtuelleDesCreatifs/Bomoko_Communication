@@ -18,6 +18,7 @@
   --accent: #b8410c;
   --display: "Montserrat", "Helvetica Neue", Arial, sans-serif;
   --serif: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+  --aq-article-size: clamp(1.0625rem, 1rem + .25vw, 1.1875rem);
   --slant: -33deg;
   --side-w: 252px;
   color-scheme: light;
@@ -306,8 +307,8 @@ h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
 .ad-editor__tabs button[aria-selected="true"] { color: var(--text); font-weight: 600; }
 .ad-editor__tabs button[aria-selected="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--orange); }
 .ad-editor__write { padding: 2rem 1.75rem 1.5rem; }
-.ad-editor__title { width: 100%; border: 0; resize: none; overflow: hidden; background: transparent; color: var(--text); font-family: var(--display); font-weight: 700; font-size: clamp(1.6rem, 1.2rem + 1.3vw, 2.4rem); line-height: 1.12; letter-spacing: -.025em; padding: 0; }
-.ad-editor__chapo { width: 100%; border: 0; resize: none; overflow: hidden; background: transparent; color: var(--text-2); font-family: var(--serif); font-size: 1.2rem; line-height: 1.5; padding: 0; margin-top: 1rem; }
+.ad-editor__title { width: 100%; border: 0; resize: none; overflow: hidden; background: transparent; color: var(--text); font-family: var(--display); font-weight: 700; font-size: clamp(1.75rem, 1.25rem + 2.2vw, 3rem); line-height: 1.15; letter-spacing: -.02em; padding: 0; }
+.ad-editor__chapo { width: 100%; border: 0; resize: none; overflow: hidden; background: transparent; color: var(--text-2); font-family: var(--serif); font-size: clamp(1.0625rem, 1rem + .35vw, 1.25rem); line-height: 1.65; padding: 0; margin-top: 1rem; }
 .ad-titlecount { font-size: .75rem; margin: .25rem 0 0; color: var(--muted); transition: color .15s; }
 .ad-titlecount.is-ok { color: #18794e; }
 .ad-titlecount.is-short { color: var(--muted); }
@@ -317,7 +318,7 @@ h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
 .ad-editor__bar { display: flex; flex-wrap: wrap; gap: .25rem; align-items: center; margin: 1.5rem 0 0; padding: .4rem; border: 1px solid var(--line); border-radius: 4px 4px 0 0; background: var(--bg); }
 .ad-editor__bar .ad-btn { padding: .4rem .65rem; font-size: .8125rem; }
 .ad-editor__bar .sep { width: 1px; height: 20px; background: var(--line); margin: 0 .25rem; }
-.ad-editor__body { width: 100%; min-height: 380px; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 4px 4px; background: var(--panel); color: var(--text); font-family: var(--serif); font-size: 1.1875rem; line-height: 1.7; padding: 1rem 1.1rem; resize: vertical; }
+.ad-editor__body { width: 100%; min-height: 380px; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 4px 4px; background: var(--panel); color: var(--text); font-family: var(--serif); padding: 1rem 1.1rem; resize: vertical; }
 .ad-editor__body:focus { border-color: var(--text); }
 .ad-editor__body[contenteditable] { overflow-y: auto; }
 .ad-editor__body[contenteditable]:empty::before { content: attr(data-placeholder); color: var(--muted); opacity: .7; pointer-events: none; }
@@ -343,22 +344,27 @@ h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
 .ad-preview { padding: 2rem 1.75rem 2.5rem; }
 .ad-preview__tag { display: inline-flex; align-items: center; gap: .5rem; font-size: .8125rem; font-weight: 700; color: var(--accent); }
 .ad-preview__tag::before { content: ""; width: 7px; height: 12px; background: var(--orange); transform: skewX(var(--slant)); }
-.ad-preview h1 { font-weight: 700; font-size: clamp(1.8rem, 1.2rem + 1.8vw, 2.8rem); line-height: 1.08; letter-spacing: -.028em; margin: .85rem 0 1rem; max-width: 22ch; }
-.ad-preview__chapo { font-family: var(--serif); font-size: 1.25rem; line-height: 1.5; color: var(--text-2); margin: 0 0 1.25rem; max-width: 40em; }
+.ad-preview > h1 { font-weight: 700; font-size: clamp(1.75rem, 1.25rem + 2.2vw, 3rem); line-height: 1.15; letter-spacing: -.02em; margin: 1rem 0 1.25rem; max-width: 26ch; overflow-wrap: break-word; text-wrap: balance; }
+.ad-preview__chapo { font-family: var(--serif); font-size: clamp(1.0625rem, 1rem + .35vw, 1.25rem); line-height: 1.65; color: var(--text-2); margin: 0 0 1.5rem; max-width: 40em; }
 .ad-preview__by { font-size: .8125rem; color: var(--muted); padding: .85rem 0; border-block: 1px solid var(--line); margin-bottom: 1.5rem; }
 .ad-preview__cover { position: relative; aspect-ratio: 16 / 9; overflow: hidden; margin-bottom: 1.75rem; clip-path: polygon(0 0, calc(100% - 28px) 0, 100% 43px, 100% 100%, 0 100%); }
-.ad-prose { font-family: var(--serif); font-size: 1.1875rem; line-height: 1.7; max-width: 680px; }
-.ad-prose, .ad-editor__body { overflow-wrap: anywhere; }
+.ad-prose { max-width: 680px; }
+.ad-prose, .ad-editor__body { font-family: var(--serif); font-size: max(1rem, calc(var(--aq-article-size) + var(--aq-article-size-adjustment, 0rem))); line-height: 1.8; min-width: 0; text-align: justify; text-align-last: auto; text-justify: inter-word; -webkit-hyphens: auto; hyphens: auto; hyphenate-limit-chars: 6 3 3; overflow-wrap: break-word; word-break: normal; }
 .ad-prose *, .ad-editor__body * { font-family: var(--serif) !important; }
-.ad-prose p, .ad-editor__body p { margin: 0 0 1.35em; }
-.ad-prose h2, .ad-editor__body h2 { font-family: var(--display); font-weight: 700; font-size: 1.45rem; letter-spacing: -.01em; margin: 2em 0 .6em; }
-.ad-prose blockquote, .ad-editor__body blockquote { margin: 1.75em 0; padding-left: 1.5rem; border-left: 3px solid var(--orange); font-style: italic; font-size: 1.35em; line-height: 1.38; }
-.ad-prose ul, .ad-prose ol, .ad-editor__body ul, .ad-editor__body ol { margin: 0 0 1.35em; padding-left: 1.5rem; }
+.ad-prose p, .ad-editor__body p { margin: 0 0 1.15em; }
+.ad-prose h2, .ad-editor__body h2 { font-family: var(--display); font-weight: 700; font-size: clamp(1.2rem, 1.05rem + .5vw, 1.5rem); line-height: 1.35; letter-spacing: -.01em; margin: 1.75em 0 .65em; text-align: start; -webkit-hyphens: manual; hyphens: manual; }
+.ad-prose blockquote, .ad-editor__body blockquote { margin: 1.5em 0; padding-left: 1rem; border-left: 3px solid var(--orange); font-style: italic; font-size: 1.1em; line-height: 1.6; text-align: start; -webkit-hyphens: manual; hyphens: manual; }
+.ad-prose ul, .ad-prose ol, .ad-editor__body ul, .ad-editor__body ol { margin: 0 0 1.15em; padding-left: 1.5rem; text-align: start; }
+.ad-prose h1, .ad-prose h3, .ad-prose h4, .ad-prose h5, .ad-prose h6, .ad-editor__body h1, .ad-editor__body h3, .ad-editor__body h4, .ad-editor__body h5, .ad-editor__body h6 { text-align: start; line-height: 1.35; -webkit-hyphens: manual; hyphens: manual; }
 .ad-prose img, .ad-editor__body img { display: block; width: auto; max-width: 100%; height: auto; max-height: 420px; margin: 0 auto; object-fit: contain; }
 .ad-prose figure, .ad-editor__body figure { margin: 0 0 2.25rem; }
-.ad-prose figcaption, .ad-editor__body figcaption { font-family: var(--serif); font-style: italic; font-size: .875rem; color: var(--muted); margin-top: .6rem; }
-.ad-prose table, .ad-editor__body table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: 0 0 1.35em; }
+.ad-prose figcaption, .ad-editor__body figcaption { font-family: var(--serif); font-style: italic; font-size: .875rem; color: var(--muted); margin-top: .6rem; text-align: start; }
+.ad-prose table, .ad-editor__body table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: 0 0 1.15em; text-align: start; }
 .ad-prose th, .ad-prose td, .ad-editor__body th, .ad-editor__body td { border: 1px solid var(--line); padding: .5rem; }
+.ad-prose [align="left"], .ad-editor__body [align="left"] { text-align: left; }
+.ad-prose [align="center"], .ad-editor__body [align="center"] { text-align: center; }
+.ad-prose [align="right"], .ad-editor__body [align="right"] { text-align: right; }
+.ad-prose [align="justify"], .ad-editor__body [align="justify"] { text-align: justify; }
 .ad-prose a, .ad-editor__body a { color: #b33d08; font-weight: 600; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; overflow-wrap: anywhere; }
 [data-theme="dark"] .ad-prose a, [data-theme="dark"] .ad-editor__body a { color: #ff9b66; }
 

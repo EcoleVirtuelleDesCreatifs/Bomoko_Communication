@@ -374,7 +374,9 @@
     var oc = bootstrap.Offcanvas.getOrCreateInstance($('#drawer'));
     oc.show(); if (bind) bind($('#drawerBody'), function () { oc.hide(); });
   }
+  var bigViewVersion = 0;
   function openBig(title, html, bind) {
+    bigViewVersion++;
     $('#bigTitle').textContent = title; $('#bigBody').innerHTML = html;
     var m = bootstrap.Modal.getOrCreateInstance($('#bigModal'));
     m.show(); if (bind) bind($('#bigBody'), function () { m.hide(); });
@@ -865,7 +867,7 @@
       else if (b.hasAttribute('data-restore')) { var r = art(b.getAttribute('data-restore')); r.status = r.prev && r.prev !== 'corbeille' ? r.prev : 'brouillon'; r.updated = new Date().toISOString(); save(); draw(); toast('Article restauré : ' + STATUS[r.status]); }
       else if (b.hasAttribute('data-purge')) { toast('Suppression définitive désactivée : les articles sont conservés dans la corbeille.'); }
       else if (b.hasAttribute('data-dup')) { var o = art(b.getAttribute('data-dup')), c = clone(o); c.id = slugify(o.title) + '-copie-' + uid().slice(-4); c.slug = c.id; c.title = o.title + ' (copie)'; c.status = 'brouillon'; c.une = false; c.views = 0; c.date = c.updated = new Date().toISOString(); S.articles.unshift(c); log('a dupliqué « ' + o.title + ' »'); save(); draw(); toast('Copie créée en brouillon'); }
-      else if (b.hasAttribute('data-preview')) { e.preventDefault(); preview(art(b.getAttribute('data-preview'))); }
+      else if (b.hasAttribute('data-preview')) { e.preventDefault(); preview(art(b.getAttribute('data-preview')), b); }
       else if (b.hasAttribute('data-bulk')) {
         var kind = b.getAttribute('data-bulk'), ids = Object.keys(listState.sel).filter(function (k) { return listState.sel[k]; });
         if (kind === 'none') { listState.sel = {}; draw(); return; }
@@ -967,7 +969,40 @@
       '<p class="ad-preview__chapo">' + fr(a.chapo || 'Chapô de l’article') + '</p><p class="ad-preview__by">Par ' + esc(a.author) + ', ' + dlong(a.date) + ', ' + (a.read || 1) + ' min de lecture</p>' +
       '<div class="ad-preview__cover">' + coverOf(a) + '</div><div class="ad-prose">' + bodyHtml(a.body.length ? a.body : ['Le texte de l’article apparaîtra ici.']) + '</div></article>';
   }
-  function preview(a) { openBig('Aperçu', '<div class="ad-panel">' + previewHtml(a) + '</div>'); }
+  function loadArticleContent(a) {
+    if (Array.isArray(a.body) && a.body.every(function (block) { return typeof block === 'string'; })) return Promise.resolve(a);
+    if (!window.AQ_API) return Promise.reject(new Error('Le contenu de cet article doit être chargé depuis le serveur.'));
+    return fetch(window.AQ_API.replace(/\/state$/, '/article/') + encodeURIComponent(a.slug || a.id), {
+      headers: { 'Accept': 'application/json' }, credentials: 'same-origin', cache: 'no-store',
+    }).then(function (r) {
+      if (!r.ok) throw new Error('Impossible de charger cet article (HTTP ' + r.status + ').');
+      return r.json().catch(function () { throw new Error('Réponse serveur invalide lors du chargement de l’article.'); });
+    }).then(function (data) {
+      if (!data || !Array.isArray(data.body) || !data.body.every(function (block) { return typeof block === 'string'; })) throw new Error('Le contenu de cet article est indisponible ou invalide.');
+      var loaded = Object.assign({}, a, { body: data.body });
+      if (Object.prototype.hasOwnProperty.call(data, 'person')) loaded.person = data.person;
+      if (Object.prototype.hasOwnProperty.call(data, 'image_path')) {
+        loaded.image_path = data.image_path;
+        loaded.src = data.image_path ? (window.AQ_ASSET || '') + '/storage/' + data.image_path : null;
+      }
+      return loaded;
+    });
+  }
+  function preview(a, trigger) {
+    if (!a) { toast('Article introuvable dans la liste. Actualisez les articles.', 'error'); return Promise.resolve(); }
+    if (trigger && trigger.disabled) return Promise.resolve();
+    if (trigger) trigger.disabled = true;
+    openBig('Aperçu', '<div class="ad-panel"><div class="ad-panel__body" role="status">Chargement de l’article…</div></div>');
+    var version = bigViewVersion;
+    return loadArticleContent(a).then(function (loaded) {
+      if (version !== bigViewVersion) return;
+      $('#bigBody').innerHTML = '<div class="ad-panel">' + previewHtml(loaded) + '</div>';
+    }).catch(function (e) {
+      if (version !== bigViewVersion) return;
+      $('#bigBody').textContent = e.message;
+      toast(e.message, 'error');
+    }).finally(function () { if (trigger) trigger.disabled = false; });
+  }
 
   /* ===================== Éditeur ===================== */
   function wordCount(s) { return (String(s).match(/[\wÀ-ÿ’'-]+/g) || []).length; }
@@ -976,10 +1011,17 @@
     var src = isNew ? null : art(editing);
     if (src && src.body === undefined) {
       v.innerHTML = '<div class="ad-panel"><div class="ad-panel__body">Chargement de l\u2019article\u2026</div></div>';
-      fetch((window.AQ_API || '').replace(/\/state$/, '/article/') + encodeURIComponent(src.slug || src.id), { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
-        .then(function (r) { return r.json(); })
-        .then(function (d) { src.body = d.body || []; if (d.person) src.person = d.person; src.image_path = d.image_path; render(); })
-        .catch(function () { src.body = []; render(); });
+      loadArticleContent(src).then(function (loaded) {
+        if (editing !== src.id || routeFromHash() !== 'editeur') return;
+        src.body = loaded.body; src.person = loaded.person; src.image_path = loaded.image_path; src.src = loaded.src;
+        render();
+      }).catch(function (e) {
+        if (editing !== src.id || routeFromHash() !== 'editeur') return;
+        v.innerHTML = '<div class="ad-panel"><div class="ad-panel__body"><p class="ad-error" id="edLoadError"></p><button type="button" class="ad-btn ad-btn--outline" id="edLoadRetry">Réessayer le chargement</button></div></div>';
+        $('#edLoadError', v).textContent = e.message;
+        $('#edLoadRetry', v).addEventListener('click', render);
+        toast(e.message, 'error');
+      });
       return;
     }
     var a = src ? clone(src) : { id: '', rub: editorPreset || 'politique', region: '', country: '', ph: PH[Math.floor(Math.random() * PH.length)], img: '', caption: '', views: 0, title: '', chapo: '', author: ME.name, date: new Date().toISOString(), updated: new Date().toISOString(), read: 1, tags: [], body: [], status: 'brouillon', meta: '', slug: '', une: false };
@@ -1251,7 +1293,7 @@
         $('#edWrite').hidden = p; $('#edPrev').hidden = !p;
       });
     });
-    if ($('#edPreview')) $('#edPreview').addEventListener('click', function () { collect(); preview(a); });
+    if ($('#edPreview')) $('#edPreview').addEventListener('click', function () { collect(); preview(a, this); });
     if ($('#edTrash')) $('#edTrash').addEventListener('click', function () {
       confirmBox('Mettre à la corbeille ?', 'Vous pourrez restaurer l’article depuis l’onglet Corbeille.', 'Mettre à la corbeille', function () {
         var x = art(a.id); x.prev = x.status; x.status = 'corbeille'; x.updated = new Date().toISOString(); log('a mis à la corbeille « ' + x.title + ' »'); save(); dirty = false; toast('Article mis à la corbeille'); go('articles');
@@ -1350,7 +1392,7 @@
           '<div class="ad-card__foot"><button type="button" class="ad-btn ad-btn--ghost ad-btn--sm" data-edit="' + a.id + '"><i class="bi bi-pencil" aria-hidden="true"></i>Modifier</button><button type="button" class="ad-btn ad-btn--ghost ad-btn--sm" data-preview="' + a.id + '"><i class="bi bi-eye" aria-hidden="true"></i>Aperçu</button></div></article>';
       }).join('') + '</div>' : '<div class="ad-panel ad-empty"><strong>Aucun portrait</strong>Créez le premier portrait avec le bouton « Nouveau portrait ».</div>');
     $('#newPortrait').addEventListener('click', function () { editorPreset = 'portraits'; editing = null; go('editeur'); });
-    v.addEventListener('click', function (e) { var b = e.target.closest('[data-preview]'); if (b) preview(art(b.getAttribute('data-preview'))); });
+    v.addEventListener('click', function (e) { var b = e.target.closest('[data-preview]'); if (b) preview(art(b.getAttribute('data-preview')), b); });
   };
 
   /* ===================== Rubriques et régions ===================== */

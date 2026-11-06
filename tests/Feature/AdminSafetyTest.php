@@ -14,6 +14,21 @@ class AdminSafetyTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_preview_content_is_loaded_separately_and_respects_article_ownership_without_writes(): void
+    {
+        $user = User::factory()->create(['role' => 'journaliste', 'status' => 'actif']);
+        $article = $this->articleFixture();
+        $article->update(['user_id' => $user->id, 'author_name' => $user->name, 'status' => 'brouillon', 'body' => ['<p>Texte <strong>complet</strong>.</p>']]);
+        $before = $article->fresh()->getRawOriginal();
+        $rows = $this->actingAs($user)->getJson('/admin/api/articles')->assertOk()->json();
+        $this->assertArrayNotHasKey('body', $rows[0]);
+        $this->getJson('/admin/api/article/'.$article->slug)->assertOk()->assertJsonPath('body.0', '<p>Texte <strong>complet</strong>.</p>');
+        $this->assertSame($before, $article->fresh()->getRawOriginal());
+        Article::create(['slug' => 'autre-brouillon', 'title' => 'Brouillon privé d’un autre membre', 'rubrique_slug' => 'culture', 'status' => 'brouillon', 'body' => ['Contenu privé']]);
+        $this->getJson('/admin/api/article/autre-brouillon')->assertNotFound();
+        $this->assertSame($before, $article->fresh()->getRawOriginal());
+    }
+
     public function test_international_category_is_available_to_journalists_and_can_classify_articles(): void
     {
         $original = $this->articleFixture();

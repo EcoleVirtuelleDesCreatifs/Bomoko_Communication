@@ -57,12 +57,16 @@ const shareUrl = computed(() => encodeURIComponent(a.url));
 const shareText = computed(() => encodeURIComponent(a.title));
 const canShareNative = ref(false);
 
-const size = ref(Number(store('aq-size')) || 0);
+function normalizeReadingSize(value) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? Math.max(-2, Math.min(3, Math.trunc(parsed))) : 0;
+}
+const size = ref(0);
 function applySize() {
-    document.documentElement.style.setProperty('--aq-article-size', (1.1875 + size.value * 0.125) + 'rem');
+    document.documentElement.style.setProperty('--aq-article-size-adjustment', (size.value * 0.125) + 'rem');
 }
 function bumpSize(d) {
-    size.value = Math.max(-2, Math.min(3, size.value + d));
+    size.value = normalizeReadingSize(size.value + d);
     applySize(); store('aq-size', size.value);
 }
 
@@ -100,11 +104,15 @@ function shareNative() {
 
 onMounted(() => {
     canShareNative.value = !!navigator.share;
+    size.value = normalizeReadingSize(store('aq-size'));
     applySize();
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
 });
-onBeforeUnmount(() => window.removeEventListener('scroll', onScroll));
+onBeforeUnmount(() => {
+    window.removeEventListener('scroll', onScroll);
+    document.documentElement.style.removeProperty('--aq-article-size-adjustment');
+});
 
 // Commentaires
 const page = usePage();
@@ -131,8 +139,8 @@ function sendComment() {
           <div><strong itemprop="author">Par {{ a.author }}</strong>
           <time :datetime="a.date" itemprop="datePublished">{{ fmtLongDate(a.date) }}</time>, {{ a.read }} min de lecture</div></div>
         <div class="aq-tools">
-          <button class="aq-icon" type="button" aria-label="Réduire la taille du texte" @click="bumpSize(-1)"><span class="aq-tools__size">A-</span></button>
-          <button class="aq-icon" type="button" aria-label="Agrandir la taille du texte" @click="bumpSize(1)"><span class="aq-tools__size">A+</span></button>
+          <button class="aq-icon" type="button" aria-label="Réduire la taille du texte" :disabled="size <= -2" @click="bumpSize(-1)"><span class="aq-tools__size">A-</span></button>
+          <button class="aq-icon" type="button" aria-label="Agrandir la taille du texte" :disabled="size >= 3" @click="bumpSize(1)"><span class="aq-tools__size">A+</span></button>
           <span class="aq-tools__sep" aria-hidden="true"></span>
           <a class="aq-icon" :href="'https://www.facebook.com/sharer/sharer.php?u=' + shareUrl" target="_blank" rel="noopener" aria-label="Partager sur Facebook"><i class="bi bi-facebook" aria-hidden="true"></i></a>
           <a class="aq-icon" :href="'https://x.com/intent/post?url=' + shareUrl + '&text=' + shareText" target="_blank" rel="noopener" aria-label="Partager sur X"><i class="bi bi-twitter-x" aria-hidden="true"></i></a>

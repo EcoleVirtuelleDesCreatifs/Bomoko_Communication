@@ -18,6 +18,94 @@ function editor() {
   return { document, ctx };
 }
 
+function articlePreview() {
+  const { document, ctx } = editor();
+  const requests = [], toasts = [], opened = [];
+  document.body.innerHTML = '<div id="bigBody"></div>';
+  Object.assign(ctx, { document, $: s => document.querySelector(s), bigViewVersion: 0,
+    window: { AQ_API: '/admin/api/state', AQ_ASSET: 'https://example.test' },
+    rubLabel: r => r, dlong: () => 'Date', coverOf: () => '<div>Couverture</div>',
+    toast: (message, type) => toasts.push({ message, type }),
+    openBig: (title, html) => { ctx.bigViewVersion++; opened.push(title); document.querySelector('#bigBody').innerHTML = html; },
+    fetch: (url, options) => new Promise(resolve => requests.push({ url, options, resolve })),
+  });
+  vm.runInContext(source.slice(source.indexOf('  function previewHtml(a)'), source.indexOf('  /* ===================== Éditeur')), ctx);
+  return { ctx, document, requests, toasts, opened };
+}
+
+function previewArticle(id = 'article-test') {
+  return { id, slug: id, rub: 'culture', title: 'Titre de l’article', chapo: 'Chapô', author: 'Auteur', date: '2026-11-06T12:00:00Z' };
+}
+
+test('eye preview loads missing article content on demand without mutating the article', async () => {
+  const e = articlePreview(), article = previewArticle(), button = e.document.createElement('button');
+  const before = JSON.stringify(article);
+  const pending = e.ctx.preview(article, button);
+  assert.equal(e.requests.length, 1);
+  assert.equal(e.requests[0].url, '/admin/api/article/article-test');
+  assert.equal(e.requests[0].options.cache, 'no-store');
+  assert.equal(e.requests[0].options.credentials, 'same-origin');
+  assert.equal(button.disabled, true);
+  assert.match(e.document.querySelector('#bigBody').textContent, /Chargement/);
+  e.requests[0].resolve({ ok: true, json: async () => ({ body: ['<p>Texte <strong>complet</strong>.</p>'], person: null, image_path: null }) });
+  await pending;
+  assert.equal(e.document.querySelector('#bigBody strong').textContent, 'complet');
+  assert.equal(button.disabled, false);
+  assert.equal(JSON.stringify(article), before);
+});
+
+test('repeated eye clicks do not duplicate the loading request and preview includes the cover URL', async () => {
+  const e = articlePreview(), article = previewArticle(), button = e.document.createElement('button');
+  let rendered;
+  e.ctx.coverOf = a => { rendered = a; return '<div>Couverture</div>'; };
+  const pending = e.ctx.preview(article, button);
+  await e.ctx.preview(article, button);
+  assert.equal(e.requests.length, 1);
+  e.requests[0].resolve({ ok: true, json: async () => ({ body: ['Texte'], image_path: 'medias/photo.jpg' }) });
+  await pending;
+  assert.equal(rendered.src, 'https://example.test/storage/medias/photo.jpg');
+  assert.equal(article.src, undefined);
+  assert.equal(e.opened.length, 1);
+  assert.equal(button.disabled, false);
+});
+
+test('preview uses current unsaved editor content instead of fetching an older version', async () => {
+  const e = articlePreview(), article = { ...previewArticle(), body: ['<p>Brouillon non enregistré</p>'] };
+  await e.ctx.preview(article);
+  assert.equal(e.requests.length, 0);
+  assert.match(e.document.querySelector('#bigBody').textContent, /Brouillon non enregistré/);
+});
+
+test('preview errors are displayed and never replace missing content with an empty body', async () => {
+  const e = articlePreview(), article = previewArticle(), button = e.document.createElement('button');
+  const pending = e.ctx.preview(article, button);
+  e.requests[0].resolve({ ok: false, status: 403 });
+  await pending;
+  assert.match(e.document.querySelector('#bigBody').textContent, /403/);
+  assert.equal(e.toasts.at(-1).type, 'error');
+  assert.equal(button.disabled, false);
+  assert.equal(article.body, undefined);
+});
+
+test('a late preview response cannot overwrite a newer dialog', async () => {
+  const e = articlePreview();
+  const pending = e.ctx.preview(previewArticle());
+  e.ctx.openBig('Autre fenêtre', '<p>Contenu à conserver</p>');
+  e.requests[0].resolve({ ok: true, json: async () => ({ body: ['Ancien aperçu'] }) });
+  await pending;
+  assert.equal(e.document.querySelector('#bigBody').textContent, 'Contenu à conserver');
+});
+
+test('invalid preview responses report an error rather than rendering or changing the article', async () => {
+  const e = articlePreview(), article = previewArticle();
+  const pending = e.ctx.preview(article);
+  e.requests[0].resolve({ ok: true, json: async () => ({ body: 'Format invalide' }) });
+  await pending;
+  assert.equal(e.document.querySelector('#bigBody article'), null);
+  assert.equal(e.toasts.at(-1).type, 'error');
+  assert.equal(article.body, undefined);
+});
+
 function notification() {
   const { document, Event } = parseHTML('<html><body><div class="ad-toast" id="toast" role="status" aria-live="polite" hidden></div></body></html>');
   const timers = new Map();
@@ -195,6 +283,42 @@ test('pasted emphasis and alignment remain semantic without keeping arbitrary CS
   result.innerHTML = html;
   assert.equal(result.querySelector('strong em, em strong')?.textContent, 'Important');
   assert.doesNotMatch(html, /style=|Georgia/);
+});
+
+test('article reading uses responsive justified typography with preserved explicit alignments', () => {
+  const files = ['afriquinfos.css', 'admin.css'].map(name => fs.readFileSync(path.join(__dirname, '../../public/assets/css/' + name), 'utf8'));
+  for (const css of files) {
+    assert.match(css, /--aq-article-size: clamp\(1\.0625rem, 1rem \+ \.25vw, 1\.1875rem\)/);
+    assert.match(css, /font-size: max\(1rem, calc\(var\(--aq-article-size\) \+ var\(--aq-article-size-adjustment, 0rem\)\)\)/);
+    assert.match(css, /text-align: justify/);
+    assert.match(css, /text-justify: inter-word/);
+    assert.match(css, /hyphens: auto/);
+    assert.match(css, /hyphenate-limit-chars: 6 3 3/);
+    assert.doesNotMatch(css, /text-align: justify\s*!important/);
+    for (const align of ['left', 'center', 'right', 'justify']) {
+      assert.ok(css.includes('[align="' + align + '"]'), align);
+    }
+  }
+});
+
+test('reading size controls change only the adjustment and safely bound stored preferences', () => {
+  const vue = fs.readFileSync(path.join(__dirname, '../../resources/js/Pages/Article.vue'), 'utf8');
+  const properties = new Map();
+  const ctx = vm.createContext({ ref: value => ({ value }), store() {},
+    document: { documentElement: { style: { setProperty: (key, value) => properties.set(key, value) } } },
+  });
+  const start = vue.indexOf('function normalizeReadingSize(');
+  assert.notEqual(start, -1);
+  vm.runInContext(vue.slice(start, vue.indexOf('const bar =', start)), ctx);
+  assert.equal(vm.runInContext('size.value', ctx), 0);
+  for (const [input, expected] of [['Infinity', 0], ['invalid', 0], ['100', 3], ['-100', -2], ['1.5', 1]]) {
+    ctx.input = input;
+    assert.equal(vm.runInContext('normalizeReadingSize(input)', ctx), expected);
+  }
+  vm.runInContext('size.value = 3; applySize(); bumpSize(1)', ctx);
+  assert.equal(properties.get('--aq-article-size-adjustment'), '0.375rem');
+  assert.equal(properties.has('--aq-article-size'), false);
+  assert.match(vue, /removeProperty\('--aq-article-size-adjustment'\)/);
 });
 
 test('article typography stays identical in editor, preview and public stylesheet', () => {

@@ -586,9 +586,13 @@ const _sfc_main$9 = {
     const shareUrl = computed(() => encodeURIComponent(a.url));
     const shareText = computed(() => encodeURIComponent(a.title));
     const canShareNative = ref(false);
-    const size = ref(Number(store("aq-size")) || 0);
+    function normalizeReadingSize(value) {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? Math.max(-2, Math.min(3, Math.trunc(parsed))) : 0;
+    }
+    const size = ref(0);
     function applySize() {
-      document.documentElement.style.setProperty("--aq-article-size", 1.1875 + size.value * 0.125 + "rem");
+      document.documentElement.style.setProperty("--aq-article-size-adjustment", size.value * 0.125 + "rem");
     }
     const bar = ref(null), prose = ref(null);
     let ticking = false;
@@ -607,11 +611,15 @@ const _sfc_main$9 = {
     }
     onMounted(() => {
       canShareNative.value = !!navigator.share;
+      size.value = normalizeReadingSize(store("aq-size"));
       applySize();
       window.addEventListener("scroll", onScroll, { passive: true });
       onScroll();
     });
-    onBeforeUnmount(() => window.removeEventListener("scroll", onScroll));
+    onBeforeUnmount(() => {
+      window.removeEventListener("scroll", onScroll);
+      document.documentElement.style.removeProperty("--aq-article-size-adjustment");
+    });
     const page = usePage();
     const cform = useForm({ author: "", email: "", text: "", website: "" });
     const flashMsg = computed(() => {
@@ -637,7 +645,7 @@ const _sfc_main$9 = {
         }),
         _: 1
       }, _parent));
-      _push(`<h1 class="aq-article__title" itemprop="headline">${ssrInterpolate(unref(fr)(unref(a).title))}</h1><p class="aq-article__chapo" itemprop="description">${ssrInterpolate(unref(fr)(unref(a).chapo))}</p><div class="aq-article__bar"><div class="aq-byline"><span class="aq-avatar" aria-hidden="true">${ssrInterpolate(unref(initials)(unref(a).author))}</span><div><strong itemprop="author">Par ${ssrInterpolate(unref(a).author)}</strong><time${ssrRenderAttr("datetime", unref(a).date)} itemprop="datePublished">${ssrInterpolate(unref(fmtLongDate)(unref(a).date))}</time>, ${ssrInterpolate(unref(a).read)} min de lecture</div></div><div class="aq-tools"><button class="aq-icon" type="button" aria-label="Réduire la taille du texte"><span class="aq-tools__size">A-</span></button><button class="aq-icon" type="button" aria-label="Agrandir la taille du texte"><span class="aq-tools__size">A+</span></button><span class="aq-tools__sep" aria-hidden="true"></span><a class="aq-icon"${ssrRenderAttr("href", "https://www.facebook.com/sharer/sharer.php?u=" + shareUrl.value)} target="_blank" rel="noopener" aria-label="Partager sur Facebook"><i class="bi bi-facebook" aria-hidden="true"></i></a><a class="aq-icon"${ssrRenderAttr("href", "https://x.com/intent/post?url=" + shareUrl.value + "&text=" + shareText.value)} target="_blank" rel="noopener" aria-label="Partager sur X"><i class="bi bi-twitter-x" aria-hidden="true"></i></a><a class="aq-icon"${ssrRenderAttr("href", "https://www.linkedin.com/sharing/share-offsite/?url=" + shareUrl.value)} target="_blank" rel="noopener" aria-label="Partager sur LinkedIn"><i class="bi bi-linkedin" aria-hidden="true"></i></a><a class="aq-icon"${ssrRenderAttr("href", "https://wa.me/?text=" + shareText.value + "%20" + shareUrl.value)} target="_blank" rel="noopener" aria-label="Partager sur WhatsApp"><i class="bi bi-whatsapp" aria-hidden="true"></i></a><button class="aq-icon" type="button" aria-label="Copier le lien"><i class="bi bi-link-45deg" aria-hidden="true"></i></button>`);
+      _push(`<h1 class="aq-article__title" itemprop="headline">${ssrInterpolate(unref(fr)(unref(a).title))}</h1><p class="aq-article__chapo" itemprop="description">${ssrInterpolate(unref(fr)(unref(a).chapo))}</p><div class="aq-article__bar"><div class="aq-byline"><span class="aq-avatar" aria-hidden="true">${ssrInterpolate(unref(initials)(unref(a).author))}</span><div><strong itemprop="author">Par ${ssrInterpolate(unref(a).author)}</strong><time${ssrRenderAttr("datetime", unref(a).date)} itemprop="datePublished">${ssrInterpolate(unref(fmtLongDate)(unref(a).date))}</time>, ${ssrInterpolate(unref(a).read)} min de lecture</div></div><div class="aq-tools"><button class="aq-icon" type="button" aria-label="Réduire la taille du texte"${ssrIncludeBooleanAttr(size.value <= -2) ? " disabled" : ""}><span class="aq-tools__size">A-</span></button><button class="aq-icon" type="button" aria-label="Agrandir la taille du texte"${ssrIncludeBooleanAttr(size.value >= 3) ? " disabled" : ""}><span class="aq-tools__size">A+</span></button><span class="aq-tools__sep" aria-hidden="true"></span><a class="aq-icon"${ssrRenderAttr("href", "https://www.facebook.com/sharer/sharer.php?u=" + shareUrl.value)} target="_blank" rel="noopener" aria-label="Partager sur Facebook"><i class="bi bi-facebook" aria-hidden="true"></i></a><a class="aq-icon"${ssrRenderAttr("href", "https://x.com/intent/post?url=" + shareUrl.value + "&text=" + shareText.value)} target="_blank" rel="noopener" aria-label="Partager sur X"><i class="bi bi-twitter-x" aria-hidden="true"></i></a><a class="aq-icon"${ssrRenderAttr("href", "https://www.linkedin.com/sharing/share-offsite/?url=" + shareUrl.value)} target="_blank" rel="noopener" aria-label="Partager sur LinkedIn"><i class="bi bi-linkedin" aria-hidden="true"></i></a><a class="aq-icon"${ssrRenderAttr("href", "https://wa.me/?text=" + shareText.value + "%20" + shareUrl.value)} target="_blank" rel="noopener" aria-label="Partager sur WhatsApp"><i class="bi bi-whatsapp" aria-hidden="true"></i></a><button class="aq-icon" type="button" aria-label="Copier le lien"><i class="bi bi-link-45deg" aria-hidden="true"></i></button>`);
       if (canShareNative.value) {
         _push(`<button class="aq-btn aq-btn--ink aq-share-native" type="button"><i class="bi bi-share" aria-hidden="true"></i>Partager</button>`);
       } else {
