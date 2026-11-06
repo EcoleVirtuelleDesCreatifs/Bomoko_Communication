@@ -42,6 +42,22 @@
 
   /* ===================== Données ===================== */
   var STATUS = { publie: 'Publié', programme: 'Programmé', relecture: 'En relecture', brouillon: 'Brouillon', corbeille: 'Corbeille' };
+  function canPublishArticles(role) { return role === 'admin' || role === 'chef'; }
+  function canScheduleArticles(role) { return canPublishArticles(role) || role === 'journaliste'; }
+  function canSetArticleStatus(role, status) {
+    return status === 'brouillon' || status === 'relecture' ||
+      (status === 'publie' && canPublishArticles(role)) || (status === 'programme' && canScheduleArticles(role));
+  }
+  function articleStatusOptions(role, current) {
+    var allowed = ['brouillon', 'relecture', 'publie', 'programme'].filter(function (status) { return canSetArticleStatus(role, status); });
+    return (allowed.indexOf(current) === -1 ? '<option value="" selected disabled>Choisir un statut autorisé</option>' : '') + allowed.map(function (status) {
+      return '<option value="' + status + '"' + (status === current ? ' selected' : '') + '>' + STATUS[status] + '</option>';
+    }).join('');
+  }
+  function articleStatus(a, time) {
+    var date = Date.parse(a.date);
+    return a.status === 'programme' && Number.isFinite(date) && date <= (time === undefined ? Date.now() : time) ? 'publie' : a.status;
+  }
   var ROLES = { admin: 'Administrateur', chef: 'Rédacteur en chef', journaliste: 'Journaliste', contributeur: 'Contributeur' };
   var PH = ['ink', 'orange', 'savane', 'lagune', 'sable', 'night', 'rust', 'stadium'];
 
@@ -171,13 +187,54 @@
     if (!S || S.v !== 1) S = seed(); else migrate(S);
   }
   // les articles programmés dont l'heure est passée sont publiés
-  var saveTimer, saveBusy = false, saveQueued = false;
-  var SYNCED = {}, syncedResources = {}, revisions = S.revisions || {};
+  var saveTimer, saveBusy = false, saveQueued = false, editorSubmission = null;
+  var SYNCED = {}, confirmedSchedules = Object.create(null), syncedResources = {}, revisions = S.revisions || {};
   var resourceKeys = ['rubriques', 'regions', 'agenda', 'comments', 'subscribers', 'messages', 'debats', 'users', 'flash', 'medias', 'ads', 'slots', 'settings'];
-  function markSynced(rows) { (rows || []).forEach(function (a) { SYNCED[a.id] = a.updated; }); }
+  function rememberSchedule(a) { if (a.status === 'programme') confirmedSchedules[a.id] = a.date; else delete confirmedSchedules[a.id]; }
+  function markSynced(rows) { (rows || []).forEach(function (a) { SYNCED[a.id] = a.updated; rememberSchedule(a); }); }
+  function scheduleAlreadyConfirmed(a) {
+    var date = Date.parse(a.date);
+    return Number.isFinite(date) && date === Date.parse(confirmedSchedules[a.id]);
+  }
   markSynced(S.articles);
   resourceKeys.forEach(function (k) { syncedResources[k] = JSON.stringify(S[k]); });
   function save() { clearTimeout(saveTimer); saveTimer = setTimeout(sendChanges, 400); }
+  function notifyArticleSubmission() {
+    var form = $('#edForm');
+    if (!form) return;
+    form.setAttribute('aria-busy', editorSubmission ? 'true' : 'false');
+    form.dispatchEvent(new Event('aq:article-submission'));
+  }
+  function beginArticleSubmission(a) {
+    if (editorSubmission) return false;
+    editorSubmission = { id: a.id, updated: a.updated };
+    notifyArticleSubmission();
+    return true;
+  }
+  function finishArticleSubmission(rows, failed) {
+    if (!editorSubmission || (!failed && !rows.some(function (a) { return a.id === editorSubmission.id && a.updated === editorSubmission.updated; }))) return;
+    editorSubmission = null;
+    notifyArticleSubmission();
+  }
+  function hasPendingChanges() {
+    return S.articles.some(function (a) { return SYNCED[a.id] !== a.updated; }) || resourceKeys.some(function (key) {
+      return JSON.stringify(S[key]) !== syncedResources[key];
+    });
+  }
+  function articlePayload(a) {
+    var payload = Object.assign({}, a);
+    if (Array.isArray(a.body)) payload.body = a.body.map(function (block) {
+      if (typeof block !== 'string' || !block.trimStart().startsWith('<') || !block.includes('data-mid') || !block.includes('data:image/')) return block;
+      var root = document.createElement('div');
+      root.innerHTML = block;
+      root.querySelectorAll('img[data-mid]').forEach(function (image) {
+        var id = image.getAttribute('data-mid');
+        if ((image.getAttribute('src') || '').startsWith('data:image/') && S.medias.some(function (m) { return m.id === id && m.data; })) image.removeAttribute('src');
+      });
+      return root.innerHTML;
+    });
+    return payload;
+  }
   function mediaDelta(base, rows) {
     var previous = new Map(base.map(function (m) { return [m.id, m]; }));
     var next = new Map(rows.map(function (m) { return [m.id, m]; }));
@@ -196,14 +253,15 @@
     return Array.from(rows.values());
   }
   function sendChanges() {
+    clearTimeout(saveTimer);
     store(KEY, JSON.stringify(S));
-    if (!window.AQ_API) return;
+    if (!window.AQ_API) { finishArticleSubmission([], true); return; }
     if (saveBusy) { saveQueued = true; return; }
     // n'envoyer au serveur que les articles réellement modifiés depuis le dernier état synchronisé
     var dirty = clone(S.articles.filter(function (a) { return SYNCED[a.id] !== a.updated; }));
     var payload = { protocol: 2, revisions: {} }, sent = {};
     dirty.forEach(function (a) { a.baseUpdated = SYNCED[a.id] || null; });
-    if (dirty.length) payload.articles = dirty;
+    if (dirty.length) payload.articles = dirty.map(articlePayload);
     resourceKeys.forEach(function (k) {
       var value = JSON.stringify(S[k]);
       if (value === syncedResources[k]) return;
@@ -223,10 +281,19 @@
     if (indicator) indicator.textContent = 'Enregistrement serveur en cours…';
     fetch(window.AQ_API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }, body: JSON.stringify(payload), credentials: 'same-origin' })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) {
-        if (!r.ok || j.ok !== true) throw new Error(j.error || j.message || 'Enregistrement refusé (HTTP ' + r.status + ')');
+        if (!r.ok || j.ok !== true) {
+          var validation = j.errors && Object.values(j.errors).reduce(function (messages, errors) { return messages.concat(errors); }, []).slice(0, 3).join(' ');
+          var session = r.status === 401 || r.status === 419 ? 'Session expirée : copiez votre texte avant de vous reconnecter.' : '';
+          throw new Error(session || validation || j.error || j.message || 'Enregistrement refusé (HTTP ' + r.status + ')');
+        }
+        if (dirty.some(function (a) { return !Array.isArray(j.articles) || !j.articles.some(function (row) { return row.id === a.id && Number.isFinite(Date.parse(row.updated)); }); }) ||
+          Object.keys(sent).some(function (key) { return !j.resources || !Object.prototype.hasOwnProperty.call(j.resources, key) || !j.revisions || !Object.prototype.hasOwnProperty.call(j.revisions, key); })) {
+          throw new Error('Confirmation incomplète du serveur : vérifiez l’enregistrement avant de réessayer.');
+        }
         (j.articles || []).forEach(function (row) {
           var local = art(row.id), submitted = dirty.filter(function (a) { return a.id === row.id; })[0];
           SYNCED[row.id] = row.updated;
+          if (submitted) rememberSchedule(submitted);
           if (local && submitted) {
             delete submitted.baseUpdated;
             if (JSON.stringify(local) === JSON.stringify(submitted)) local.updated = row.updated;
@@ -242,12 +309,13 @@
         S.log = j.log || []; S.teamStats = j.teamStats || S.teamStats; S.publishedToday = j.publishedToday || [];
         S.publicationStats = j.publicationStats || S.publicationStats; S.dashboardStats = j.dashboardStats || S.dashboardStats;
         if (sent.users) ME = S.users.filter(function (u) { return u.id === ME.id; })[0] || ME;
-        if (indicator && document.contains(indicator)) indicator.textContent = 'Sauvegarde confirmée par le serveur à ' + fmtTime.format(new Date());
-        toast('Sauvegarde confirmée par le serveur');
-        (j.warnings || []).forEach(toast);
+        finishArticleSubmission(dirty, false);
+        if (indicator && document.contains(indicator)) indicator.textContent = hasPendingChanges() ? 'Envoi confirmé ; des modifications plus récentes restent à enregistrer.' : 'Sauvegarde confirmée par le serveur à ' + fmtTime.format(new Date());
+        toast('Sauvegarde confirmée par le serveur', 'success');
+        (j.warnings || []).forEach(function (message) { toast(message, 'info'); });
         if (saveQueued) { saveQueued = false; setTimeout(sendChanges, 0); }
       }); })
-      .catch(function (e) { saveQueued = false; toast(e.message + ' — modifications conservées dans cet onglet.'); if (indicator && document.contains(indicator)) indicator.textContent = 'Non synchronisé : ' + e.message; })
+      .catch(function (e) { saveQueued = false; finishArticleSubmission([], true); toast(e.message + ' — modifications conservées dans cet onglet.', 'error'); if (indicator && document.contains(indicator)) indicator.textContent = 'Non synchronisé : ' + e.message; })
       .finally(function () { saveBusy = false; });
   }
   function log(what) { save(); }
@@ -269,9 +337,29 @@
 
   /* ===================== Composants ===================== */
   var toastTimer;
-  function toast(msg) {
-    var t = $('#toast'); t.textContent = msg; t.classList.add('is-on');
-    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove('is-on'); }, 2600);
+  function hideToast() {
+    clearTimeout(toastTimer);
+    var t = $('#toast');
+    if (t) { t.classList.remove('is-on'); t.hidden = true; }
+  }
+  function toast(msg, type) {
+    var t = $('#toast');
+    if (!t) return;
+    var kind = ['success', 'error', 'info'].indexOf(type) !== -1 ? type : 'info';
+    var content = document.createElement('div'), title = document.createElement('strong'), message = document.createElement('p'), close = document.createElement('button');
+    content.className = 'ad-toast__body';
+    title.className = 'ad-toast__title'; title.textContent = { success: 'Succès', error: 'Erreur', info: 'Information' }[kind];
+    message.className = 'ad-toast__message'; message.textContent = String(msg);
+    content.append(title, message);
+    close.type = 'button'; close.className = 'ad-toast__close'; close.textContent = '×';
+    close.setAttribute('aria-label', 'Fermer la notification');
+    close.addEventListener('click', hideToast);
+    t.replaceChildren(content, close);
+    t.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+    t.setAttribute('aria-live', kind === 'error' ? 'assertive' : 'polite');
+    t.setAttribute('aria-atomic', 'true');
+    t.className = 'ad-toast ad-toast--' + kind + ' is-on'; t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(hideToast, 10000);
   }
   function confirmBox(title, text, okLabel, onOk) {
     $('#confirmTitle').textContent = title; $('#confirmText').textContent = text;
@@ -405,12 +493,12 @@
     closeSide();
   }
   window.addEventListener('hashchange', render);
-  window.addEventListener('beforeunload', function (e) { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+  window.addEventListener('beforeunload', function (e) { if (dirty || hasPendingChanges()) { e.preventDefault(); e.returnValue = ''; } });
 
   /* ===================== Tableau de bord ===================== */
   VIEWS['tableau-de-bord'] = function (v) {
     var pub = S.articles.filter(function (a) { return a.status === 'publie'; });
-    var prog = S.articles.filter(function (a) { return a.status === 'programme'; }).sort(function (a, b) { return a.date.localeCompare(b.date); });
+    var prog = S.articles.filter(function (a) { return articleStatus(a) === 'programme'; }).sort(function (a, b) { return (a.date || '').localeCompare(b.date || ''); });
     var draft = S.articles.filter(function (a) { return a.status === 'brouillon' || a.status === 'relecture'; });
     var subs = S.subscribers.filter(function (s) { return s.status === 'actif'; }).length;
     var hour = new Date().getHours();
@@ -470,7 +558,7 @@
       '</div>' +
       '<div class="ad-grid ad-grid--2 mb-4">' +
         '<section class="ad-panel" aria-labelledby="hRecent"><div class="ad-panel__head"><h2 id="hRecent">Dernières modifications</h2><a href="#articles">Tous les articles</a></div><div class="ad-tablewrap"><table class="ad-table"><thead><tr><th>Article</th><th>Statut</th><th>Modifié</th></tr></thead><tbody>' +
-          recent.map(function (a) { return '<tr><td><div class="ad-title-cell"><a href="#" data-edit="' + a.id + '">' + fr(a.title) + '</a><small>' + esc(rubLabel(a.rub)) + ', ' + esc(a.author) + '</small></div></td><td>' + statusPill(a.status) + '</td><td class="ad-muted" style="white-space:nowrap">' + rel(a.updated) + '</td></tr>'; }).join('') +
+          recent.map(function (a) { return '<tr><td><div class="ad-title-cell"><a href="#" data-edit="' + a.id + '">' + fr(a.title) + '</a><small>' + esc(rubLabel(a.rub)) + ', ' + esc(a.author) + '</small></div></td><td>' + statusPill(articleStatus(a)) + '</td><td class="ad-muted" style="white-space:nowrap">' + rel(a.updated) + '</td></tr>'; }).join('') +
         '</tbody></table></div></section>' +
         '<section class="ad-panel" aria-labelledby="hTodo"><div class="ad-panel__head"><h2 id="hTodo">À traiter</h2></div>' +
           (todo.length ? '<ul class="ad-list">' + todo.map(function (t) { var href = t[2].indexOf('edit:') === 0 ? '#" data-edit="' + t[2].slice(5) : t[2]; return '<li><span class="ad-list__icon"><i class="bi ' + t[0] + '" aria-hidden="true"></i></span><div class="ad-list__main"><a href="' + href + '">' + fr(t[1]) + '</a></div></li>'; }).join('') + '</ul>' : '<div class="ad-empty"><strong>Tout est à jour</strong>Aucune tâche en attente.</div>') +
@@ -651,8 +739,8 @@
       else if (b.id === 'stExport') {
         var g = statState.g, bks = buckets(g, GRAN[g].n);
         var csv = 'Membre;' + bks.map(function (x) { return '"' + x.long + '"'; }).join(';') + ';Total\n' + members.map(function (m) { var s = series([m.key], g, bks); return '"' + m.name + '";' + s.join(';') + ';' + sum(s); }).join('\n');
-        try { var url = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })), a = document.createElement('a'); a.href = url; a.download = 'publications-' + g + '-afriquinfos.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(url); }, 1000); toast('Export lancé : publications par ' + g); }
-        catch (er) { toast('Le téléchargement est bloqué ici : il fonctionne une fois le site installé'); }
+        try { var url = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })), a = document.createElement('a'); a.href = url; a.download = 'publications-' + g + '-afriquinfos.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(url); }, 1000); toast('Export lancé : publications par ' + g, 'success'); }
+        catch (er) { toast('Le téléchargement est bloqué ici : il fonctionne une fois le site installé', 'error'); }
       }
     });
     v.addEventListener('change', function (e) { if (e.target.id === 'stWho') { statState.who = e.target.value; draw(); } });
@@ -679,7 +767,7 @@
     function filtered() {
       var q = norm(listState.q);
       return S.articles.filter(function (a) {
-        if (listState.tab === 'all' ? a.status === 'corbeille' : a.status !== listState.tab) return false;
+        if (listState.tab === 'all' ? a.status === 'corbeille' : articleStatus(a) !== listState.tab) return false;
         if (listState.rub && a.rub !== listState.rub) return false;
         if (listState.reg && a.region !== listState.reg) return false;
         if (listState.author && a.author !== listState.author) return false;
@@ -693,7 +781,7 @@
     function tabs() {
       var defs = [['all', 'Tous'], ['publie', 'Publiés'], ['programme', 'Programmés'], ['relecture', 'En relecture'], ['brouillon', 'Brouillons'], ['corbeille', 'Corbeille']];
       $('#artTabs').innerHTML = defs.map(function (d) {
-        var n = S.articles.filter(function (a) { return d[0] === 'all' ? a.status !== 'corbeille' : a.status === d[0]; }).length;
+        var n = S.articles.filter(function (a) { return d[0] === 'all' ? a.status !== 'corbeille' : articleStatus(a) === d[0]; }).length;
         return '<button type="button" role="tab" aria-selected="' + (listState.tab === d[0]) + '" data-t="' + d[0] + '">' + d[1] + '<small>' + n + '</small></button>';
       }).join('');
     }
@@ -712,8 +800,8 @@
         (rows.length ? rows.map(function (a) {
           return '<tr' + (listState.sel[a.id] ? ' class="is-selected"' : '') + '><td><input type="checkbox" class="form-check-input" data-sel="' + a.id + '" aria-label="Sélectionner « ' + esc(a.title) + ' »"' + (listState.sel[a.id] ? ' checked' : '') + '></td>' +
             '<td><div class="d-flex gap-3 align-items-center"><div class="ad-thumb">' + coverOf(a) + '</div><div class="ad-title-cell"><a href="#" data-edit="' + a.id + '">' + fr(a.title) + '</a><small>' + esc(a.country || '') + (a.region && regLabel(a.region) !== a.country ? ', ' + esc(regLabel(a.region)) : '') + '</small>' + (a.une ? '<span class="ad-flag">À la une</span>' : '') + (flashOf(a.id) ? '<span class="ad-flag">Flash info</span>' : '') + '</div></div></td>' +
-            '<td>' + esc(rubLabel(a.rub)) + '</td><td style="min-width:120px">' + esc(a.author.split(',')[0]) + '</td><td>' + statusPill(a.status) + '</td>' +
-            '<td class="ad-muted" style="white-space:nowrap" title="' + esc(dlong(a.date)) + '">' + (a.status === 'programme' ? dlong(a.date) : dshort(a.date)) + '</td><td class="num">' + (a.status === 'publie' ? fmtNum.format(a.views) : '—') + '</td>' +
+            '<td>' + esc(rubLabel(a.rub)) + '</td><td style="min-width:120px">' + esc(a.author.split(',')[0]) + '</td><td>' + statusPill(articleStatus(a)) + '</td>' +
+            '<td class="ad-muted" style="white-space:nowrap" title="' + esc(dlong(a.date)) + '">' + (articleStatus(a) === 'programme' ? dlong(a.date) : dshort(a.date)) + '</td><td class="num">' + (articleStatus(a) === 'publie' ? fmtNum.format(a.views) : '—') + '</td>' +
             '<td class="actions">' + (trash ?
               '<button type="button" class="ad-iconbtn ad-iconbtn--sm" data-restore="' + a.id + '" aria-label="Restaurer" title="Restaurer"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i></button><button type="button" class="ad-iconbtn ad-iconbtn--sm ad-iconbtn--danger" data-purge="' + a.id + '" aria-label="Supprimer définitivement" title="Supprimer définitivement"><i class="bi bi-x-octagon" aria-hidden="true"></i></button>' :
               '<button type="button" class="ad-iconbtn ad-iconbtn--sm" data-edit="' + a.id + '" aria-label="Modifier" title="Modifier"><i class="bi bi-pencil" aria-hidden="true"></i></button><button type="button" class="ad-iconbtn ad-iconbtn--sm" data-preview="' + a.id + '" aria-label="Aperçu" title="Aperçu"><i class="bi bi-eye" aria-hidden="true"></i></button><button type="button" class="ad-iconbtn ad-iconbtn--sm" data-dup="' + a.id + '" aria-label="Dupliquer" title="Dupliquer"><i class="bi bi-copy" aria-hidden="true"></i></button><button type="button" class="ad-iconbtn ad-iconbtn--sm ad-iconbtn--danger" data-trash="' + a.id + '" aria-label="Mettre à la corbeille" title="Mettre à la corbeille"><i class="bi bi-trash3" aria-hidden="true"></i></button>') + '</td></tr>';
@@ -721,18 +809,18 @@
       $('#pager').innerHTML = '<span class="tnum">' + (list.length ? ((listState.page - 1) * per + 1) + '–' + Math.min(listState.page * per, list.length) + ' sur ' + list.length : '0 article') + '</span><div class="ad-pager__btns"><button type="button" class="ad-btn ad-btn--outline ad-btn--sm" data-page="-1"' + (listState.page <= 1 ? ' disabled' : '') + '><i class="bi bi-chevron-left" aria-hidden="true"></i>Précédent</button><button type="button" class="ad-btn ad-btn--outline ad-btn--sm" data-page="1"' + (listState.page >= pages ? ' disabled' : '') + '>Suivant<i class="bi bi-chevron-right" aria-hidden="true"></i></button></div>';
       var n = Object.keys(listState.sel).filter(function (k) { return listState.sel[k]; }).length;
       $('#bulk').hidden = !n; $('#bulkCount').textContent = plural(n, 'article sélectionné', 'articles sélectionnés');
-      $$('[data-bulk]', v).forEach(function (b) { var k = b.getAttribute('data-bulk'); if (k === 'restore') b.hidden = !trash; else if (k !== 'none') b.hidden = trash; });
+      $$('[data-bulk]', v).forEach(function (b) { var k = b.getAttribute('data-bulk'); if (k === 'restore') b.hidden = !trash; else if (k !== 'none') b.hidden = trash || (k === 'publie' && !canPublishArticles(ME.role)); });
     }
     function mergeArticles(rows) {
       var added = 0, updated = 0;
       rows.forEach(function (a) {
         var old = art(a.id);
-        if (!old) { S.articles.push(a); SYNCED[a.id] = a.updated; added++; return; }
+        if (!old) { S.articles.push(a); markSynced([a]); added++; return; }
         if (old.updated !== SYNCED[old.id]) return;
         if (a.updated !== old.updated) {
           Object.keys(old).forEach(function (k) { delete old[k]; });
           Object.assign(old, a);
-          SYNCED[a.id] = a.updated;
+          markSynced([a]);
           updated++;
         }
       });
@@ -741,9 +829,9 @@
     function refreshArticles(done) {
       if (!window.AQ_API) { done && done(); return; }
       fetch(window.AQ_API.replace(/state$/, 'articles'), { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
-        .then(function (r) { return r.ok ? r.json() : []; })
-        .then(function (rows) { var n = mergeArticles(rows); if (n) draw(); done && done(n); })
-        .catch(function () { done && done(0); });
+        .then(function (r) { if (!r.ok) throw new Error('Impossible d’actualiser les articles (HTTP ' + r.status + ').'); return r.json(); })
+        .then(function (rows) { var n = mergeArticles(rows); draw(); done && done(n); })
+        .catch(function (e) { toast(e.message, 'error'); });
     }
     var t, sT, sSeq = 0;
     $('#aQ').addEventListener('input', function () {
@@ -759,13 +847,13 @@
           .then(function (rows) {
             if (seq !== sSeq) return;
             var added = 0;
-            rows.forEach(function (a) { if (!art(a.id)) { S.articles.push(a); SYNCED[a.id] = a.updated; added++; } });
+            rows.forEach(function (a) { if (!art(a.id)) { S.articles.push(a); markSynced([a]); added++; } });
             if (added) draw();
           }).catch(function () {});
       }, 400);
     });
     [['aRub', 'rub'], ['aReg', 'reg'], ['aAut', 'author']].forEach(function (p) { $('#' + p[0]).addEventListener('change', function () { listState[p[1]] = this.value; listState.page = 1; draw(); }); });
-    $('#aRefresh').addEventListener('click', function () { refreshArticles(function (n) { toast(n ? plural(n, 'article synchronisé', 'articles synchronisés') : 'La liste est à jour'); }); });
+    $('#aRefresh').addEventListener('click', function () { refreshArticles(function (n) { toast(n ? plural(n, 'article synchronisé', 'articles synchronisés') : 'La liste est à jour', 'success'); }); });
     // à l'ouverture de la vue, synchroniser les articles récents avec le serveur
     refreshArticles();
     v.addEventListener('click', function (e) {
@@ -915,11 +1003,11 @@
           '<div id="edPrev" hidden></div>' +
         '</div>' +
         '<aside class="ad-editor__side">' +
-          '<section class="ad-panel"><div class="ad-panel__head"><h2>Publication</h2>' + statusPill(a.status) + '</div><div class="ad-panel__body">' +
-            field('edStatus', 'Statut', '<select class="ad-select" id="edStatus">' + options(['brouillon', 'relecture', 'publie', 'programme'].map(function (k) { return { value: k, label: STATUS[k] }; }), a.status === 'corbeille' ? 'brouillon' : a.status) + '</select>') +
-            field('edDate', 'Date de publication', '<input class="ad-input" type="datetime-local" id="edDate" value="' + toLocalInput(a.date) + '">', 'Une date future programme la publication.') +
+          '<section class="ad-panel"><div class="ad-panel__head"><h2>Publication</h2>' + statusPill(articleStatus(a)) + '</div><div class="ad-panel__body">' +
+            field('edStatus', 'Statut', '<select class="ad-select" id="edStatus">' + articleStatusOptions(ME.role, a.status === 'corbeille' ? 'brouillon' : a.status) + '</select>', canPublishArticles(ME.role) ? '' : canScheduleArticles(ME.role) ? 'Vous pouvez programmer vos propres articles à une date future. La publication immédiate reste réservée à la rédaction en chef.' : 'Envoyez votre article en relecture. La publication et la programmation nécessitent une validation.') +
+            field('edDate', 'Date de publication — ' + (Intl.DateTimeFormat().resolvedOptions().timeZone || 'heure locale du navigateur'), '<input class="ad-input" type="datetime-local" id="edDate" value="' + toLocalInput(a.date) + '">', canScheduleArticles(ME.role) ? 'Choisissez le statut Programmé et une date future. Attendez la confirmation du serveur.' : 'Date souhaitée, à valider par la rédaction en chef. Cette date seule ne programme pas la publication.') +
             '<div class="ad-field"><label class="ad-switch"><input type="checkbox" id="edUne"' + (a.une ? ' checked' : '') + '>Afficher à la une</label></div>' +
-            '<div class="ad-field mb-0"><label class="ad-switch"><input type="checkbox" id="edFlash"' + (a.id && flashOf(a.id) ? ' checked' : '') + '>Mettre en flash info</label>' +
+            '<div class="ad-field mb-0"><label class="ad-switch"><input type="checkbox" id="edFlash"' + (canPublishArticles(ME.role) ? '' : ' disabled') + (a.id && flashOf(a.id) ? ' checked' : '') + '>Mettre en flash info</label>' +
               '<div class="ad-flashprev" id="edFlashPrev" hidden><span class="ad-flashprev__k">Flash info</span><span id="edFlashTxt"></span></div><p class="ad-hint" id="edFlashHint"></p></div>' +
           '</div><div class="ad-savebar"><button type="button" class="ad-btn ad-btn--outline" id="edSave">Enregistrer</button><button type="submit" class="ad-btn ad-btn--primary" id="edPublish">Publier</button></div><p class="ad-saved" id="edSaved" aria-live="polite">' + (isNew ? 'Pas encore enregistré' : 'Enregistré ' + rel(a.updated)) + '</p></section>' +
           '<section class="ad-panel"><div class="ad-panel__head"><h2>Classement</h2></div><div class="ad-panel__body">' +
@@ -947,6 +1035,7 @@
       '</form>';
 
     var form = $('#edForm');
+    form.addEventListener('aq:article-submission', publishLabel);
     $('#edBody').addEventListener('paste', function (e) {
       var html = articlePasteHtml(e.clipboardData);
       if (html === null) return;
@@ -999,18 +1088,18 @@
       b.addEventListener('mousedown', function (e) { e.preventDefault(); });
       b.addEventListener('click', function () {
         var ed = $('#edBody'), sel = window.getSelection();
-        if (!sel.rangeCount || !ed.contains(sel.getRangeAt(0).commonAncestorContainer)) { toast('Sélectionnez le texte à transformer en lien.'); return; }
+        if (!sel.rangeCount || !ed.contains(sel.getRangeAt(0).commonAncestorContainer)) { toast('Sélectionnez le texte à transformer en lien.', 'error'); return; }
         var range = sel.getRangeAt(0).cloneRange(), node = sel.anchorNode;
         if (node && node.nodeType === 3) node = node.parentElement;
         var link = node && node.closest('a');
         if (link && !ed.contains(link)) link = null;
-        if (range.collapsed && !link) { toast('Sélectionnez le texte à transformer en lien.'); return; }
+        if (range.collapsed && !link) { toast('Sélectionnez le texte à transformer en lien.', 'error'); return; }
         var url = window.prompt('Adresse du lien (https://…). Pour retirer un lien existant, videz ce champ.', link ? link.getAttribute('href') : 'https://');
         if (url === null) return;
         url = url.trim();
         if (url) {
           try { var parsed = new URL(url); if (['https:', 'http:', 'mailto:', 'tel:'].indexOf(parsed.protocol) < 0) throw new Error(); }
-          catch (e) { toast('Saisissez une adresse valide : https://, http://, mailto: ou tel:.'); return; }
+          catch (e) { toast('Saisissez une adresse valide : https://, http://, mailto: ou tel:.', 'error'); return; }
         }
         ed.focus(); sel.removeAllRanges(); sel.addRange(range);
         if (link) { range.selectNodeContents(link); sel.removeAllRanges(); sel.addRange(range); }
@@ -1048,9 +1137,13 @@
     }
     function publishLabel() {
       var st = $('#edStatus').value, future = new Date($('#edDate').value) > new Date();
-      $('#edPublish').textContent = st === 'brouillon' ? 'Enregistrer le brouillon'
+      var restricted = !!editorSubmission || !canSetArticleStatus(ME.role, st);
+      $('#edSave').disabled = restricted;
+      $('#edPublish').disabled = restricted;
+      $('#edPublish').textContent = editorSubmission ? 'Envoi en cours…' : !canSetArticleStatus(ME.role, st) ? 'Choisir un statut autorisé' : st === 'brouillon' ? 'Enregistrer le brouillon'
         : st === 'relecture' ? 'Envoyer en relecture'
-        : future ? 'Programmer'
+        : st === 'programme' && !future && scheduleAlreadyConfirmed(a) ? 'Mettre à jour'
+        : future || st === 'programme' ? 'Programmer'
         : (st === 'publie' && !isNew && src.status === 'publie' ? 'Mettre à jour' : 'Publier');
     }
     function markDirty() { dirty = true; var s = $('#edSaved'); s.textContent = 'Modifications non enregistrées'; s.classList.add('is-dirty'); }
@@ -1083,40 +1176,55 @@
       a.une = $('#edUne').checked; a.caption = $('#edCaption').value.trim(); a.img = a.caption || a.img;
       a.slug = slugify($('#edSlug').value || a.title); a.meta = $('#edMeta').value.trim();
       a.read = Math.max(1, Math.round(wordCount(a.body.join(' ')) / 220));
-      var d = new Date($('#edDate').value); if (!isNaN(d)) a.date = d.toISOString();
+      var dateInput = $('#edDate').value, d = new Date(dateInput);
+      if (!isNaN(d) && (!a.date || toLocalInput(a.date) !== dateInput)) a.date = d.toISOString();
       if (a.rub === 'portraits') { a.person = { name: $('#pName').value.trim(), role: $('#pRole').value.trim(), city: $('#pCity').value.trim(), field: $('#pField').value.trim(), since: $('#pSince').value.trim(), initials: initials($('#pName').value) }; }
     }
     function validate(full) {
       var ok = setErr(form, 'edTitle', a.title.length >= 10 ? '' : 'Le titre doit faire au moins 10 caractères.');
       if (!full) return ok;
+      ok = setErr(form, 'edDate', Number.isFinite(Date.parse($('#edDate').value)) ? '' : 'Choisissez une date et une heure valides.') && ok;
       ok = setErr(form, 'edChapo', a.chapo.length >= 20 ? '' : 'Ajoutez un chapô d’au moins 20 caractères.') && ok;
       ok = setErr(form, 'edBody', a.body.length ? '' : 'Le texte de l’article est vide.') && ok;
       if (a.rub === 'portraits') ok = setErr(form, 'pName', a.person.name ? '' : 'Indiquez le nom de la personne.') && ok;
       return ok;
     }
     function persist(status, verb) {
-      a.status = status; a.updated = new Date().toISOString();
+      if (editorSubmission) { toast('Un envoi est déjà en cours. Attendez la confirmation du serveur.'); return false; }
+      if (!isNew && !dirty && status === a.status && SYNCED[a.id] === a.updated) { toast('Aucune modification à envoyer : l’article est déjà enregistré.'); return false; }
+      if (!canSetArticleStatus(ME.role, status)) {
+        toast('Ce statut n’est pas autorisé pour votre rôle. Votre texte reste dans l’éditeur.', 'error');
+        return false;
+      }
+      if (status === 'programme' && !(Date.parse(a.date) > Date.now()) && !scheduleAlreadyConfirmed(a)) {
+        toast('Choisissez une date et une heure futures pour programmer cet article. Votre texte reste dans l’éditeur.', 'error');
+        return false;
+      }
+      a.status = status; a.updated = new Date(Math.max(Date.now(), (Date.parse(SYNCED[a.id]) || 0) + 1)).toISOString();
       if (a.une && status === 'publie') S.articles.filter(function (x) { return x.une && x.id !== a.id; }).sort(function (p, q) { return q.date.localeCompare(p.date); }).slice(3).forEach(function (x) { x.une = false; });
       if (isNew) {
         var base = a.slug || slugify(a.title) || 'article', id = base, n = 2;
         while (art(id)) id = base + '-' + n++;
         a.id = id; S.articles.unshift(a); isNew = false; editing = id; src = a;
       } else { var i = S.articles.indexOf(art(a.id)); S.articles[i] = a; src = a; }
-      var fl = flashOf(a.id), wantFlash = $('#edFlash').checked;
+      var fl = flashOf(a.id), wantFlash = canPublishArticles(ME.role) && $('#edFlash').checked;
       if (wantFlash && !fl) { S.flash.unshift({ id: 'f' + uid(), articleId: a.id, text: flashTitle(a.title), auto: true, active: true, start: day(0), end: addDays(day(0), 7) }); log('a mis en flash « ' + a.title + ' »'); }
       else if (!wantFlash && fl) S.flash = S.flash.filter(function (x) { return x !== fl; });
       syncFlash();
+      beginArticleSubmission(a);
       log(verb + ' « ' + a.title + ' » — statut : ' + (STATUS[a.status] || a.status)); save(); dirty = false; flashPrev();
       var sv = $('#edSaved'); sv.classList.remove('is-dirty'); sv.textContent = 'En attente de confirmation serveur…';
-      $('.ad-panel__head .ad-status', form).outerHTML = statusPill(a.status);
+      $('.ad-panel__head .ad-status', form).outerHTML = statusPill(articleStatus(a));
       $('#edStatus').value = a.status; publishLabel();
       $('.ad-pagehead h1', v).textContent = 'Modifier l’article';
+      sendChanges();
+      return true;
     }
     function doSave() {
-      collect(); if (!validate(false)) { $('#edTitle').focus(); return; }
+      collect(); if (!validate(false)) { toast('Complétez le titre de l’article avant de l’envoyer.', 'error'); $('#edTitle').focus(); return; }
       var st = $('#edStatus').value;
-      if (st === 'publie' || st === 'programme') { if (!validate(true)) return; st = new Date(a.date) > new Date() ? 'programme' : 'publie'; }
-      persist(st, st === 'relecture' ? 'a envoyé en relecture' : st === 'brouillon' ? 'a enregistré le brouillon' : 'a enregistré');
+      if (st === 'publie' || st === 'programme') { if (!validate(true)) { var invalid = $('[aria-invalid="true"]', form); if (invalid) invalid.focus(); toast('Complétez les champs signalés avant de publier', 'error'); return; } if (st === 'publie' && Date.parse(a.date) > Date.now()) st = 'programme'; }
+      if (!persist(st, st === 'relecture' ? 'a envoyé en relecture' : st === 'brouillon' ? 'a enregistré le brouillon' : 'a enregistré')) return;
       toast('Demande d’enregistrement — statut : ' + STATUS[st] + ' — en attente du serveur');
     }
     $('#edSave').addEventListener('click', doSave);
@@ -1124,15 +1232,15 @@
       e.preventDefault(); collect();
       var st = $('#edStatus').value;
       if (st === 'brouillon' || st === 'relecture') {
-        if (!validate(false)) { $('#edTitle').focus(); return; }
-        persist(st, st === 'relecture' ? 'a envoyé en relecture' : 'a enregistré le brouillon');
+        if (!validate(false)) { toast('Complétez le titre de l’article avant de l’envoyer.', 'error'); $('#edTitle').focus(); return; }
+        if (!persist(st, st === 'relecture' ? 'a envoyé en relecture' : 'a enregistré le brouillon')) return;
         toast('Demande d’enregistrement — statut : ' + STATUS[st] + ' — en attente du serveur');
         return;
       }
-      if (!validate(true)) { var bad = $('[aria-invalid="true"]', form); if (bad) bad.focus(); toast('Complétez les champs signalés avant de publier'); return; }
-      var future = new Date(a.date) > new Date();
-      persist(future ? 'programme' : 'publie', future ? 'a programmé' : 'a publié');
-      toast(future ? 'Programmation demandée pour le ' + dlong(a.date) + ' — en attente du serveur' : 'Publication demandée — en attente du serveur');
+      if (!validate(true)) { var bad = $('[aria-invalid="true"]', form); if (bad) bad.focus(); toast('Complétez les champs signalés avant de publier', 'error'); return; }
+      var scheduled = st === 'programme' || Date.parse(a.date) > Date.now();
+      if (!persist(scheduled ? 'programme' : 'publie', scheduled ? 'a programmé' : 'a publié')) return;
+      toast(scheduled ? 'Programmation enregistrée localement — en attente de confirmation du serveur' : 'Publication demandée — en attente du serveur');
     });
     v.addEventListener('keydown', function (e) { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); doSave(); } });
     $$('[data-mode]', v).forEach(function (b) {
@@ -1164,7 +1272,7 @@
   }
   function readFiles(files, done) {
     var list = Array.prototype.slice.call(files).filter(function (f) { return /^image\//.test(f.type); });
-    if (!list.length) { toast('Choisissez des fichiers image (JPG, PNG, WebP)'); return; }
+    if (!list.length) { toast('Choisissez des fichiers image (JPG, PNG, WebP)', 'error'); return; }
     var left = list.length;
     list.forEach(function (f) {
       var r = new FileReader();
@@ -1197,7 +1305,7 @@
     openBig('Choisir une image', dropzone('pkDrop') + '<div class="ad-media-grid mt-3" id="pkGrid"></div>', function (body, close) {
       function draw() { $('#pkGrid', body).innerHTML = S.medias.map(function (m) { return mediaTile(m); }).join(''); }
       draw(); bindDrop('pkDrop', draw);
-      $('#pkGrid', body).addEventListener('click', function (e) { var b = e.target.closest('[data-m]'); if (!b) return; onPick(mediaById(b.getAttribute('data-m'))); close(); toast('Image de une choisie'); });
+      $('#pkGrid', body).addEventListener('click', function (e) { var b = e.target.closest('[data-m]'); if (!b) return; onPick(mediaById(b.getAttribute('data-m'))); close(); toast('Image de une choisie', 'success'); });
     });
   }
   VIEWS.medias = function (v) {
@@ -1238,7 +1346,7 @@
     v.innerHTML = pagehead('Portraits', plural(list.length, 'portrait', 'portraits'), '<button type="button" class="ad-btn ad-btn--primary" id="newPortrait"><i class="bi bi-plus-lg" aria-hidden="true"></i>Nouveau portrait</button>') +
       (list.length ? '<div class="ad-cards">' + list.map(function (a) {
         var p = a.person || { name: a.title, role: '', city: '' };
-        return '<article class="ad-card"><div class="ad-card__media">' + coverOf(a) + '</div><div class="ad-card__body">' + statusPill(a.status) + '<strong class="mt-2">' + esc(p.name) + '</strong><small>' + esc([p.role, p.city].filter(Boolean).join(', ')) + '</small><p>' + fr(a.chapo) + '</p></div>' +
+        return '<article class="ad-card"><div class="ad-card__media">' + coverOf(a) + '</div><div class="ad-card__body">' + statusPill(articleStatus(a)) + '<strong class="mt-2">' + esc(p.name) + '</strong><small>' + esc([p.role, p.city].filter(Boolean).join(', ')) + '</small><p>' + fr(a.chapo) + '</p></div>' +
           '<div class="ad-card__foot"><button type="button" class="ad-btn ad-btn--ghost ad-btn--sm" data-edit="' + a.id + '"><i class="bi bi-pencil" aria-hidden="true"></i>Modifier</button><button type="button" class="ad-btn ad-btn--ghost ad-btn--sm" data-preview="' + a.id + '"><i class="bi bi-eye" aria-hidden="true"></i>Aperçu</button></div></article>';
       }).join('') + '</div>' : '<div class="ad-panel ad-empty"><strong>Aucun portrait</strong>Créez le premier portrait avec le bouton « Nouveau portrait ».</div>');
     $('#newPortrait').addEventListener('click', function () { editorPreset = 'portraits'; editing = null; go('editeur'); });
@@ -1287,7 +1395,7 @@
       });
     });
     $('#rbSave').addEventListener('click', function () {
-      if (rubs.some(function (r) { return !r.label.trim(); }) || regs.some(function (r) { return !r.label.trim(); })) { toast('Chaque rubrique et chaque région doit avoir un nom'); return; }
+      if (rubs.some(function (r) { return !r.label.trim(); }) || regs.some(function (r) { return !r.label.trim(); })) { toast('Chaque rubrique et chaque région doit avoir un nom', 'error'); return; }
       rubs.forEach(function (r, i) { r.order = i; r.label = r.label.trim(); }); regs.forEach(function (r) { r.label = r.label.trim(); });
       S.rubriques = rubs; S.regions = regs; log('a mis à jour les rubriques'); save(); toast('Rubriques et régions enregistrées');
     });
@@ -1565,7 +1673,7 @@
       else if (b.hasAttribute('data-cx')) { var x = cm(b.getAttribute('data-cx')); confirmBox('Supprimer ce commentaire ?', 'Le commentaire de ' + x.author + ' sera supprimé.', 'Supprimer', function () { S.comments = S.comments.filter(function (y) { return y !== x; }); save(); draw(); renderNav('commentaires'); toast('Commentaire supprimé'); }); }
       else if (b.hasAttribute('data-cr')) { var id = b.getAttribute('data-cr'); $('#rp' + id).hidden = false; $('#rpt' + id).focus(); }
       else if (b.hasAttribute('data-rc')) { $('#rp' + b.getAttribute('data-rc')).hidden = true; }
-      else if (b.hasAttribute('data-rs')) { var rid = b.getAttribute('data-rs'), txt = $('#rpt' + rid).value.trim(); if (txt.length < 2) { $('#rpt' + rid).focus(); toast('Écrivez votre réponse avant de la publier'); return; } cm(rid).reply = txt; save(); draw(); toast('Réponse publiée'); }
+      else if (b.hasAttribute('data-rs')) { var rid = b.getAttribute('data-rs'), txt = $('#rpt' + rid).value.trim(); if (txt.length < 2) { $('#rpt' + rid).focus(); toast('Écrivez votre réponse avant de la publier', 'error'); return; } cm(rid).reply = txt; save(); draw(); toast('Réponse publiée'); }
     });
     draw();
   };
@@ -1591,7 +1699,7 @@
       fetch(window.AQ_API.replace(/state$/, 'newsletter/campaigns'), { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
         .then(function (r) { if (!r.ok) throw new Error('Actualisation refusée'); return r.json(); })
         .then(function (rows) { S.campaigns = rows.concat(S.campaigns.filter(function (c) { return c.status === 'historique_non_verifie'; })); draw(); })
-        .catch(function (e) { toast(e.message); });
+        .catch(function (e) { toast(e.message, 'error'); });
     });
     v.addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return;
@@ -1616,8 +1724,8 @@
       try {
         var url = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
         var a = document.createElement('a'); a.href = url; a.download = 'abonnes-afriquinfos.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-        toast('Export lancé : abonnes-afriquinfos.csv');
-      } catch (er) { toast('Le téléchargement est bloqué ici : il fonctionne une fois le site installé'); }
+        toast('Export lancé : abonnes-afriquinfos.csv', 'success');
+      } catch (er) { toast('Le téléchargement est bloqué ici : il fonctionne une fois le site installé', 'error'); }
     });
     $('#nlCompose').addEventListener('click', compose);
     function compose() {
@@ -1643,7 +1751,7 @@
           function submitEdition(test) {
             var ids = prev(), d = new Date($('#cpD', b).value), button = $(test ? '#cpTest' : '#cpGo', b);
             var err = !$('#cpS', b).value.trim() ? 'Ajoutez un objet.' : !ids.length ? 'Choisissez au moins un article.' : !test && (isNaN(d) || d < new Date()) ? 'Choisissez une date d’envoi à venir.' : '';
-            $('#cpErr', b).textContent = err; if (err) return;
+            $('#cpErr', b).textContent = err; if (err) { toast(err, 'error'); return; }
             button.disabled = true;
             var payload = { client_key: clientKey, subject: $('#cpS', b).value.trim(), intro: $('#cpI', b).value.trim(), articles: ids };
             if (!test) payload.date = d.toISOString();
@@ -1652,9 +1760,9 @@
               credentials: 'same-origin', body: JSON.stringify(payload)
             }).then(function (r) { return r.json().then(function (j) {
               if (!r.ok || !j.ok) throw new Error(j.error || j.message || 'Enregistrement refusé');
-              if (test) toast(j.message);
-              else { S.campaigns = j.campaigns.concat(S.campaigns.filter(function (c) { return c.status === 'historique_non_verifie'; })); close(); draw(); toast('Campagne enregistrée. L’expédition nécessite le planificateur serveur actif.'); }
-            }); }).catch(function (e) { $('#cpErr', b).textContent = e.message; }).finally(function () { button.disabled = false; });
+              if (test) toast(j.message, 'success');
+              else { S.campaigns = j.campaigns.concat(S.campaigns.filter(function (c) { return c.status === 'historique_non_verifie'; })); close(); draw(); toast('Campagne enregistrée. L’expédition nécessite le planificateur serveur actif.', 'success'); }
+            }); }).catch(function (e) { $('#cpErr', b).textContent = e.message; toast(e.message, 'error'); }).finally(function () { button.disabled = false; });
           }
           $('#cpTest', b).addEventListener('click', function () { submitEdition(true); });
           $('#cpGo', b).addEventListener('click', function () { submitEdition(false); });
@@ -1674,7 +1782,7 @@
     return { imp: m.imp, clk: m.clk, ctr: m.imp ? (m.clk / m.imp * 100).toFixed(2).replace('.', ',') : '0,00' };
   }
   function readImage(file, maxW, done) {
-    if (!file || !/^image\//.test(file.type)) { toast('Choisissez un fichier image (JPG, PNG, WebP ou GIF)'); return; }
+    if (!file || !/^image\//.test(file.type)) { toast('Choisissez un fichier image (JPG, PNG, WebP ou GIF)', 'error'); return; }
     var r = new FileReader();
     r.onload = function () {
       var img = new Image();
@@ -1820,7 +1928,7 @@
       else if ((id = b.getAttribute('data-pbe'))) { e.preventDefault(); adForm(byId(id), null, after); }
       else if ((id = b.getAttribute('data-pbp'))) {
         var a = byId(id);
-        if (a.paused) { var clash = S.ads.filter(function (x) { return x !== a && x.slot === a.slot && !x.paused && x.start <= a.end && x.end >= a.start; })[0]; if (clash) { toast('Impossible : ' + clash.advertiser + ' occupe déjà cet emplacement sur la période'); return; } }
+        if (a.paused) { var clash = S.ads.filter(function (x) { return x !== a && x.slot === a.slot && !x.paused && x.start <= a.end && x.end >= a.start; })[0]; if (clash) { toast('Impossible : ' + clash.advertiser + ' occupe déjà cet emplacement sur la période', 'error'); return; } }
         a.paused = !a.paused; log((a.paused ? 'a mis en pause la publicité ' : 'a relancé la publicité ') + a.advertiser); save(); draw(); toast(a.paused ? 'Diffusion en pause' : 'Diffusion reprise');
       }
       else if ((id = b.getAttribute('data-pbx'))) { var x = byId(id); confirmBox('Supprimer cette publicité ?', 'La campagne de ' + x.advertiser + ' sera supprimée.', 'Supprimer', function () { S.ads = S.ads.filter(function (y) { return y !== x; }); log('a supprimé la publicité ' + x.advertiser); save(); draw(); toast('Publicité supprimée'); }); }
@@ -1863,7 +1971,7 @@
   };
 
   /* ===================== Équipe ===================== */
-  var PERMS = [['Rédiger des articles', 1, 1, 1, 1], ['Publier et programmer', 1, 1, 0, 0], ['Modérer les commentaires', 1, 1, 1, 0], ['Gérer la newsletter et la publicité', 1, 1, 0, 0], ['Gérer l’équipe et les paramètres', 1, 0, 0, 0]];
+  var PERMS = [['Rédiger des articles', 1, 1, 1, 1], ['Publier immédiatement', 1, 1, 0, 0], ['Programmer ses articles', 1, 1, 1, 0], ['Modérer les commentaires', 1, 1, 1, 0], ['Gérer la newsletter et la publicité', 1, 1, 0, 0], ['Gérer l’équipe et les paramètres', 1, 0, 0, 0]];
   VIEWS.equipe = function (v) {
     v.innerHTML = pagehead('Équipe', 'Les personnes qui ont accès à l’administration.', '<a class="ad-btn ad-btn--outline" href="#statistiques"><i class="bi bi-bar-chart-line" aria-hidden="true"></i>Statistiques</a><button type="button" class="ad-btn ad-btn--primary" id="tmInvite"><i class="bi bi-person-plus" aria-hidden="true"></i>Inviter</button>') +
       '<section class="ad-panel mb-4"><div class="ad-tablewrap"><table class="ad-table" id="tmTable"></table></div></section>' +
@@ -1901,7 +2009,7 @@
       if (e.target.hasAttribute('data-role')) { var u = S.users.filter(function (x) { return x.id === e.target.getAttribute('data-role'); })[0]; u.role = e.target.value; log('a donné le rôle ' + ROLES[u.role] + ' à ' + u.name); save(); toast(u.name + ' : ' + ROLES[u.role]); }
       else if (e.target.hasAttribute('data-uname')) {
         var m = S.users.filter(function (x) { return x.id === e.target.getAttribute('data-uname'); })[0], n = e.target.value.trim();
-        if (!n) { e.target.value = m.name; toast('Le nom ne peut pas être vide'); return; }
+        if (!n) { e.target.value = m.name; toast('Le nom ne peut pas être vide', 'error'); return; }
         if (n !== m.name) { var old = m.name; m.name = n; log('a renommé ' + old + ' en ' + n); save(); draw(); toast('« ' + old + ' » est désormais « ' + n + ' »'); }
       }
     });
@@ -1911,7 +2019,7 @@
       confirmBox('Suspendre l’accès de ' + u.name + ' ?', 'Le compte, son historique et ses articles seront conservés.', 'Suspendre l’accès', function () { u.status = 'suspendu'; log('a suspendu l’accès de ' + u.name); save(); draw(); toast('Suspension en attente de confirmation serveur'); });
     });
     $('#tmInvite').addEventListener('click', function () {
-      if (ME.role !== 'admin') { toast('Seul un administrateur peut inviter un membre'); return; }
+      if (ME.role !== 'admin') { toast('Seul un administrateur peut inviter un membre', 'error'); return; }
       openDrawer('Inviter un membre', field('ivN', 'Nom', '<input class="ad-input" id="ivN">') + field('ivE', 'Adresse e-mail', '<input class="ad-input" type="email" id="ivE">') + field('ivR', 'Rôle', '<select class="ad-select" id="ivR">' + options(Object.keys(ROLES).map(function (k) { return { value: k, label: ROLES[k] }; }), 'journaliste') + '</select>') + '<button type="button" class="ad-btn ad-btn--primary w-100" id="ivOk">Envoyer l’invitation</button>', function (b, close) {
         $('#ivN', b).focus();
         $('#ivOk', b).addEventListener('click', function () {

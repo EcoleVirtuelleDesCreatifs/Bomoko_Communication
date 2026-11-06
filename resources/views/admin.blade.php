@@ -107,7 +107,7 @@
     <div class="offcanvas-body" id="drawerBody"></div>
   </div>
 
-  <div class="ad-toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="ad-toast" id="toast" role="status" aria-live="polite" aria-atomic="true" hidden></div>
 
   <script>
     window.AQ_ASSET = @json(rtrim(asset(''), '/'));

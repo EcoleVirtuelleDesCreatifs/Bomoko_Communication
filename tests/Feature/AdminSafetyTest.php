@@ -14,12 +14,56 @@ class AdminSafetyTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_international_category_is_available_to_journalists_and_can_classify_articles(): void
+    {
+        $original = $this->articleFixture();
+        $before = $original->fresh()->getRawOriginal();
+        $user = User::factory()->create(['role' => 'journaliste', 'status' => 'actif']);
+        $state = $this->actingAs($user)->getJson('/admin/api/state')->assertOk()->json();
+        $rubrique = collect($state['rubriques'])->firstWhere('id', 'international');
+        $this->assertNotNull($rubrique);
+        $this->assertSame('International / Reste du monde', $rubrique['label']);
+        $this->assertFalse($rubrique['menu']);
+        $this->postJson('/admin/api/state', ['protocol' => 2, 'revisions' => [], 'articles' => [[
+            'id' => 'actualite-internationale', 'title' => 'Actualité internationale de la rédaction',
+            'rub' => 'international', 'region' => null, 'country' => 'France', 'status' => 'brouillon',
+            'body' => ['Texte international'], 'date' => now()->toIso8601String(),
+        ]]])->assertOk();
+        $article = Article::where('slug', 'actualite-internationale')->firstOrFail();
+        $this->assertSame('international', $article->rubrique_slug);
+        $this->assertNull($article->region_slug);
+        $this->assertSame($user->id, $article->user_id);
+        $this->assertSame('International / Reste du monde', $article->toPublicArray()['rub_label']);
+        $this->assertSame($before, $original->fresh()->getRawOriginal());
+        $chief = User::factory()->create(['role' => 'chef', 'status' => 'actif']);
+        $item = collect($this->actingAs($chief)->getJson('/admin/api/state')->assertOk()->json('articles'))->firstWhere('id', $article->slug);
+        $item['baseUpdated'] = $item['updated'];
+        $item['status'] = 'publie';
+        $this->postJson('/admin/api/state', ['protocol' => 2, 'revisions' => [], 'articles' => [$item]])->assertOk();
+        $this->get('/rubrique/international')->assertOk()->assertSee($article->slug, false);
+    }
+
+    public function test_international_category_migration_preserves_existing_classification_and_content(): void
+    {
+        $article = $this->articleFixture();
+        Rubrique::where('slug', 'international')->update(['label' => 'International personnalisé', 'in_menu' => true, 'sort' => 42]);
+        $categories = DB::table('rubriques')->orderBy('slug')->get()->toJson();
+        $before = $article->fresh()->getRawOriginal();
+        $migration = require database_path('migrations/2026_11_06_000001_add_international_rubrique.php');
+        $migration->up();
+        $migration->up();
+        $migration->down();
+        $this->assertSame($categories, DB::table('rubriques')->orderBy('slug')->get()->toJson());
+        $this->assertSame($before, $article->fresh()->getRawOriginal());
+    }
+
     public function test_authenticated_admin_never_initially_displays_the_login_form(): void
     {
         $user = User::factory()->create(['role' => 'admin', 'status' => 'actif']);
         $response = $this->actingAs($user)->get('/admin')->assertOk();
         $response->assertSee('id="login" hidden', false);
         $response->assertSee('id="adminLoading"', false);
+        $response->assertSee('id="toast" role="status" aria-live="polite" aria-atomic="true" hidden', false);
         $response->assertSee('[hidden] { display: none !important; }', false);
     }
 
@@ -73,7 +117,7 @@ class AdminSafetyTest extends TestCase
         $state = $this->actingAs($user)->getJson('/admin/api/state')->assertOk()->json();
         $item = $state['articles'][0];
         $item['baseUpdated'] = $item['updated'];
-        $item['body'] = ['<div><p align="center">Premier<br><em>Suite</em></p><h2>Intertitre</h2><ol start="3"><li>Un</li><li>Deux</li></ol><figure><img src="data:image/png;base64,AAAA" data-mid="m123" alt="Photo"><figcaption>Légende</figcaption></figure><p>Fin</p></div>'];
+        $item['body'] = ['<div><p align="center">Premier<br><em>Suite</em></p><h2>Intertitre</h2><ol start="3"><li>Un</li><li>Deux</li></ol><figure><img data-mid="m123" alt="Photo"><figcaption>Légende</figcaption></figure><p>Fin</p></div>'];
         $this->postJson('/admin/api/state', [
             'protocol' => 2, 'articles' => [$item], 'revisions' => $state['revisions'],
             'medias' => [['id' => 'm123', 'data' => 'https://example.test/storage/medias/photo.jpg'], ['id' => 'external', 'data' => 'https://example.test/external.jpg']],
@@ -155,6 +199,102 @@ class AdminSafetyTest extends TestCase
         $this->postJson('/admin/api/state', ['protocol' => 2, 'flash' => [['id' => 'f1', 'active' => true, 'text' => 'Info']],
             'revisions' => ['flash' => $state['revisions']['flash']]])->assertStatus(409);
         $this->assertFalse(json_decode(DB::table('admin_data')->where('key', 'flash')->value('value'), true)[0]['active']);
+    }
+
+    public function test_contributor_scheduling_is_rejected_without_creating_a_false_saved_article(): void
+    {
+        Rubrique::create(['slug' => 'culture', 'label' => 'Culture']);
+        $user = User::factory()->create(['role' => 'contributeur', 'status' => 'actif']);
+        $this->actingAs($user)->postJson('/admin/api/state', [
+            'protocol' => 2, 'revisions' => [], 'articles' => [[
+                'id' => 'programmation-refusee', 'title' => 'Article à faire valider', 'rub' => 'culture',
+                'status' => 'programme', 'date' => now()->addHour()->toIso8601String(), 'body' => ['Texte du journaliste'],
+            ]],
+        ])->assertForbidden();
+        $this->assertDatabaseMissing('articles', ['slug' => 'programmation-refusee']);
+    }
+
+    public function test_journalist_can_create_an_owned_schedule_but_cannot_publish_immediately_or_backdate_it(): void
+    {
+        $this->freezeTime();
+        Rubrique::create(['slug' => 'culture', 'label' => 'Culture']);
+        $user = User::factory()->create(['role' => 'journaliste', 'status' => 'actif']);
+        $other = User::factory()->create(['role' => 'journaliste', 'status' => 'actif']);
+        $item = ['id' => 'programme-journaliste', 'title' => 'Article programmé par son auteur', 'rub' => 'culture',
+            'status' => 'programme', 'date' => now()->addHour()->toIso8601String(), 'body' => ['Texte conservé'],
+            'author' => $other->name, 'userId' => 'u'.$other->id];
+        $this->actingAs($user)->postJson('/admin/api/state', ['protocol' => 2, 'revisions' => [], 'articles' => [$item]])->assertOk();
+        $article = Article::where('slug', $item['id'])->firstOrFail();
+        $this->assertSame($user->id, $article->user_id);
+        $this->assertSame($user->name, $article->author_name);
+        foreach ([null, now()->subMinute()->toIso8601String()] as $date) {
+            $item['id'] = 'date-invalide';
+            $item['date'] = $date;
+            $this->postJson('/admin/api/state', ['protocol' => 2, 'revisions' => [], 'articles' => [$item]])->assertStatus(422);
+        }
+        $item['id'] = 'publication-immediate';
+        $item['status'] = 'publie';
+        $this->postJson('/admin/api/state', ['protocol' => 2, 'revisions' => [], 'articles' => [$item]])->assertForbidden();
+        $this->assertDatabaseCount('articles', 1);
+        $this->actingAs($other)->postJson('/admin/api/state', ['protocol' => 2, 'revisions' => [], 'articles' => [[
+            ...$item, 'id' => $article->slug, 'status' => 'programme', 'date' => now()->addHour()->toIso8601String(),
+            'baseUpdated' => $article->updated_at->toIso8601String(),
+        ]]])->assertForbidden();
+    }
+
+    public function test_journalist_schedule_stays_owned_and_public_after_the_deadline_and_can_be_edited(): void
+    {
+        $this->freezeTime();
+        $user = User::factory()->create(['role' => 'journaliste', 'status' => 'actif']);
+        $article = $this->articleFixture();
+        $article->update(['user_id' => $user->id, 'author_name' => $user->name, 'status' => 'brouillon']);
+        $due = now()->addMinutes(2)->startOfSecond();
+        $item = $this->actingAs($user)->getJson('/admin/api/state')->assertOk()->json('articles.0');
+        $item['baseUpdated'] = $item['updated'];
+        $item['status'] = 'programme';
+        $item['date'] = $due->copy()->setTimezone('+02:00')->toIso8601String();
+        $this->postJson('/admin/api/state', ['protocol' => 2, 'revisions' => [], 'articles' => [$item]])->assertOk();
+        $this->assertTrue($due->equalTo($article->fresh()->published_at));
+        $this->get('/article/'.$article->slug)->assertNotFound();
+        $this->travelTo($due);
+        $this->get('/article/'.$article->slug)->assertOk();
+        $this->get('/')->assertOk()->assertSee($article->slug, false);
+        $this->get('/rubrique/culture')->assertOk()->assertSee($article->slug, false);
+        $this->get('/recherche?q=Article')->assertOk()->assertSee($article->slug, false);
+        $this->getJson('/admin/api/articles')->assertOk()->assertJsonPath('0.id', $article->slug);
+        $item = $this->getJson('/admin/api/state')->assertOk()->json('articles.0');
+        $item['baseUpdated'] = $item['updated'];
+        $item['title'] = 'Titre corrigé après la publication automatique';
+        $this->postJson('/admin/api/state', ['protocol' => 2, 'revisions' => [], 'articles' => [$item]])->assertOk();
+        $this->assertTrue(Article::published()->whereKey($article->id)->exists());
+        $this->assertSame(['Texte conservé'], $article->fresh()->body);
+        $this->assertSame($user->id, $article->fresh()->user_id);
+        $item['baseUpdated'] = $article->fresh()->updated_at->toIso8601String();
+        $item['date'] = $due->copy()->subDay()->toIso8601String();
+        $this->postJson('/admin/api/state', ['protocol' => 2, 'revisions' => [], 'articles' => [$item]])->assertStatus(422);
+    }
+
+    public function test_approved_schedule_remains_in_journalist_admin_and_goes_public_at_the_exact_due_time(): void
+    {
+        $this->freezeTime();
+        $journalist = User::factory()->create(['role' => 'journaliste', 'status' => 'actif']);
+        $chief = User::factory()->create(['role' => 'chef', 'status' => 'actif']);
+        $article = $this->articleFixture();
+        $article->update(['user_id' => $journalist->id, 'author_name' => $journalist->name, 'status' => 'relecture']);
+        $due = now()->addMinutes(5)->startOfSecond();
+        $item = $this->actingAs($chief)->getJson('/admin/api/state')->assertOk()->json('articles.0');
+        $item['baseUpdated'] = $item['updated'];
+        $item['status'] = 'programme';
+        $item['date'] = $due->toIso8601String();
+        $this->postJson('/admin/api/state', ['protocol' => 2, 'revisions' => [], 'articles' => [$item]])->assertOk();
+        $this->actingAs($journalist)->getJson('/admin/api/articles')->assertOk()->assertJsonPath('0.id', $article->slug);
+        $this->get('/article/'.$article->slug)->assertNotFound();
+        $this->travelTo($due);
+        $this->get('/article/'.$article->slug)->assertOk();
+        $this->getJson('/admin/api/articles')->assertOk()->assertJsonPath('0.id', $article->slug);
+        $this->assertSame('programme', $article->fresh()->status);
+        $this->assertSame(['Texte conservé'], $article->fresh()->body);
+        $this->assertSame($journalist->id, $article->fresh()->user_id);
     }
 
     public function test_scheduled_article_is_visible_when_due_without_database_rewrite(): void

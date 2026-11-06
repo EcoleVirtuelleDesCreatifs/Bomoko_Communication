@@ -461,10 +461,18 @@ h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
 .ad-modal__text { margin: .6rem 0 0; color: var(--text-2); }
 
 /* Notification */
-.ad-toast { position: fixed; z-index: 3000; left: 50%; bottom: max(1.5rem, env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 160%); display: flex; align-items: center; gap: .6rem; background: var(--ink); color: #fff; padding: .75rem 1.1rem; border-radius: 4px; font-size: .875rem; font-weight: 600; transition: transform .25s ease-out, visibility 0s linear .25s; visibility: hidden; max-width: calc(100vw - 2rem); }
-[data-theme="dark"] .ad-toast { background: #f3f0eb; color: #030304; }
-.ad-toast::before { content: ""; width: 6px; height: 11px; background: var(--orange); transform: skewX(var(--slant)); flex: none; }
-.ad-toast.is-on { transform: translate(-50%, 0); visibility: visible; transition-delay: 0s; }
+.ad-toast { position: fixed; z-index: 3000; top: max(1rem, env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); width: min(1200px, calc(100vw - 2rem)); display: flex; align-items: flex-start; gap: 1rem; background: #1e40af; color: #fff; padding: 1.25rem 1.5rem; border-radius: 8px; font-size: clamp(1.1rem, 1rem + .4vw, 1.35rem); font-weight: 600; line-height: 1.5; box-shadow: 0 12px 36px rgba(0, 0, 0, .25); max-height: calc(100vh - 2rem); max-height: calc(100dvh - 2rem); overflow-y: auto; overflow-wrap: anywhere; visibility: hidden; pointer-events: none; }
+.ad-toast[hidden] { display: none; }
+.ad-toast--success { background: #166534; }
+.ad-toast--error { background: #b91c1c; }
+.ad-toast--info { background: #1e40af; }
+.ad-toast.is-on { visibility: visible; pointer-events: auto; }
+.ad-toast__body { flex: 1; min-width: 0; }
+.ad-toast__title { display: block; font-size: .8em; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; margin: 0 0 .25rem; }
+.ad-toast__message { margin: 0; white-space: pre-line; }
+.ad-toast__close { flex: none; position: sticky; top: 0; display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid rgba(255, 255, 255, .5); border-radius: 6px; background: transparent; color: inherit; font: inherit; font-size: 1.6rem; line-height: 1; cursor: pointer; }
+.ad-toast__close:hover { background: rgba(255, 255, 255, .15); }
+.ad-toast__close:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 
 .ad-note { font-size: .75rem; color: var(--muted); margin: 1rem 0 0; }
 

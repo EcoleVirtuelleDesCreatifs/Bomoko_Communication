@@ -529,8 +529,16 @@ class AdminStateController extends Controller
             } else {
                 abort_if(DB::table('slug_redirects')->where('old_slug', $slug)->exists(), 409, 'Cette ancienne URL a été renommée. Rechargez l’article.');
             }
-            abort_unless($editor || in_array($a['status'], ['brouillon', 'relecture'], true), 403,
-                'Seul un administrateur ou rédacteur en chef peut publier.');
+            abort_unless($editor || in_array($a['status'], ['brouillon', 'relecture'], true) ||
+                (auth()->user()->role === 'journaliste' && $a['status'] === 'programme'), 403,
+                'Publication immédiate réservée à la rédaction en chef ; programmation réservée aux journalistes et à la rédaction en chef.');
+            if ($a['status'] === 'programme') {
+                abort_if(empty($a['date']), 422, 'Choisissez une date et une heure pour la programmation.');
+                $scheduledAt = Carbon::parse($a['date'])->utc()->startOfSecond();
+                $unchangedSchedule = $existing?->status === 'programme' && $existing->published_at?->equalTo($scheduledAt);
+                abort_unless($scheduledAt->isFuture() || $unchangedSchedule, 422, 'Une nouvelle programmation doit avoir une date et une heure futures.');
+                $a['date'] = $scheduledAt->toIso8601String();
+            }
             $oldStatus = $existing?->status;
             $authors = $editor ? User::where('name', $a['author'] ?? '')->get(['id']) : collect();
             $owner = $editor ? ($authors->count() === 1 ? $authors->first()->id : null) : auth()->id();
