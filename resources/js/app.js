@@ -1,6 +1,17 @@
 import { createApp, h } from 'vue';
-import { createInertiaApp } from '@inertiajs/vue3';
+import { createInertiaApp, router } from '@inertiajs/vue3';
 import SiteLayout from './Layouts/SiteLayout.vue';
+
+router.on('navigate', () => {
+    if (window.AQ_GA_ID && typeof window.gtag === 'function') {
+        window.gtag('event', 'page_view', {
+            send_to: window.AQ_GA_ID,
+            page_title: document.title,
+            page_location: window.location.href,
+            page_path: window.location.pathname + window.location.search,
+        });
+    }
+});
 
 createInertiaApp({
     resolve: (name) => {

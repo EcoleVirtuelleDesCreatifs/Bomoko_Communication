@@ -169,6 +169,11 @@ h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
 /* ---------- Panneaux ---------- */
 .ad-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
 .ad-panel__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.1rem 1.25rem; border-bottom: 1px solid var(--line); }
+.ad-sechead { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin: 1.75rem 0 .9rem; }
+.ad-sechead h2 { font-size: 1.05rem; font-weight: 800; display: flex; align-items: center; gap: .55rem; }
+.ad-sechead h2 i { color: var(--orange); }
+.ad-sechead > span { font-size: .8125rem; color: var(--muted); }
+.ad-sechead--first { margin-top: 0; }
 .ad-panel__head h2 { font-size: 1rem; font-weight: 700; }
 .ad-panel__head a, .ad-panel__head .ad-link { font-size: .8125rem; font-weight: 600; color: var(--accent); }
 .ad-panel__body { padding: 1.25rem; }

@@ -55,6 +55,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/api/state', [AdminStateController::class, 'show'])->name('state.show');
         Route::get('/api/article/{slug}', [AdminStateController::class, 'article'])->name('state.article');
         Route::get('/api/articles', [AdminStateController::class, 'articles'])->name('state.articles');
+        Route::get('/api/ga-stats', [AdminStateController::class, 'gaStats'])->name('state.ga');
         Route::post('/api/state', [AdminStateController::class, 'save'])->name('state.save');
         Route::get('/api/newsletter/campaigns', [NewsletterController::class, 'index'])->name('newsletter.index');
         Route::post('/api/newsletter/campaigns', [NewsletterController::class, 'store'])->middleware('throttle:10,1')->name('newsletter.store');

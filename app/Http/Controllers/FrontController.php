@@ -43,7 +43,12 @@ class FrontController extends Controller
         $voted = $debate && is_string($voter) ? DB::table('debate_votes')->where('debate_id', $debate->id)
             ->where('voter_hash', hash('sha256', $voter))->value('side') : null;
 
-        $flashRaw = json_decode(DB::table('admin_data')->where('key', 'flash')->value('value') ?? '[]', true) ?: [];
+        $flashRaw = json_decode(DB::table('admin_data')->where('key', 'flash')->value('value') ?? '', true);
+        if (! is_array($flashRaw)) {
+            $flashRaw = Article::published()->orderByDesc('published_at')->limit(5)->get()
+                ->map(fn ($a) => ['id' => 'f'.$a->id, 'articleId' => $a->slug, 'text' => $a->title, 'auto' => true, 'active' => true])
+                ->all();
+        }
         $refs = collect($flashRaw)->pluck('articleId')->filter()->all();
         $ids = collect($refs)->map(fn ($s) => preg_replace('/^[a-z]+/', '', (string) $s))->filter(fn ($x) => ctype_digit((string) $x))->all();
         $linkedArts = Article::whereIn('slug', $refs)->orWhereIn('id', $ids)->get();
@@ -223,6 +228,7 @@ class FrontController extends Controller
             'canonical' => $canonical,
             'og_type' => 'article',
             'image' => $image,
+            'image_alt' => $a->img ?: $a->title,
             'extra' => [
                 'article:published_time' => optional($a->published_at)->toIso8601String(),
                 'article:section' => $a->rubrique?->label,

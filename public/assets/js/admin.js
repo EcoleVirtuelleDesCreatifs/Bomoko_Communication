@@ -449,7 +449,7 @@
   function canOpen(route) {
     if (ME.role === 'admin') return true;
     if (ME.role === 'chef') return route !== 'parametres';
-    return ['articles', 'nouvel-article', 'editeur', 'portraits', 'medias'].indexOf(route) !== -1;
+    return ['tableau-de-bord', 'statistiques', 'articles', 'nouvel-article', 'editeur', 'portraits', 'medias'].indexOf(route) !== -1;
   }
   function renderNav(route) {
     var cur = route === 'editeur' ? 'articles' : route;
@@ -548,6 +548,29 @@
         '<a href="#articles" data-tab="relecture" class="ad-panel ad-kpi"><p class="ad-kpi__label">Brouillons et relectures</p><p class="ad-kpi__value">' + (totals.drafts || 0) + '</p><p class="ad-kpi__hint">' + (totals.review || 0) + ' en relecture</p></a>' +
         '<a href="#commentaires" class="ad-panel ad-kpi ad-kpi--dark"><p class="ad-kpi__label">Commentaires à modérer</p><p class="ad-kpi__value">' + pending() + '</p><p class="ad-kpi__hint">' + fmtNum.format(subs) + ' abonnés à la newsletter</p></a>' +
       '</div>' +
+      (function () {
+        var isEditor = ME.role === 'admin' || ME.role === 'chef';
+        var today = new Date(); today.setHours(0, 0, 0, 0);
+        var pubs = (S.publishedToday || []).filter(function (a) { return new Date(a.date) >= today; })
+          .sort(function (x, y) { return (y.date || '').localeCompare(x.date || ''); });
+        return '<section class="ad-panel mb-4" aria-labelledby="hToday"><div class="ad-panel__head"><h2 id="hToday"><i class="bi bi-broadcast" aria-hidden="true"></i> ' + (isEditor ? 'Publiés aujourd’hui par l’équipe' : 'Mes articles publiés aujourd’hui') + '</h2><span class="ad-badge" aria-label="' + pubs.length + ' article(s)">' + pubs.length + '</span><span class="ad-muted" style="font-size:.8125rem">' + plural(pubs.length, 'article', 'articles') + ' mis en ligne ce jour</span><a href="#articles" data-tab="publie">Tous les publiés</a></div>' +
+          (pubs.length ? '<div class="ad-tablewrap" style="max-height:420px;overflow:auto"><table class="ad-table"><thead><tr><th>Titre</th><th>Auteur</th><th>Rubrique</th><th>Heure</th></tr></thead><tbody>' +
+            pubs.map(function (a) { return '<tr><td><div class="ad-title-cell"><a href="#" data-edit="' + a.id + '">' + fr(a.title) + '</a><small>' + esc(a.country || '') + '</small></div></td>' +
+              '<td style="white-space:nowrap"><strong>' + esc(a.author || '—') + '</strong></td>' +
+              '<td>' + esc(rubLabel(a.rub) || a.rub || '—') + '</td>' +
+              '<td class="ad-muted" style="white-space:nowrap">' + new Date(a.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '</td></tr>'; }).join('') +
+          '</tbody></table></div>' : '<div class="ad-empty"><strong>Aucune publication aujourd’hui</strong>Les articles publiés par les journalistes apparaîtront ici.</div>') +
+        '</section>';
+      })() +
+      '<div class="ad-grid ad-grid--2 mb-4">' +
+        '<section class="ad-panel" aria-labelledby="hRecent"><div class="ad-panel__head"><h2 id="hRecent">Dernières modifications</h2><a href="#articles">Tous les articles</a></div><div class="ad-tablewrap"><table class="ad-table"><thead><tr><th>Article</th><th>Statut</th><th>Modifié</th></tr></thead><tbody>' +
+          recent.map(function (a) { return '<tr><td><div class="ad-title-cell"><a href="#" data-edit="' + a.id + '">' + fr(a.title) + '</a><small>' + esc(rubLabel(a.rub)) + ', ' + esc(a.author) + '</small></div></td><td>' + statusPill(articleStatus(a)) + '</td><td class="ad-muted" style="white-space:nowrap">' + rel(a.updated) + '</td></tr>'; }).join('') +
+        '</tbody></table></div></section>' +
+        '<section class="ad-panel" aria-labelledby="hTodo"><div class="ad-panel__head"><h2 id="hTodo">À traiter</h2></div>' +
+          (todo.length ? '<ul class="ad-list">' + todo.map(function (t) { var href = t[2].indexOf('edit:') === 0 ? '#" data-edit="' + t[2].slice(5) : t[2]; return '<li><span class="ad-list__icon"><i class="bi ' + t[0] + '" aria-hidden="true"></i></span><div class="ad-list__main"><a href="' + href + '">' + fr(t[1]) + '</a></div></li>'; }).join('') + '</ul>' : '<div class="ad-empty"><strong>Tout est à jour</strong>Aucune tâche en attente.</div>') +
+        '</section>' +
+      '</div>' +
+      ((ME.role === 'admin' || ME.role === 'chef') ? gaBlock('dashboard') : '') +
       '<div class="ad-grid ad-grid--2 mb-4">' +
         '<section class="ad-panel" aria-labelledby="hChart"><div class="ad-panel__head"><h2 id="hChart">Lectures des 14 derniers jours</h2><span class="ad-muted tnum" style="font-size:.8125rem">' + fmtNum.format(week) + ' sur 7 jours</span></div>' +
           '<div class="ad-panel__body"><div class="ad-chart" id="chart"><svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Lectures quotidiennes sur 14 jours, de ' + fmtNum.format(Math.min.apply(null, days.map(function (x) { return x.v; }))) + ' à ' + fmtNum.format(max) + '">' + svg + '</svg><div class="ad-tip" id="tip"></div></div>' +
@@ -558,33 +581,12 @@
           counts.map(function (c) { return '<div class="ad-hbar"><span>' + esc(c.label) + '</span><div class="ad-hbar__track"><div class="ad-hbar__fill" style="width:' + (c.n / cmax * 100) + '%"></div></div><b>' + c.n + '</b></div>'; }).join('') +
         '</div></div></section>' +
       '</div>' +
-      '<div class="ad-grid ad-grid--2 mb-4">' +
-        '<section class="ad-panel" aria-labelledby="hRecent"><div class="ad-panel__head"><h2 id="hRecent">Dernières modifications</h2><a href="#articles">Tous les articles</a></div><div class="ad-tablewrap"><table class="ad-table"><thead><tr><th>Article</th><th>Statut</th><th>Modifié</th></tr></thead><tbody>' +
-          recent.map(function (a) { return '<tr><td><div class="ad-title-cell"><a href="#" data-edit="' + a.id + '">' + fr(a.title) + '</a><small>' + esc(rubLabel(a.rub)) + ', ' + esc(a.author) + '</small></div></td><td>' + statusPill(articleStatus(a)) + '</td><td class="ad-muted" style="white-space:nowrap">' + rel(a.updated) + '</td></tr>'; }).join('') +
-        '</tbody></table></div></section>' +
-        '<section class="ad-panel" aria-labelledby="hTodo"><div class="ad-panel__head"><h2 id="hTodo">À traiter</h2></div>' +
-          (todo.length ? '<ul class="ad-list">' + todo.map(function (t) { var href = t[2].indexOf('edit:') === 0 ? '#" data-edit="' + t[2].slice(5) : t[2]; return '<li><span class="ad-list__icon"><i class="bi ' + t[0] + '" aria-hidden="true"></i></span><div class="ad-list__main"><a href="' + href + '">' + fr(t[1]) + '</a></div></li>'; }).join('') + '</ul>' : '<div class="ad-empty"><strong>Tout est à jour</strong>Aucune tâche en attente.</div>') +
-        '</section>' +
-      '</div>' +
       '<div class="ad-grid ad-grid--halves">' +
         '<section class="ad-panel" aria-labelledby="hTop"><div class="ad-panel__head"><h2 id="hTop">Les plus lus</h2></div><ul class="ad-list">' +
           top.map(function (a, k) { return '<li><span class="ad-rank">' + (k + 1) + '</span><div class="ad-list__main"><a href="#" data-edit="' + a.id + '">' + fr(a.title) + '</a><small class="tnum">' + fmtNum.format(a.views) + ' lectures</small></div></li>'; }).join('') + '</ul></section>' +
         '<section class="ad-panel" aria-labelledby="hLog"><div class="ad-panel__head"><h2 id="hLog">Activité de l’équipe</h2></div><ul class="ad-list">' +
           S.log.slice(0, 5).map(function (l) { return '<li><span class="ad-avatar ad-avatar--sm" aria-hidden="true">' + initials(l.who) + '</span><div class="ad-list__main"><strong>' + esc(l.who) + '</strong><small>' + fr(l.what) + ', ' + rel(l.at) + '</small></div></li>'; }).join('') + '</ul></section>' +
       '</div>' +
-      ((ME.role === 'admin' || ME.role === 'chef') ? (function () {
-        var today = new Date(); today.setHours(0, 0, 0, 0);
-        var pubs = (S.publishedToday || []).filter(function (a) { return new Date(a.date) >= today; })
-          .sort(function (x, y) { return (y.date || '').localeCompare(x.date || ''); });
-        return '<section class="ad-panel" aria-labelledby="hToday"><div class="ad-panel__head"><h2 id="hToday">Publiés aujourd’hui par l’équipe</h2><span class="ad-muted" style="font-size:.8125rem">' + plural(pubs.length, 'article', 'articles') + ' mis en ligne ce jour</span></div>' +
-          (pubs.length ? '<div class="ad-tablewrap" style="max-height:420px;overflow:auto"><table class="ad-table"><thead><tr><th>Titre</th><th>Auteur</th><th>Rubrique</th><th>Heure</th></tr></thead><tbody>' +
-            pubs.map(function (a) { return '<tr><td><div class="ad-title-cell"><a href="#" data-edit="' + a.id + '">' + fr(a.title) + '</a><small>' + esc(a.country || '') + '</small></div></td>' +
-              '<td style="white-space:nowrap"><strong>' + esc(a.author || '—') + '</strong></td>' +
-              '<td>' + esc(rubLabel(a.rub) || a.rub || '—') + '</td>' +
-              '<td class="ad-muted" style="white-space:nowrap">' + new Date(a.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '</td></tr>'; }).join('') +
-          '</tbody></table></div>' : '<div class="ad-empty"><strong>Aucune publication aujourd’hui</strong>Les articles publiés par les journalistes apparaîtront ici.</div>') +
-        '</section>';
-      })() : '') +
       '<section class="ad-panel" aria-labelledby="hSubs"><div class="ad-panel__head"><h2 id="hSubs">Derniers abonnés à la newsletter</h2><a href="#newsletter">Gérer les abonnés</a></div>' +
         (S.subscribers.length ? '<div class="ad-tablewrap"><table class="ad-table"><thead><tr><th>Abonné</th><th>Pays</th><th>Inscription</th><th>Statut</th></tr></thead><tbody>' +
           S.subscribers.slice().sort(function (a, b) { return (b.since||'').localeCompare(a.since||''); }).slice(0, 6).map(function (s) { return '<tr><td><div class="ad-title-cell"><strong>' + esc(s.name) + '</strong><small>' + esc(s.email) + '</small></div></td><td>' + esc(s.country || '—') + '</td><td class="ad-muted" style="white-space:nowrap">' + rel(s.since) + '</td><td><span class="ad-status ad-status--' + (s.status === 'actif' ? 'active' : 'libre') + '">' + (s.status === 'actif' ? 'Abonné' : 'Désinscrit') + '</span></td></tr>'; }).join('') +
@@ -652,14 +654,39 @@
     var vals = items.map(function (x) { return x.v; });
     return '<div class="ad-chart" id="' + id + '"><svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(unit) + ' : de ' + Math.min.apply(null, vals) + ' à ' + Math.max.apply(null, vals) + ' articles par période">' + svg + '</svg><div class="ad-tip"></div></div>';
   }
-  function bindChart(id, items) {
-    var chart = $('#' + id), tip = $('.ad-tip', chart);
+  function lineChart(id, items, series) {
+    var W = 720, H = 240, pl = 44, pr = 10, pt = 18, pb = 28;
+    var vals = []; series.forEach(function (s) { items.forEach(function (x) { vals.push(x[s.key] || 0); }); });
+    var step = niceStep(Math.max(1, Math.max.apply(null, vals))), top = step * 4;
+    var iw = W - pl - pr, ih = H - pt - pb, n = items.length, dx = n > 1 ? iw / (n - 1) : 0;
+    function X(k) { return n > 1 ? pl + k * dx : pl + iw / 2; }
+    function Y(v) { return pt + ih * (1 - v / top); }
+    var svg = '';
+    for (var g = 0; g <= 4; g++) { var y = pt + ih * (1 - g / 4); svg += '<line class="grid" x1="' + pl + '" x2="' + (W - pr) + '" y1="' + y + '" y2="' + y + '"/><text class="axis" x="' + (pl - 8) + '" y="' + (y + 4) + '" text-anchor="end">' + fmtNum.format(g * step) + '</text>'; }
+    series.forEach(function (s) {
+      var pts = items.map(function (x, k) { return X(k).toFixed(1) + ',' + Y(x[s.key] || 0).toFixed(1); });
+      var area = pts.length > 1 ? '<polygon class="linearea" fill="' + s.color + '" opacity=".07" points="' + X(0) + ',' + (pt + ih) + ' ' + pts.join(' ') + ' ' + X(n - 1) + ',' + (pt + ih) + '"/>' : '';
+      svg += area + '<polyline class="line" fill="none" stroke="' + s.color + '" stroke-width="2.25" stroke-linejoin="round" stroke-linecap="round" points="' + pts.join(' ') + '"/>';
+    });
+    var every = Math.max(1, Math.ceil(n / 12));
+    items.forEach(function (x, k) {
+      if (k % every === 0) svg += '<text class="axis" x="' + X(k) + '" y="' + (H - 8) + '" text-anchor="middle">' + esc(x.label) + '</text>';
+      var x0 = k === 0 ? pl : X(k) - dx / 2, x1 = k === n - 1 ? W - pr : X(k) + dx / 2;
+      svg += '<rect class="hit" data-i="' + k + '" x="' + x0 + '" y="' + pt + '" width="' + (x1 - x0) + '" height="' + ih + '"/>';
+    });
+    return '<div class="ad-chart" id="' + id + '"><svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(series.map(function (s) { return s.name; }).join(' et ') + ' par jour') + '">' + svg + '</svg><div class="ad-tip"></div></div>';
+  }
+
+  function bindChart(id, items, sing, plur) {
+    sing = sing || 'article publié'; plur = plur || 'articles publiés';
+    var chart = $('#' + id); if (!chart) return;
+    var tip = $('.ad-tip', chart);
     $$('.hit', chart).forEach(function (hEl) {
       function show() {
         var k = +hEl.getAttribute('data-i'), x = items[k], c = chart.getBoundingClientRect(), r = hEl.getBoundingClientRect(), bar = $('.bar[data-i="' + k + '"]', chart);
         $$('.bar', chart).forEach(function (b) { b.classList.toggle('is-dim', +b.getAttribute('data-i') !== k); });
-        tip.innerHTML = plural(x.v, 'article publié', 'articles publiés') + '<small>' + esc(x.long) + (x.current ? ' (en cours)' : '') + '</small>';
-        tip.style.left = (r.left - c.left + r.width / 2) + 'px'; tip.style.top = ((bar ? bar.getBoundingClientRect().top : r.bottom) - c.top - 8) + 'px'; tip.classList.add('is-on');
+        tip.innerHTML = plural(x.v, sing, plur) + (x.extra ? ' · ' + esc(x.extra) : '') + '<small>' + esc(x.long) + (x.current ? ' (en cours)' : '') + '</small>';
+        tip.style.left = (r.left - c.left + r.width / 2) + 'px'; tip.style.top = ((bar ? bar.getBoundingClientRect().top : r.top + 24) - c.top - 8) + 'px'; tip.classList.add('is-on');
       }
       hEl.addEventListener('mouseenter', show); hEl.addEventListener('click', show);
     });
@@ -670,6 +697,93 @@
     return '<svg class="ad-spark" viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" height="' + h + '" aria-hidden="true">' + vals.map(function (v, i) { var bh = Math.max(v ? 2 : 1, h * v / max); return '<rect x="' + (i * bw + bw * 0.15) + '" y="' + (h - bh) + '" width="' + (bw * 0.7) + '" height="' + bh + '"' + (v ? '' : ' class="z"') + '/>'; }).join('') + '</svg>';
   }
 
+  function gaPeriodLabel(ga) {
+    var r = ga && ga.range;
+    if (r && /^\d{4}-\d{2}-\d{2}$/.test(r[0])) {
+      return 'du ' + dshort(r[0] + 'T12:00:00') + ' au ' + dshort(r[1] + 'T12:00:00');
+    }
+    return '30 derniers jours';
+  }
+
+  // Audience Google Analytics (GA4) : résumé tableau de bord / détail statistiques
+  function gaBlock(mode, dailyItems) {
+    var ga = S.gaStats || {}, id = 'hGa' + mode;
+    var open = '<section class="ad-panel' + (mode === 'dashboard' ? ' mb-4' : '') + '" aria-labelledby="' + id + '">' +
+      '<div class="ad-panel__head"><h2 id="' + id + '">Audience — Google Analytics</h2>' +
+      (mode === 'dashboard' && ga.configured && !ga.error ? '<a href="#statistiques">Voir le détail</a>' : '') +
+      '<a class="ad-btn ad-btn--outline" style="padding:.3rem .7rem;font-size:.8125rem" href="https://analytics.google.com/analytics/web/?authuser=0#/a305979906p442953417/reports/dashboard?params=_u..nav%3Dmaui&ruid=c82e0ce5-3641-482a-9c7b-70cf6aa5e57c&collectionId=10859037730&r=lifecycle-engagement-overview" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>Ouvrir Google Analytics</a>' +
+      '<span class="ad-muted" style="font-size:.8125rem">' + esc(gaPeriodLabel(ga)) + '</span></div>';
+    if (!ga.configured) {
+      return open + '<div class="ad-empty"><strong>Google Analytics n’est pas encore relié</strong>' +
+        'Déposez la clé JSON du compte de service dans <code>storage/app/ga4-credentials.json</code>, renseignez <code>GA4_PROPERTY_ID</code> puis rechargez.' +
+        (ga.error ? ' ' + esc(ga.error) : '') + '</div></section>';
+    }
+    if (ga.error) {
+      return open + '<div class="ad-empty"><strong>Données indisponibles</strong>' + esc(ga.error) + '</div></section>';
+    }
+    var t = ga.totals || {};
+    function fmtDur(sec) { sec = Math.round(sec || 0); var m = Math.floor(sec / 60), s = sec % 60; return m ? m + ' min ' + String(s).padStart(2, '0') + ' s' : s + ' s'; }
+    function share(v, tot) { return tot ? ' <small class="ad-muted">(' + (v / tot * 100).toFixed(1).replace('.', ',') + ' %)</small>' : ''; }
+    var CHANNELS = { 'Direct': 'Direct', 'Organic Search': 'Recherche naturelle', 'Referral': 'Sites référents', 'Organic Social': 'Réseaux sociaux', 'Paid Search': 'Recherche payante', 'Paid Social': 'Social payant', 'Email': 'E-mail', 'Display': 'Display', 'AI Assistant': 'Assistant IA', 'Unassigned': 'Non attribué', '(other)': 'Autres' };
+    var EVENTS = { page_view: 'Pages vues', session_start: 'Débuts de session', first_visit: 'Premières visites', user_engagement: 'Engagement', scroll: 'Défilement', scroll_depth: 'Défilement', click: 'Clics', view_search_results: 'Recherches', file_download: 'Téléchargements', video_start: 'Vidéos' };
+    var out = open;
+    if (mode === 'full') {
+      var cur = ga.range && /^\d{4}-\d{2}-\d{2}$/.test(ga.range[0]) ? ga.range : [day(-29), day(0)];
+      out += '<div class="ad-panel__body" style="padding-bottom:0"><div class="ad-filters">' +
+        '<div class="ad-seg" role="group" aria-label="Périodes rapides">' + [7, 30, 90].map(function (n) { return '<button type="button" data-gapreset="' + n + '">' + n + ' jours</button>'; }).join('') + '</div>' +
+        '<label class="ad-muted" for="gaStart">Du</label><input class="ad-input" type="date" id="gaStart" value="' + cur[0] + '" max="' + day(0) + '">' +
+        '<label class="ad-muted" for="gaEnd">au</label><input class="ad-input" type="date" id="gaEnd" value="' + cur[1] + '" max="' + day(0) + '">' +
+        '<button type="button" class="ad-btn ad-btn--outline" id="gaApply">Appliquer</button>' +
+      '</div></div>';
+    }
+    function kpi(label, value, hint) { return '<div class="ad-panel ad-kpi"><p class="ad-kpi__label">' + label + '</p><p class="ad-kpi__value">' + value + '</p>' + (hint ? '<p class="ad-kpi__hint">' + hint + '</p>' : '') + '</div>'; }
+    var kpis = kpi('Sessions', fmtNum.format(t.sessions || 0)) +
+      kpi('Utilisateurs', fmtNum.format(t.users || 0)) +
+      kpi('Nouveaux utilisateurs', fmtNum.format(t.newUsers || 0), t.users ? Math.round(t.newUsers / t.users * 100) + ' % des visiteurs' : '') +
+      kpi('Pages vues', fmtNum.format(t.views || 0)) +
+      kpi('Durée moyenne', fmtDur(t.avgDuration)) +
+      kpi('Taux d’engagement', Math.round((t.engagementRate || 0) * 100) + ' %', fmtNum.format(t.engagedSessions || 0) + ' sessions avec engagement');
+    if (ga.realtime !== null && ga.realtime !== undefined) kpis += '<div class="ad-panel ad-kpi ad-kpi--dark"><p class="ad-kpi__label">Actifs en ce moment</p><p class="ad-kpi__value">' + fmtNum.format(ga.realtime) + '</p><p class="ad-kpi__hint">30 dernières minutes</p></div>';
+    out += '<div class="ad-panel__body"><div class="ad-grid ad-grid--kpi mb-0">' + kpis + '</div></div></section>';
+    if (mode !== 'full') return out;
+    var pages = ga.topPages || [], pays = ga.countries || [], cmax = pays.length ? pays[0][1] || 1 : 1;
+    var chans = ga.channels || [], evts = ga.events || [], landings = ga.landingPages || [];
+    var utot = t.users || 0, stot = t.sessions || 0, vtot = t.views || 0;
+    var evtTot = evts.reduce(function (s, e) { return s + e[1]; }, 0);
+    return out +
+      '<section class="ad-panel" aria-labelledby="hGaChart"><div class="ad-panel__head"><h2 id="hGaChart">Sessions et pages vues par jour</h2></div><div class="ad-panel__body">' +
+        lineChart('gaChart', dailyItems || [], [{ name: 'Sessions', key: 'v', color: 'var(--orange)' }, { name: 'Pages vues', key: 'views', color: '#4b7fa5' }]) +
+        '<div class="ad-legend"><span><i style="background:var(--orange)"></i>Sessions</span><span><i style="background:#4b7fa5"></i>Pages vues</span></div>' +
+        '<details class="ad-datatable mt-3"><summary>Voir les données</summary><div class="ad-tablewrap"><table class="ad-table"><thead><tr><th>Jour</th><th class="num">Sessions</th><th class="num">Pages vues</th></tr></thead><tbody>' +
+          (dailyItems || []).map(function (x) { return '<tr><td>' + esc(x.long) + '</td><td class="num">' + fmtNum.format(x.v) + '</td><td class="num">' + fmtNum.format(x.views || 0) + '</td></tr>'; }).join('') +
+        '</tbody></table></div></details></div></section>' +
+      '<div class="ad-grid ad-grid--2">' +
+        '<section class="ad-panel" aria-labelledby="hGaAcq"><div class="ad-panel__head"><h2 id="hGaAcq">Acquisition</h2><span class="ad-muted" style="font-size:.8125rem">Canaux d’arrivée</span></div><div class="ad-tablewrap"><table class="ad-table"><thead><tr><th>Canal</th><th class="num">Utilisateurs</th><th class="num">Nouveaux</th><th class="num">Sessions</th></tr></thead><tbody>' +
+          '<tr><td><strong>Total</strong></td><td class="num"><b>' + fmtNum.format(utot) + '</b></td><td class="num"><b>' + fmtNum.format(t.newUsers || 0) + '</b></td><td class="num"><b>' + fmtNum.format(stot) + '</b></td></tr>' +
+          (chans.length ? chans.map(function (c) { return '<tr><td>' + esc(CHANNELS[c[0]] || c[0]) + '</td><td class="num">' + fmtNum.format(c[1]) + share(c[1], utot) + '</td><td class="num">' + fmtNum.format(c[2]) + '</td><td class="num">' + fmtNum.format(c[3]) + '</td></tr>'; }).join('') : '<tr><td class="ad-muted" colspan="4">Aucune donnée</td></tr>') +
+        '</tbody></table></div></section>' +
+        '<section class="ad-panel" aria-labelledby="hGaEvt"><div class="ad-panel__head"><h2 id="hGaEvt">Événements</h2><span class="ad-muted" style="font-size:.8125rem">Nombre d’événements par nom</span></div><div class="ad-tablewrap"><table class="ad-table"><thead><tr><th>Événement</th><th class="num">Nombre</th></tr></thead><tbody>' +
+          '<tr><td><strong>Total</strong></td><td class="num"><b>' + fmtNum.format(evtTot) + '</b></td></tr>' +
+          (evts.length ? evts.map(function (e) { return '<tr><td>' + esc(EVENTS[e[0]] || e[0]) + '</td><td class="num">' + fmtNum.format(e[1]) + share(e[1], evtTot) + '</td></tr>'; }).join('') : '<tr><td class="ad-muted" colspan="2">Aucune donnée</td></tr>') +
+        '</tbody></table></div></section>' +
+      '</div>' +
+      '<section class="ad-panel" aria-labelledby="hGaPages"><div class="ad-panel__head"><h2 id="hGaPages">Pages et écrans</h2><span class="ad-muted" style="font-size:.8125rem">Par titre de page</span></div><div class="ad-tablewrap"><table class="ad-table"><thead><tr><th>Page</th><th class="num">Vues</th><th class="num">Utilisateurs</th><th class="num">Durée d’engagement</th></tr></thead><tbody>' +
+        '<tr><td><strong>Total</strong></td><td class="num"><b>' + fmtNum.format(vtot) + '</b></td><td class="num"><b>' + fmtNum.format(utot) + '</b></td><td class="num"><b>' + fmtDur(t.avgDuration) + '</b></td></tr>' +
+        (pages.length ? pages.map(function (p) {
+          var avgEng = p[3] ? Math.round(p[4] / p[3]) : 0;
+          return '<tr><td><div class="ad-title-cell"><strong>' + fr(p[0]) + '</strong><small>' + esc(p[1]) + '</small></div></td><td class="num">' + fmtNum.format(p[2]) + share(p[2], vtot) + '</td><td class="num">' + fmtNum.format(p[3]) + '</td><td class="num">' + fmtDur(avgEng) + '</td></tr>';
+        }).join('') : '<tr><td class="ad-muted" colspan="4">Aucune donnée</td></tr>') +
+      '</tbody></table></div></section>' +
+      '<div class="ad-grid ad-grid--2">' +
+        '<section class="ad-panel" aria-labelledby="hGaLand"><div class="ad-panel__head"><h2 id="hGaLand">Pages de destination</h2><span class="ad-muted" style="font-size:.8125rem">Première page de la session</span></div><div class="ad-tablewrap"><table class="ad-table"><thead><tr><th>Chemin</th><th class="num">Sessions</th><th class="num">Utilisateurs</th><th class="num">Nouveaux</th></tr></thead><tbody>' +
+          (landings.length ? landings.map(function (p) { return '<tr><td><small>' + esc(p[0]) + '</small></td><td class="num">' + fmtNum.format(p[1]) + share(p[1], stot) + '</td><td class="num">' + fmtNum.format(p[2]) + '</td><td class="num">' + fmtNum.format(p[3]) + '</td></tr>'; }).join('') : '<tr><td class="ad-muted" colspan="4">Aucune donnée</td></tr>') +
+        '</tbody></table></div></section>' +
+        '<section class="ad-panel" aria-labelledby="hGaPays"><div class="ad-panel__head"><h2 id="hGaPays">Pays des lecteurs</h2><span class="ad-muted" style="font-size:.8125rem">Sessions</span></div><div class="ad-panel__body"><div class="ad-hbars">' +
+          (pays.length ? pays.map(function (c) { return '<div class="ad-hbar"><span>' + esc(c[0]) + '</span><div class="ad-hbar__track"><div class="ad-hbar__fill" style="width:' + Math.round(c[1] / cmax * 100) + '%"></div></div><b class="tnum">' + fmtNum.format(c[1]) + '</b></div>'; }).join('') : '<p class="ad-muted">Aucune donnée</p>') +
+        '</div></div></section>' +
+      '</div>';
+  }
+
   var statState = { g: 'semaine', who: '', sort: 'total' };
   var GRAN = { jour: { n: 30, unit: 'jour', per: 'par jour', range: '30 derniers jours', prev: 'aux 30 jours précédents', cur: 'Aujourd’hui' }, semaine: { n: 12, unit: 'semaine', per: 'par semaine', range: '12 dernières semaines', prev: 'aux 12 semaines précédentes', cur: 'Cette semaine' }, mois: { n: 12, unit: 'mois', per: 'par mois', range: '12 derniers mois', prev: 'aux 12 mois précédents', cur: 'Ce mois-ci' } };
 
@@ -677,7 +791,9 @@
     var pubs = publications();
     // index : membre → jour → nombre
     var idx = {}; pubs.forEach(function (p) { var m = p.member; (idx[m] = idx[m] || {})[p.day] = (idx[m][p.day] || 0) + p.count; });
-    var members = S.users.map(function (u) { return { key: u.id, name: u.name, role: ROLES[u.role], status: u.status }; });
+    var isEditor = ME.role === 'admin' || ME.role === 'chef';
+    var members = S.users.map(function (u) { return { key: u.id, name: u.name, role: ROLES[u.role], status: u.status }; })
+      .filter(function (m) { return isEditor || m.key === ME.id; });
     if (idx[EXT]) members.push({ key: EXT, name: 'Articles sans compte identifié', role: 'Signatures historiques ou extérieures' });
     function series(keys, g, bks) {
       var map = {}; bks.forEach(function (b) { map[b.key] = 0; });
@@ -697,6 +813,10 @@
       var best = 0; vals.forEach(function (x, i) { if (x > vals[best]) best = i; });
       var delta = prev ? Math.round((tot - prev) / prev * 100) : null;
       var items = bks.map(function (b, i) { return { label: b.label, long: b.long, v: vals[i], current: b.current }; });
+      var gaDaily = (((S.gaStats || {}).daily) || []).map(function (x, i, arr) {
+        var d = parseDay(x.day);
+        return { label: d.getDate() + '/' + (d.getMonth() + 1), long: new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).format(d), v: x.sessions, views: x.views, extra: fmtNum.format(x.views || 0) + ' pages vues', current: i === arr.length - 1 };
+      });
       var teamTot = tot && !statState.who ? tot : sum(series(allKeys, g, bks));
       var tDay = bucketOf(day(0), 'jour'), tWeek = bucketOf(day(0), 'semaine'), tMonth = bucketOf(day(0), 'mois');
       function countIn(k, gran, key) { var days = idx[k] || {}, n = 0; Object.keys(days).forEach(function (d) { if (bucketOf(d, gran) === key) n += days[d]; }); return n; }
@@ -709,7 +829,10 @@
       function f1(x) { return x.toFixed(1).replace('.', ',').replace(',0', ''); }
       function sortTh(k, label) { var on = statState.sort === k; return '<th class="num"><button type="button" class="ad-sort" data-ss="' + k + '"' + (on ? ' aria-sort="descending"' : '') + '>' + label + (on ? ' <i class="bi bi-arrow-down" aria-hidden="true"></i>' : '') + '</button></th>'; }
 
-      v.innerHTML = pagehead('Statistiques de publication', 'Articles publiés par journaliste et pour toute l’équipe.', '<button type="button" class="ad-btn ad-btn--outline" id="stExport"><i class="bi bi-download" aria-hidden="true"></i>Exporter (CSV)</button>') +
+      v.innerHTML = pagehead('Statistiques', 'Audience du site et production de la rédaction.', '<button type="button" class="ad-btn ad-btn--outline" id="stExport"><i class="bi bi-download" aria-hidden="true"></i>Exporter (CSV)</button>') +
+        (isEditor ? '<div class="ad-sechead ad-sechead--first"><h2><i class="bi bi-globe" aria-hidden="true"></i> Audience du site</h2><span>Google Analytics, ' + esc(gaPeriodLabel(S.gaStats || {})) + '</span></div>' +
+        gaBlock('full', gaDaily) : '') +
+        '<div class="ad-sechead' + (isEditor ? '' : ' ad-sechead--first') + '"><h2><i class="bi bi-pencil-square" aria-hidden="true"></i> ' + (isEditor ? 'Rédaction' : 'Ma production') + '</h2><span>Articles publiés par journaliste et pour l’équipe</span></div>' +
         '<div class="ad-filters mb-4"><div class="ad-seg" role="group" aria-label="Regrouper">' + ['jour', 'semaine', 'mois'].map(function (k) { return '<button type="button" data-g="' + k + '" aria-pressed="' + (g === k) + '">Par ' + k + '</button>'; }).join('') + '</div>' +
           '<label class="visually-hidden" for="stWho">Membre</label><select class="ad-select" id="stWho">' + options([{ value: '', label: 'Toute l’équipe' }].concat(members.map(function (m) { return { value: m.key, label: m.name }; })), statState.who) + '</select>' +
           '<span class="ad-muted" style="font-size:.8125rem">' + G.range + '</span></div>' +
@@ -732,9 +855,24 @@
           }).join('') + '</tbody><tfoot><tr><td><strong>Toute l’équipe</strong></td><td class="num">' + teamRow.today + '</td><td class="num">' + teamRow.week + '</td><td class="num">' + teamRow.month + '</td><td class="num"><b>' + teamRow.total + '</b></td><td class="num">' + f1(teamRow.avg) + '</td><td>' + spark(teamRow.s) + '</td><td></td><td></td></tr></tfoot></table></div>' +
           '<div class="ad-panel__foot">Publications réelles agrégées en base sur les 24 derniers mois. Les signatures sans compte identifiable restent regroupées à part.</div></section>';
       bindChart('stChart', items);
+      bindChart('gaChart', gaDaily, 'session', 'sessions');
     }
     v.addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return;
+      if (b.id === 'gaApply' || b.hasAttribute('data-gapreset')) {
+        var gaStart = $('#gaStart'), gaEnd = $('#gaEnd');
+        if (b.hasAttribute('data-gapreset')) {
+          var nDays = +b.getAttribute('data-gapreset');
+          gaStart.value = day(1 - nDays); gaEnd.value = day(0);
+        }
+        if (!gaStart.value || !gaEnd.value || gaStart.value > gaEnd.value) { toast('Choisissez une période valide : le début doit précéder la fin', 'error'); return; }
+        b.disabled = true; b.textContent = 'Chargement…';
+        fetch(AQ_API.slice(0, AQ_API.lastIndexOf('/')) + '/ga-stats?start=' + gaStart.value + '&end=' + gaEnd.value, { headers: { 'Accept': 'application/json' } })
+          .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw j; return j; }); })
+          .then(function (j) { S.gaStats = j; toast('Période Google Analytics mise à jour', j.error ? 'info' : 'success'); draw(); })
+          .catch(function () { toast('Impossible de récupérer les données GA4', 'error'); b.disabled = false; b.textContent = 'Appliquer'; });
+        return;
+      }
       if (b.hasAttribute('data-g')) { statState.g = b.getAttribute('data-g'); draw(); }
       else if (b.hasAttribute('data-who')) { var k = b.getAttribute('data-who'); statState.who = statState.who === k ? '' : k; draw(); $('#stChartT').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' }); }
       else if (b.hasAttribute('data-ss')) { statState.sort = b.getAttribute('data-ss'); draw(); }
@@ -1519,10 +1657,13 @@
     syncFlash();
     v.innerHTML = pagehead('Flash info', 'Chaque flash renvoie vers un article et reprend son titre. Cochez aussi « Mettre en flash info » en rédigeant un article.', '') +
       '<section class="ad-panel mb-4"><div class="ad-ticker" aria-label="Aperçu du bandeau"><b>Flash info</b><div class="ad-ticker__view"><div class="ad-ticker__track" id="flTrack"></div></div></div>' +
-      '<form class="ad-panel__body" id="flForm" novalidate><label class="ad-label d-block mb-2" for="flArt">Ajouter un flash</label><div class="d-flex gap-2 flex-wrap"><select class="ad-select" id="flArt" style="flex:1;min-width:240px"></select><button class="ad-btn ad-btn--primary" type="submit"><i class="bi bi-plus-lg" aria-hidden="true"></i>Ajouter en tête</button></div><p class="ad-hint">Les articles programmés apparaîtront dans le bandeau dès leur publication.</p><p class="ad-error" id="flArtErr"></p></form></section>' +
+      '<div class="ad-panel__body"><div class="ad-seg mb-3" role="group" aria-label="Type de flash"><button type="button" data-flmode="art" aria-pressed="true">Depuis un article</button><button type="button" data-flmode="free" aria-pressed="false">Texte libre</button></div>' +
+      '<form id="flForm" novalidate><label class="ad-label d-block mb-2" for="flArt">Ajouter un flash</label><div class="d-flex gap-2 flex-wrap"><select class="ad-select" id="flArt" style="flex:1;min-width:240px"></select><button class="ad-btn ad-btn--primary" type="submit"><i class="bi bi-plus-lg" aria-hidden="true"></i>Ajouter en tête</button></div><p class="ad-hint">Les articles programmés apparaîtront dans le bandeau dès leur publication.</p><p class="ad-error" id="flArtErr"></p></form>' +
+      '<form id="flFreeForm" novalidate hidden><label class="ad-label d-block mb-2" for="flFreeTxt">Texte du flash</label><div class="d-flex gap-2 flex-wrap"><input class="ad-input" id="flFreeTxt" maxlength="' + FLASH_MAX + '" style="flex:1;min-width:240px" placeholder="Ex. Suivez en direct le sommet extraordinaire de la Cédéao"><button class="ad-btn ad-btn--primary" type="submit"><i class="bi bi-plus-lg" aria-hidden="true"></i>Ajouter en tête</button></div><p class="ad-hint">Sans article lié : le texte défile dans le bandeau jusqu’à sa date de fin, sans lien.</p><p class="ad-error" id="flFreeTxtErr"></p></form>' +
+      '</div></section>' +
       '<section class="ad-panel"><div class="ad-panel__head"><h2>Messages</h2><span class="ad-muted" style="font-size:.8125rem" id="flCount"></span></div><div id="flList"></div></section>';
     function tickerHtml() {
-      var live = flashLive(), it = live.map(function (f) { return '<a href="#" data-edit="' + esc(f.articleId) + '">' + fr(f.text) + '</a>'; }).join('');
+      var live = flashLive(), it = live.map(function (f) { return f.articleId ? '<a href="#" data-edit="' + esc(f.articleId) + '">' + fr(f.text) + '</a>' : '<span>' + fr(f.text) + '</span>'; }).join('');
       return live.length ? it + it : '<span>Aucun flash en ligne : le bandeau est masqué sur le site.</span>';
     }
     function draw() {
@@ -1536,7 +1677,7 @@
         return '<div class="ad-rowedit ad-flashrow"><div class="ad-order"><button type="button" class="ad-iconbtn" data-fu="' + i + '" aria-label="Monter"' + (i ? '' : ' disabled') + '><i class="bi bi-chevron-up" aria-hidden="true"></i></button><button type="button" class="ad-iconbtn" data-fd="' + i + '" aria-label="Descendre"' + (i < S.flash.length - 1 ? '' : ' disabled') + '><i class="bi bi-chevron-down" aria-hidden="true"></i></button></div>' +
           '<div class="d-grid gap-1"><label class="visually-hidden" for="fl' + i + '">Texte du flash ' + (i + 1) + '</label><input class="ad-input" id="fl' + i + '" data-ft="' + i + '" maxlength="' + FLASH_MAX + '" value="' + esc(f.text) + '">' +
             '<div class="ad-flashrow__meta"><span class="ad-status ad-status--' + st[0] + '">' + esc(st[1]) + '</span>' +
-            (a ? '<a href="#" data-edit="' + esc(a.id) + '"><i class="bi bi-link-45deg" aria-hidden="true"></i>' + (f.auto ? 'Ouvrir l’article' : 'Article : ' + fr(a.title)) + '</a>' : '<span class="ad-muted">Article introuvable</span>') +
+            (f.articleId ? (a ? '<a href="#" data-edit="' + esc(a.id) + '"><i class="bi bi-link-45deg" aria-hidden="true"></i>' + (f.auto ? 'Ouvrir l’article' : 'Article : ' + fr(a.title)) + '</a>' : '<span class="ad-muted">Article introuvable</span>') : '<span class="ad-muted"><i class="bi bi-megaphone" aria-hidden="true"></i> Flash libre, sans lien</span>') +
             (f.auto ? '<span class="ad-muted"><i class="bi bi-arrow-repeat" aria-hidden="true"></i> Suit le titre</span>' : (a ? '<button type="button" class="ad-linkbtn" data-fr="' + i + '"><i class="bi bi-arrow-repeat" aria-hidden="true"></i>Reprendre le titre de l’article</button>' : '')) +
             '<span class="ad-flashrow__dates"><label><i class="bi bi-calendar-event" aria-hidden="true"></i> Du <input class="ad-input ad-input--sm" type="date" data-fs="' + i + '" value="' + esc(f.start || '') + '" aria-label="Date de début du flash ' + (i + 1) + '"></label><label>au <input class="ad-input ad-input--sm" type="date" data-fe="' + i + '" value="' + esc(f.end || '') + '" aria-label="Date de fin du flash ' + (i + 1) + '" min="' + esc(f.start || '') + '"></label></span>' +
             '</div></div>' +
@@ -1549,6 +1690,12 @@
       if (!setErr(this, 'flArt', id ? '' : 'Choisissez l’article vers lequel le flash doit renvoyer.')) return;
       var a = art(id); S.flash.unshift({ id: 'f' + uid(), articleId: id, text: flashTitle(a.title), auto: true, active: true, start: day(0), end: addDays(day(0), 7) });
       log('a mis en flash « ' + a.title + ' »'); save(); draw(); toast(a.status === 'programme' ? 'Flash ajouté : il s’affichera à la publication' : 'Flash ajouté en tête du bandeau');
+    });
+    $('#flFreeForm').addEventListener('submit', function (e) {
+      e.preventDefault(); var txt = $('#flFreeTxt').value.trim();
+      if (!setErr(this, 'flFreeTxt', txt ? '' : 'Rédigez le texte du flash.')) return;
+      S.flash.unshift({ id: 'f' + uid(), articleId: '', text: txt, auto: false, active: true, start: day(0), end: addDays(day(0), 1) });
+      log('a ajouté le flash libre « ' + txt + ' »'); save(); this.reset(); draw(); toast('Flash libre ajouté en tête : valable jusqu’à demain');
     });
     var tm;
     v.addEventListener('input', function (e) {
@@ -1569,6 +1716,12 @@
     });
     v.addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return;
+      if (b.hasAttribute('data-flmode')) {
+        var free = b.getAttribute('data-flmode') === 'free';
+        $('#flForm').hidden = free; $('#flFreeForm').hidden = !free;
+        $$('[data-flmode]', v).forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+        (free ? $('#flFreeTxt') : $('#flArt')).focus(); return;
+      }
       if (b.hasAttribute('data-fu') || b.hasAttribute('data-fd')) { var i = +(b.getAttribute('data-fu') || b.getAttribute('data-fd')), j = b.hasAttribute('data-fu') ? i - 1 : i + 1, t = S.flash[i]; S.flash[i] = S.flash[j]; S.flash[j] = t; save(); draw(); }
       else if (b.hasAttribute('data-fx')) { S.flash.splice(+b.getAttribute('data-fx'), 1); save(); draw(); toast('Flash retiré du bandeau'); }
       else if (b.hasAttribute('data-fr')) { var f = S.flash[+b.getAttribute('data-fr')]; f.auto = true; f.updated = new Date().toISOString(); syncFlash(); save(); draw(); toast('Le flash reprend le titre de l’article'); }

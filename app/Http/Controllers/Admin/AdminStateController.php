@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Models\UserEvent;
 use App\Support\ArticleHtml;
 use App\Support\EditorialStats;
+use App\Support\GoogleAnalytics;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -39,6 +40,17 @@ class AdminStateController extends Controller
     public function show()
     {
         return response()->json($this->state());
+    }
+
+    public function gaStats(Request $request)
+    {
+        abort_unless(in_array($request->user()->role, ['admin', 'chef'], true), 403);
+        $validated = $request->validate([
+            'start' => ['nullable', 'date_format:Y-m-d', 'before_or_equal:end'],
+            'end' => ['nullable', 'date_format:Y-m-d', 'before_or_equal:today'],
+        ]);
+
+        return response()->json(app(GoogleAnalytics::class)->summary($validated['start'] ?? null, $validated['end'] ?? null));
     }
 
     public function article(string $slug)
@@ -250,13 +262,19 @@ class AdminStateController extends Controller
         }
         $state['teamStats'] = $editor ? $this->teamStats() : [];
         $stats = app(EditorialStats::class);
-        $state['publicationStats'] = $editor ? $stats->publications() : [];
-        $state['dashboardStats'] = $editor ? $stats->dashboard() : [];
-        $state['publishedToday'] = $editor ? Article::published()->whereBetween('published_at', [now()->startOfDay(), now()->endOfDay()])
+        $me = auth()->user();
+        $state['publicationStats'] = $stats->publications($editor ? null : $me);
+        $state['dashboardStats'] = $stats->dashboard($editor ? null : $me);
+        $state['gaStats'] = $editor ? app(GoogleAnalytics::class)->summary() : [];
+        $publishedQuery = Article::published()->whereBetween('published_at', [now()->startOfDay(), now()->endOfDay()]);
+        if (! $editor) {
+            $this->ownArticles($publishedQuery, $me);
+        }
+        $state['publishedToday'] = $publishedQuery
             ->orderByDesc('published_at')->get(['id', 'slug', 'rubrique_slug', 'region_slug', 'country', 'ph', 'img',
                 'image_path', 'views', 'title', 'chapo', 'author_name', 'published_at', 'updated_at', 'read_time',
                 'tags', 'status', 'meta_desc', 'is_une', 'person', 'icon', 'media_id', 'user_id'])
-            ->map(fn ($a) => $this->articleItem($a))->all() : [];
+            ->map(fn ($a) => $this->articleItem($a))->all();
         $loaded = array_flip(array_column($state['articles'], 'id'));
         foreach ($state['publishedToday'] as $item) {
             if (! isset($loaded[$item['id']])) {
@@ -289,14 +307,21 @@ class AdminStateController extends Controller
         })->all();
     }
 
+    private function ownArticles($query, User $user)
+    {
+        $unique = User::where('name', $user->name)->count() === 1;
+
+        return $query->where(fn ($q) => $q->where('user_id', $user->id)
+            ->when($unique, fn ($q) => $q->orWhere(
+                fn ($q) => $q->whereNull('user_id')->where('author_name', $user->name))));
+    }
+
     private function visibleArticles()
     {
         $query = Article::query();
         $user = auth()->user();
         if (! in_array($user->role, ['admin', 'chef'], true)) {
-            $unique = User::where('name', $user->name)->count() === 1;
-            $query->where(fn ($q) => $q->where('user_id', $user->id)->when($unique,
-                fn ($q) => $q->orWhere(fn ($q) => $q->whereNull('user_id')->where('author_name', $user->name))));
+            $this->ownArticles($query, $user);
         }
 
         return $query;
@@ -543,6 +568,9 @@ class AdminStateController extends Controller
             $authors = $editor ? User::where('name', $a['author'] ?? '')->get(['id']) : collect();
             $owner = $editor ? ($authors->count() === 1 ? $authors->first()->id : null) : auth()->id();
             $article = $existing ?? new Article(['slug' => $slug, 'user_id' => $owner]);
+            if ($owner) {
+                $article->user_id = $owner;
+            }
             $article->fill([
                 'slug' => $a['id'] ?? $slug,
                 'rubrique_slug' => $a['rub'] ?? $article->rubrique_slug ?? 'politique',
@@ -778,7 +806,16 @@ class AdminStateController extends Controller
             if (preg_match('/^u(\d+)$/', $u['id'] ?? '', $m) && ($row = User::find($m[1]))) {
                 abort_if($row->id === $me?->id && ($data['role'] !== $row->role || $data['status'] !== 'actif'), 422,
                     'Vous ne pouvez pas retirer votre propre accès administrateur.');
+                $oldName = $row->name;
+                $oldNameAlone = User::where('name', $oldName)->count() === 1;
                 $row->update($data);
+                if ($oldName !== $row->name) {
+                    Article::where('user_id', $row->id)->where('author_name', $oldName)->update(['author_name' => $row->name]);
+                    if ($oldNameAlone) {
+                        Article::whereNull('user_id')->where('author_name', $oldName)
+                            ->update(['author_name' => $row->name, 'user_id' => $row->id]);
+                    }
+                }
                 $kept[] = (int) $m[1];
             } elseif (! empty($data['email'])) {
                 try {

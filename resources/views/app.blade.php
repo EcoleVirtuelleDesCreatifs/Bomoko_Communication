@@ -17,7 +17,7 @@
   <meta property="og:image" content="{{ $meta['image'] ?? asset('assets/img/og-default.jpg') }}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Afriquinfos — Ni totems, ni tabous. L’actualité panafricaine">
+  <meta property="og:image:alt" content="{{ $meta['image_alt'] ?? 'Afriquinfos — Ni totems, ni tabous. L’actualité panafricaine' }}">
   @foreach(($meta['extra'] ?? []) as $property => $content)
   <meta property="{{ $property }}" content="{{ $content }}">
   @endforeach
@@ -43,6 +43,16 @@
   <script type="application/ld+json">{!! json_encode($ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
   @endforeach
   @vite(['resources/js/app.js'])
+  @if(! request()->is('admin*') && ($gaId = config('services.google_analytics.measurement_id')))
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    window.AQ_GA_ID = {{ Illuminate\Support\Js::from($gaId) }};
+    gtag('js', new Date());
+    gtag('config', {{ Illuminate\Support\Js::from($gaId) }});
+  </script>
+  @endif
   @inertiaHead
 </head>
 <body>
