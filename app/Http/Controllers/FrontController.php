@@ -70,7 +70,8 @@ class FrontController extends Controller
                     'id' => (string) $f['id'],
                     'text' => $f['text'] ?? $a?->title ?? '',
                     'url' => $a && in_array($a->status, ['publie', 'programme'], true)
-                        && (! $a->published_at || $a->published_at->lte(now())) ? route('article.show', $a->slug) : null,
+                        && (! $a->published_at || $a->published_at->lte(now())) ? route('article.show', $a->slug)
+                        : (! $a && ! empty($f['url']) && filter_var($f['url'], FILTER_VALIDATE_URL) ? $f['url'] : null),
                 ];
             })
             ->filter(fn ($f) => $f['text'] !== '')

@@ -397,7 +397,7 @@ class AdminStateController extends Controller
             'users.*.status' => 'required|in:actif,invite,suspendu',
             'flash.*.id' => 'required|string|max:255', 'flash.*.active' => 'required|boolean',
             'flash.*.text' => 'required|string|max:1000', 'flash.*.start' => 'nullable|date_format:Y-m-d',
-            'flash.*.end' => 'nullable|date_format:Y-m-d',
+            'flash.*.end' => 'nullable|date_format:Y-m-d', 'flash.*.url' => 'nullable|url|max:500',
             'medias.*.id' => 'required|string|max:255', 'medias.*.data' => 'required|string',
             'mediaSync' => 'sometimes|in:delta', 'mediaBase' => 'required_if:mediaSync,delta|array',
             'mediaBase.*' => 'nullable|array', 'mediaDeleted' => 'sometimes|array', 'mediaDeleted.*' => 'required|string|max:255|distinct',

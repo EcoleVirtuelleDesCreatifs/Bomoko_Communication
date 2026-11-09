@@ -555,7 +555,7 @@
           .sort(function (x, y) { return (y.date || '').localeCompare(x.date || ''); });
         return '<section class="ad-panel mb-4" aria-labelledby="hToday"><div class="ad-panel__head"><h2 id="hToday"><i class="bi bi-broadcast" aria-hidden="true"></i> ' + (isEditor ? 'Publiés aujourd’hui par l’équipe' : 'Mes articles publiés aujourd’hui') + '</h2><span class="ad-badge" aria-label="' + pubs.length + ' article(s)">' + pubs.length + '</span><span class="ad-muted" style="font-size:.8125rem">' + plural(pubs.length, 'article', 'articles') + ' mis en ligne ce jour</span><a href="#articles" data-tab="publie">Tous les publiés</a></div>' +
           (pubs.length ? '<div class="ad-tablewrap" style="max-height:420px;overflow:auto"><table class="ad-table"><thead><tr><th>Titre</th><th>Auteur</th><th>Rubrique</th><th>Heure</th></tr></thead><tbody>' +
-            pubs.map(function (a) { return '<tr><td><div class="ad-title-cell"><a href="#" data-edit="' + a.id + '">' + fr(a.title) + '</a><small>' + esc(a.country || '') + '</small></div></td>' +
+            pubs.map(function (a) { return '<tr><td><div class="d-flex gap-3 align-items-center"><div class="ad-thumb">' + coverOf(a) + '</div><div class="ad-title-cell"><a href="#" data-edit="' + a.id + '">' + fr(a.title) + '</a><small>' + esc(a.country || '') + '</small></div></div></td>' +
               '<td style="white-space:nowrap"><strong>' + esc(a.author || '—') + '</strong></td>' +
               '<td>' + esc(rubLabel(a.rub) || a.rub || '—') + '</td>' +
               '<td class="ad-muted" style="white-space:nowrap">' + new Date(a.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '</td></tr>'; }).join('') +
@@ -564,7 +564,7 @@
       })() +
       '<div class="ad-grid ad-grid--2 mb-4">' +
         '<section class="ad-panel" aria-labelledby="hRecent"><div class="ad-panel__head"><h2 id="hRecent">Dernières modifications</h2><a href="#articles">Tous les articles</a></div><div class="ad-tablewrap"><table class="ad-table"><thead><tr><th>Article</th><th>Statut</th><th>Modifié</th></tr></thead><tbody>' +
-          recent.map(function (a) { return '<tr><td><div class="ad-title-cell"><a href="#" data-edit="' + a.id + '">' + fr(a.title) + '</a><small>' + esc(rubLabel(a.rub)) + ', ' + esc(a.author) + '</small></div></td><td>' + statusPill(articleStatus(a)) + '</td><td class="ad-muted" style="white-space:nowrap">' + rel(a.updated) + '</td></tr>'; }).join('') +
+          recent.map(function (a) { return '<tr><td><div class="d-flex gap-3 align-items-center"><div class="ad-thumb">' + coverOf(a) + '</div><div class="ad-title-cell"><a href="#" data-edit="' + a.id + '">' + fr(a.title) + '</a><small>' + esc(rubLabel(a.rub)) + ', ' + esc(a.author) + '</small></div></div></td><td>' + statusPill(articleStatus(a)) + '</td><td class="ad-muted" style="white-space:nowrap">' + rel(a.updated) + '</td></tr>'; }).join('') +
         '</tbody></table></div></section>' +
         '<section class="ad-panel" aria-labelledby="hTodo"><div class="ad-panel__head"><h2 id="hTodo">À traiter</h2></div>' +
           (todo.length ? '<ul class="ad-list">' + todo.map(function (t) { var href = t[2].indexOf('edit:') === 0 ? '#" data-edit="' + t[2].slice(5) : t[2]; return '<li><span class="ad-list__icon"><i class="bi ' + t[0] + '" aria-hidden="true"></i></span><div class="ad-list__main"><a href="' + href + '">' + fr(t[1]) + '</a></div></li>'; }).join('') + '</ul>' : '<div class="ad-empty"><strong>Tout est à jour</strong>Aucune tâche en attente.</div>') +
@@ -583,7 +583,7 @@
       '</div>' +
       '<div class="ad-grid ad-grid--halves">' +
         '<section class="ad-panel" aria-labelledby="hTop"><div class="ad-panel__head"><h2 id="hTop">Les plus lus</h2></div><ul class="ad-list">' +
-          top.map(function (a, k) { return '<li><span class="ad-rank">' + (k + 1) + '</span><div class="ad-list__main"><a href="#" data-edit="' + a.id + '">' + fr(a.title) + '</a><small class="tnum">' + fmtNum.format(a.views) + ' lectures</small></div></li>'; }).join('') + '</ul></section>' +
+          top.map(function (a, k) { return '<li><span class="ad-rank">' + (k + 1) + '</span><div class="ad-thumb">' + coverOf(a) + '</div><div class="ad-list__main"><a href="#" data-edit="' + a.id + '">' + fr(a.title) + '</a><small class="tnum">' + fmtNum.format(a.views) + ' lectures</small></div></li>'; }).join('') + '</ul></section>' +
         '<section class="ad-panel" aria-labelledby="hLog"><div class="ad-panel__head"><h2 id="hLog">Activité de l’équipe</h2></div><ul class="ad-list">' +
           S.log.slice(0, 5).map(function (l) { return '<li><span class="ad-avatar ad-avatar--sm" aria-hidden="true">' + initials(l.who) + '</span><div class="ad-list__main"><strong>' + esc(l.who) + '</strong><small>' + fr(l.what) + ', ' + rel(l.at) + '</small></div></li>'; }).join('') + '</ul></section>' +
       '</div>' +
@@ -1640,15 +1640,15 @@
   function flashOf(id) { return S.flash.filter(function (f) { return f.articleId === id; })[0]; }
   function syncFlash() { S.flash.forEach(function (f) { var a = art(f.articleId); if (a && f.auto) f.text = flashTitle(a.title); }); }
   function flashState(f) {
-    var a = art(f.articleId);
-    if (!a) return ['libre', 'Article supprimé'];
-    if (a.status === 'corbeille') return ['libre', 'Article à la corbeille'];
+    var a = f.articleId ? art(f.articleId) : null;
+    if (f.articleId && !a) return ['libre', 'Article supprimé'];
+    if (a && a.status === 'corbeille') return ['libre', 'Article à la corbeille'];
     if (!f.active) return ['brouillon', 'Désactivé'];
     var t = day(0);
     if (f.start && f.start > t) return ['programme', 'Du ' + dshort(f.start + 'T12:00:00') + (f.end ? ' au ' + dshort(f.end + 'T12:00:00') : '')];
     if (f.end && f.end < t) return ['libre', 'Terminé le ' + dshort(f.end + 'T12:00:00')];
-    if (a.status === 'programme') return ['programme', 'Publication ' + rel(a.date)];
-    if (a.status !== 'publie') return ['relecture', 'Article non publié'];
+    if (a && a.status === 'programme') return ['programme', 'Publication ' + rel(a.date)];
+    if (a && a.status !== 'publie') return ['relecture', 'Article non publié'];
     return ['active', 'En ligne' + (f.end ? ' jusqu’au ' + dshort(f.end + 'T12:00:00') : '')];
   }
   function flashLive() { return S.flash.filter(function (f) { return flashState(f)[0] === 'active'; }); }
@@ -1659,31 +1659,40 @@
       '<section class="ad-panel mb-4"><div class="ad-ticker" aria-label="Aperçu du bandeau"><b>Flash info</b><div class="ad-ticker__view"><div class="ad-ticker__track" id="flTrack"></div></div></div>' +
       '<div class="ad-panel__body"><div class="ad-seg mb-3" role="group" aria-label="Type de flash"><button type="button" data-flmode="art" aria-pressed="true">Depuis un article</button><button type="button" data-flmode="free" aria-pressed="false">Texte libre</button></div>' +
       '<form id="flForm" novalidate><label class="ad-label d-block mb-2" for="flArt">Ajouter un flash</label><div class="d-flex gap-2 flex-wrap"><select class="ad-select" id="flArt" style="flex:1;min-width:240px"></select><button class="ad-btn ad-btn--primary" type="submit"><i class="bi bi-plus-lg" aria-hidden="true"></i>Ajouter en tête</button></div><p class="ad-hint">Les articles programmés apparaîtront dans le bandeau dès leur publication.</p><p class="ad-error" id="flArtErr"></p></form>' +
-      '<form id="flFreeForm" novalidate hidden><label class="ad-label d-block mb-2" for="flFreeTxt">Texte du flash</label><div class="d-flex gap-2 flex-wrap"><input class="ad-input" id="flFreeTxt" maxlength="' + FLASH_MAX + '" style="flex:1;min-width:240px" placeholder="Ex. Suivez en direct le sommet extraordinaire de la Cédéao"><button class="ad-btn ad-btn--primary" type="submit"><i class="bi bi-plus-lg" aria-hidden="true"></i>Ajouter en tête</button></div><p class="ad-hint">Sans article lié : le texte défile dans le bandeau jusqu’à sa date de fin, sans lien.</p><p class="ad-error" id="flFreeTxtErr"></p></form>' +
+      '<form id="flFreeForm" novalidate hidden><label class="ad-label d-block mb-2" for="flFreeTxt">Texte du flash</label><div class="d-flex gap-2 flex-wrap"><input class="ad-input" id="flFreeTxt" maxlength="' + FLASH_MAX + '" style="flex:1;min-width:240px" placeholder="Ex. Suivez en direct le sommet extraordinaire de la Cédéao"><input class="ad-input" id="flFreeUrl" type="url" style="flex:1;min-width:200px" placeholder="Lien externe (facultatif) : https://…"><button class="ad-btn ad-btn--primary" type="submit"><i class="bi bi-plus-lg" aria-hidden="true"></i>Ajouter en tête</button></div><p class="ad-hint">Sans article lié : le texte défile dans le bandeau jusqu’à sa date de fin ; le lien externe, s’il est renseigné, rend le flash cliquable.</p><p class="ad-error" id="flFreeTxtErr"></p><p class="ad-error" id="flFreeUrlErr"></p></form>' +
       '</div></section>' +
-      '<section class="ad-panel"><div class="ad-panel__head"><h2>Messages</h2><span class="ad-muted" style="font-size:.8125rem" id="flCount"></span></div><div id="flList"></div></section>';
+      '<section class="ad-panel"><div class="ad-panel__head"><h2>Messages</h2><div class="d-flex gap-2 align-items-center"><div class="ad-seg" role="group" aria-label="Filtrer les flashs" id="flTabs"></div><button type="button" class="ad-btn ad-btn--outline" style="padding:.3rem .7rem;font-size:.8125rem" id="flPurge"><i class="bi bi-eraser" aria-hidden="true"></i>Purger les terminés</button><span class="ad-muted" style="font-size:.8125rem" id="flCount"></span></div></div><div id="flList"></div></section>';
     function tickerHtml() {
       var live = flashLive(), it = live.map(function (f) { return f.articleId ? '<a href="#" data-edit="' + esc(f.articleId) + '">' + fr(f.text) + '</a>' : '<span>' + fr(f.text) + '</span>'; }).join('');
       return live.length ? it + it : '<span>Aucun flash en ligne : le bandeau est masqué sur le site.</span>';
     }
+    var TABS = [['tous', 'Tous'], ['active', 'En ligne'], ['programme', 'Programmés'], ['hors', 'Hors ligne']];
+    var flTab = 'tous';
+    function tabOf(f) { var s = flashState(f)[0]; return s === 'active' ? 'active' : (s === 'programme' || s === 'relecture') ? 'programme' : 'hors'; }
     function draw() {
       var used = {}; S.flash.forEach(function (f) { used[f.articleId] = true; });
       var choices = S.articles.filter(function (a) { return (a.status === 'publie' || a.status === 'programme') && !used[a.id]; }).sort(function (a, b) { return b.date.localeCompare(a.date); });
       $('#flArt').innerHTML = '<option value="">Choisir un article publié ou programmé…</option>' + choices.map(function (a) { return '<option value="' + esc(a.id) + '">' + esc((a.status === 'programme' ? '[Programmé] ' : '') + a.title) + '</option>'; }).join('');
       $('#flTrack').innerHTML = tickerHtml();
+      var counts = { tous: S.flash.length, active: 0, programme: 0, hors: 0 };
+      S.flash.forEach(function (f) { counts[tabOf(f)]++; });
+      $('#flTabs').innerHTML = TABS.map(function (t) { return '<button type="button" data-fltab="' + t[0] + '" aria-pressed="' + (flTab === t[0]) + '">' + t[1] + (t[0] !== 'tous' ? ' (' + counts[t[0]] + ')' : '') + '</button>'; }).join('');
+      $('#flPurge').disabled = !counts.hors;
       $('#flCount').textContent = flashLive().length + ' en ligne sur ' + S.flash.length;
-      $('#flList').innerHTML = S.flash.length ? S.flash.map(function (f, i) {
+      var shown = S.flash.map(function (f, i) { return { f: f, i: i }; }).filter(function (x) { return flTab === 'tous' || tabOf(x.f) === flTab; });
+      $('#flList').innerHTML = S.flash.length ? (shown.length ? shown.map(function (x) { var f = x.f, i = x.i;
         var a = art(f.articleId), st = flashState(f);
         return '<div class="ad-rowedit ad-flashrow"><div class="ad-order"><button type="button" class="ad-iconbtn" data-fu="' + i + '" aria-label="Monter"' + (i ? '' : ' disabled') + '><i class="bi bi-chevron-up" aria-hidden="true"></i></button><button type="button" class="ad-iconbtn" data-fd="' + i + '" aria-label="Descendre"' + (i < S.flash.length - 1 ? '' : ' disabled') + '><i class="bi bi-chevron-down" aria-hidden="true"></i></button></div>' +
           '<div class="d-grid gap-1"><label class="visually-hidden" for="fl' + i + '">Texte du flash ' + (i + 1) + '</label><input class="ad-input" id="fl' + i + '" data-ft="' + i + '" maxlength="' + FLASH_MAX + '" value="' + esc(f.text) + '">' +
             '<div class="ad-flashrow__meta"><span class="ad-status ad-status--' + st[0] + '">' + esc(st[1]) + '</span>' +
-            (f.articleId ? (a ? '<a href="#" data-edit="' + esc(a.id) + '"><i class="bi bi-link-45deg" aria-hidden="true"></i>' + (f.auto ? 'Ouvrir l’article' : 'Article : ' + fr(a.title)) + '</a>' : '<span class="ad-muted">Article introuvable</span>') : '<span class="ad-muted"><i class="bi bi-megaphone" aria-hidden="true"></i> Flash libre, sans lien</span>') +
+            (f.articleId ? (a ? '<a href="#" data-edit="' + esc(a.id) + '"><i class="bi bi-link-45deg" aria-hidden="true"></i>' + (f.auto ? 'Ouvrir l’article' : 'Article : ' + fr(a.title)) + '</a>' : '<span class="ad-muted">Article introuvable</span>') : '<span class="ad-muted"><i class="bi bi-megaphone" aria-hidden="true"></i> Flash libre' + (f.url ? ', <a href="' + esc(f.url) + '" target="_blank" rel="noopener">lien externe</a>' : ', sans lien') + '</span>') +
             (f.auto ? '<span class="ad-muted"><i class="bi bi-arrow-repeat" aria-hidden="true"></i> Suit le titre</span>' : (a ? '<button type="button" class="ad-linkbtn" data-fr="' + i + '"><i class="bi bi-arrow-repeat" aria-hidden="true"></i>Reprendre le titre de l’article</button>' : '')) +
             '<span class="ad-flashrow__dates"><label><i class="bi bi-calendar-event" aria-hidden="true"></i> Du <input class="ad-input ad-input--sm" type="date" data-fs="' + i + '" value="' + esc(f.start || '') + '" aria-label="Date de début du flash ' + (i + 1) + '"></label><label>au <input class="ad-input ad-input--sm" type="date" data-fe="' + i + '" value="' + esc(f.end || '') + '" aria-label="Date de fin du flash ' + (i + 1) + '" min="' + esc(f.start || '') + '"></label></span>' +
             '</div></div>' +
           '<label class="ad-switch"><input type="checkbox" data-fa="' + i + '"' + (f.active ? ' checked' : '') + ' aria-label="Flash actif"><span class="d-none d-md-inline">Actif</span></label>' +
+          '<button type="button" class="ad-iconbtn ad-iconbtn--sm" data-fc="' + i + '" aria-label="Dupliquer ce flash" title="Dupliquer"><i class="bi bi-copy" aria-hidden="true"></i></button>' +
           '<button type="button" class="ad-iconbtn ad-iconbtn--sm ad-iconbtn--danger" data-fx="' + i + '" aria-label="Retirer ce flash"><i class="bi bi-trash3" aria-hidden="true"></i></button></div>';
-      }).join('') : '<div class="ad-empty"><strong>Aucun flash</strong>Choisissez un article ci-dessus pour créer le premier flash.</div>';
+      }).join('') : '<div class="ad-empty"><strong>Aucun flash dans cet onglet</strong>Changez de filtre ou créez un nouveau flash.</div>') : '<div class="ad-empty"><strong>Aucun flash</strong>Choisissez un article ci-dessus pour créer le premier flash.</div>';
     }
     $('#flForm').addEventListener('submit', function (e) {
       e.preventDefault(); var id = $('#flArt').value;
@@ -1692,9 +1701,11 @@
       log('a mis en flash « ' + a.title + ' »'); save(); draw(); toast(a.status === 'programme' ? 'Flash ajouté : il s’affichera à la publication' : 'Flash ajouté en tête du bandeau');
     });
     $('#flFreeForm').addEventListener('submit', function (e) {
-      e.preventDefault(); var txt = $('#flFreeTxt').value.trim();
-      if (!setErr(this, 'flFreeTxt', txt ? '' : 'Rédigez le texte du flash.')) return;
-      S.flash.unshift({ id: 'f' + uid(), articleId: '', text: txt, auto: false, active: true, start: day(0), end: addDays(day(0), 1) });
+      e.preventDefault(); var txt = $('#flFreeTxt').value.trim(), url = $('#flFreeUrl').value.trim();
+      var ok = setErr(this, 'flFreeTxt', txt ? '' : 'Rédigez le texte du flash.');
+      ok = setErr(this, 'flFreeUrl', !url || /^https?:\/\/\S+\.\S+$/.test(url) ? '' : 'Lien invalide : commencez par https://') && ok;
+      if (!ok) return;
+      S.flash.unshift({ id: 'f' + uid(), articleId: '', text: txt, url: url, auto: false, active: true, start: day(0), end: addDays(day(0), 1) });
       log('a ajouté le flash libre « ' + txt + ' »'); save(); this.reset(); draw(); toast('Flash libre ajouté en tête : valable jusqu’à demain');
     });
     var tm;
@@ -1722,6 +1733,9 @@
         $$('[data-flmode]', v).forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
         (free ? $('#flFreeTxt') : $('#flArt')).focus(); return;
       }
+      if (b.hasAttribute('data-fltab')) { flTab = b.getAttribute('data-fltab'); draw(); return; }
+      if (b.id === 'flPurge') { var n0 = S.flash.length; S.flash = S.flash.filter(function (f) { return tabOf(f) !== 'hors'; }); save(); draw(); toast(n0 - S.flash.length + ' flash(s) hors ligne purgé(s)'); return; }
+      if (b.hasAttribute('data-fc')) { var src = S.flash[+b.getAttribute('data-fc')]; var copy = JSON.parse(JSON.stringify(src)); copy.id = 'f' + uid(); copy.active = false; copy.updated = new Date().toISOString(); S.flash.splice(+b.getAttribute('data-fc') + 1, 0, copy); save(); draw(); toast('Copie créée, désactivée : activez-la pour l’envoyer en ligne'); return; }
       if (b.hasAttribute('data-fu') || b.hasAttribute('data-fd')) { var i = +(b.getAttribute('data-fu') || b.getAttribute('data-fd')), j = b.hasAttribute('data-fu') ? i - 1 : i + 1, t = S.flash[i]; S.flash[i] = S.flash[j]; S.flash[j] = t; save(); draw(); }
       else if (b.hasAttribute('data-fx')) { S.flash.splice(+b.getAttribute('data-fx'), 1); save(); draw(); toast('Flash retiré du bandeau'); }
       else if (b.hasAttribute('data-fr')) { var f = S.flash[+b.getAttribute('data-fr')]; f.auto = true; f.updated = new Date().toISOString(); syncFlash(); save(); draw(); toast('Le flash reprend le titre de l’article'); }
