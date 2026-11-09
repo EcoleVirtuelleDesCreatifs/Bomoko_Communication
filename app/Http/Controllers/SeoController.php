@@ -57,6 +57,30 @@ class SeoController extends Controller
         return response($txt, 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
     }
 
+    public function llms()
+    {
+        $md = "# Afriquinfos\n\n"
+            ."> Média panafricain francophone : politique, économie, sports, société, culture et opinion sur les six régions du continent africain. Slogan : « Ni totems, ni tabous. »\n\n"
+            ."Site : ".url('/').". Contenu en français. Les URLs canoniques sont celles servies par APP_URL.\n\n"
+            ."## Rubriques\n\n"
+            .Rubrique::orderBy('sort')->get()->map(fn ($r) => '- ['.$r->label.']('.url('/rubrique/'.$r->slug).')'.($r->tagline ? ' : '.$r->tagline : ''))->implode("\n")
+            ."\n\n## Régions couvertes\n\n"
+            .Region::orderBy('sort')->get()->map(fn ($r) => '- ['.$r->label.']('.url('/afriques/'.$r->slug).')')->implode("\n")
+            ."\n\n## Pages utiles\n\n"
+            .'- [Accueil]('.url('/').")\n"
+            .'- [Portraits]('.url('/portraits').") : personnalités qui font l’actualité africaine\n"
+            .'- [Agendas]('.url('/agendas').") : sommets, élections et événements à venir\n"
+            .'- [Flux RSS]('.url('/rss.xml').")\n"
+            .'- [Plan du site]('.url('/sitemap.xml').")\n"
+            .'- [Contact]('.url('/contact').")\n"
+            ."\n## Articles récents\n\n"
+            .Article::published()->orderByDesc('published_at')->limit(30)->get(['slug', 'title', 'chapo'])
+                ->map(fn ($a) => '- ['.str_replace(']', ')', $a->title).']('.route('article.show', $a->slug).')'.($a->chapo ? ' : '.mb_strimwidth($a->chapo, 0, 140, '…') : ''))->implode("\n")
+            ."\n";
+
+        return response($md, 200, ['Content-Type' => 'text/markdown; charset=UTF-8']);
+    }
+
     public function sitemap()
     {
         $pages = max(1, (int) ceil(Article::published()->count() / 5000));
