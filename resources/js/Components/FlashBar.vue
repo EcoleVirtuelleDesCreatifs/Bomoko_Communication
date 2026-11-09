@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { fr, reduceMotion } from '../utils';
 
@@ -7,6 +7,14 @@ const props = defineProps({ items: { type: Array, default: () => [] } });
 const paused = ref(false);
 const n = computed(() => props.items.length);
 const duration = computed(() => Math.max(20, n.value * 12) + 's');
+
+const idx = ref(0);
+const cur = computed(() => props.items[idx.value] ?? {});
+let timer = null;
+onMounted(() => {
+  if (!reduceMotion) timer = setInterval(() => { if (!paused.value) idx.value = (idx.value + 1) % n.value; }, 4500);
+});
+onUnmounted(() => clearInterval(timer));
 </script>
 
 <template>
@@ -28,6 +36,16 @@ const duration = computed(() => Math.max(20, n.value * 12) + 's');
       <button class="aq-flash__pause" type="button" :aria-label="paused ? 'Reprendre le défilement' : 'Mettre le défilement en pause'" :aria-pressed="paused" @click="paused = !paused">
         <i class="bi" :class="paused ? 'bi-play-fill' : 'bi-pause-fill'" aria-hidden="true"></i>
       </button>
+    </div>
+  </div>
+
+  <div class="aq-flash__rotator" role="group" aria-label="Flashs en cours" @click="paused = !paused">
+    <transition name="aqflash" mode="out-in">
+      <Link v-if="cur.url" :key="idx" class="aq-flash__ritem" :href="cur.url">{{ fr(cur.text) }}</Link>
+      <span v-else :key="idx" class="aq-flash__ritem">{{ fr(cur.text) }}</span>
+    </transition>
+    <div class="aq-flash__dots" v-if="n > 1">
+      <button v-for="(f, i) in items" :key="i" type="button" :class="{ on: i === idx }" :aria-label="'Flash ' + (i + 1) + ' sur ' + n" :aria-pressed="i === idx" @click.stop="idx = i"></button>
     </div>
   </div></div></div>
 </template>
@@ -52,4 +70,27 @@ a.aq-flash__item:hover { text-decoration: underline; }
   font-size: .8rem; line-height: 1; border-radius: 3px; cursor: pointer;
 }
 .aq-flash__pause:hover { color: #fff; border-color: #6b6b70; }
+
+/* Rotateur mobile (un flash à la fois) — masqué sur desktop */
+.aq-flash__rotator { display: none; }
+
+@media (max-width: 575.98px) {
+  .aq-flash__ticker, .aq-flash__nav { display: none; }
+  .aq-flash__label strong { animation: aq-flash-blink 1.1s ease-in-out infinite; }
+  .aq-flash__rotator { display: flex; flex-direction: column; gap: .55rem; padding: .65rem 0 .7rem; min-height: 3.6em; }
+  .aq-flash__ritem { font-size: .95rem; font-weight: 600; line-height: 1.35; color: #f3f0eb; text-decoration: none; }
+  .aq-flash__ritem::before { content: "⚡"; margin-right: .55rem; color: var(--aq-orange, #e8650f); font-size: .8rem; }
+  a.aq-flash__ritem:active { color: #ff9d5c; }
+  .aq-flash__dots { display: flex; gap: .4rem; }
+  .aq-flash__dots button { width: 1.4rem; height: 3px; border: 0; border-radius: 2px; background: rgba(255,255,255,.28); padding: 0; cursor: pointer; transition: background .2s, width .2s; }
+  .aq-flash__dots button.on { background: var(--aq-orange, #e8650f); width: 2rem; }
+}
+.aqflash-enter-active, .aqflash-leave-active { transition: opacity .32s ease, transform .32s ease; }
+.aqflash-enter-from { opacity: 0; transform: translateY(.9rem); }
+.aqflash-leave-to { opacity: 0; transform: translateY(-.9rem); }
+@keyframes aq-flash-blink { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+@media (prefers-reduced-motion: reduce) {
+  .aq-flash__label strong { animation: none; }
+  .aqflash-enter-active, .aqflash-leave-active { transition: none; }
+}
 </style>

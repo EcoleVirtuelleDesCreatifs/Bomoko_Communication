@@ -1,4 +1,4 @@
-import { ref, mergeProps, unref, useSSRContext, createVNode, resolveDynamicComponent, withCtx, createTextVNode, toDisplayString, computed, onMounted, watch, onBeforeUnmount, openBlock, createBlock, Fragment, renderList, onUnmounted, createSSRApp, h } from "vue";
+import { ref, mergeProps, unref, useSSRContext, createVNode, resolveDynamicComponent, withCtx, createTextVNode, toDisplayString, computed, onMounted, watch, onBeforeUnmount, onUnmounted, openBlock, createBlock, Fragment, renderList, createSSRApp, h } from "vue";
 import { ssrRenderAttrs, ssrRenderAttr, ssrInterpolate, ssrRenderDynamicModel, ssrRenderClass, ssrIncludeBooleanAttr, ssrRenderVNode, ssrRenderComponent, ssrRenderList, ssrRenderStyle, ssrLooseContain, ssrLooseEqual, ssrRenderSlot, renderToString } from "vue/server-renderer";
 import { useForm, usePage, Link, router, createInertiaApp } from "@inertiajs/vue3";
 import createServer from "@inertiajs/vue3/server";
@@ -1129,9 +1129,18 @@ const _sfc_main$6 = {
     const paused = ref(false);
     const n = computed(() => props.items.length);
     const duration = computed(() => Math.max(20, n.value * 12) + "s");
+    const idx = ref(0);
+    const cur = computed(() => props.items[idx.value] ?? {});
+    let timer = null;
+    onMounted(() => {
+      if (!reduceMotion) timer = setInterval(() => {
+        if (!paused.value) idx.value = (idx.value + 1) % n.value;
+      }, 4500);
+    });
+    onUnmounted(() => clearInterval(timer));
     return (_ctx, _push, _parent, _attrs) => {
       if (n.value) {
-        _push(`<div${ssrRenderAttrs(mergeProps({ class: "aq-flashbar" }, _attrs))} data-v-5e5b3f1c><div class="container-xl" data-v-5e5b3f1c><div class="aq-flash" role="region" aria-label="Flash info" data-v-5e5b3f1c><div class="aq-flash__label" data-v-5e5b3f1c><span class="aq-flash__dot" aria-hidden="true" data-v-5e5b3f1c></span><span data-v-5e5b3f1c><small data-v-5e5b3f1c>En direct</small><strong data-v-5e5b3f1c>Flash info</strong></span></div><div class="aq-flash__viewport aq-flash__ticker" data-v-5e5b3f1c><div class="aq-flash__track" style="${ssrRenderStyle({ animationDuration: duration.value, animationPlayState: paused.value || unref(reduceMotion) ? "paused" : "running" })}" data-v-5e5b3f1c><!--[-->`);
+        _push(`<div${ssrRenderAttrs(mergeProps({ class: "aq-flashbar" }, _attrs))} data-v-6b1512ab><div class="container-xl" data-v-6b1512ab><div class="aq-flash" role="region" aria-label="Flash info" data-v-6b1512ab><div class="aq-flash__label" data-v-6b1512ab><span class="aq-flash__dot" aria-hidden="true" data-v-6b1512ab></span><span data-v-6b1512ab><small data-v-6b1512ab>En direct</small><strong data-v-6b1512ab>Flash info</strong></span></div><div class="aq-flash__viewport aq-flash__ticker" data-v-6b1512ab><div class="aq-flash__track" style="${ssrRenderStyle({ animationDuration: duration.value, animationPlayState: paused.value || unref(reduceMotion) ? "paused" : "running" })}" data-v-6b1512ab><!--[-->`);
         ssrRenderList(2, (rep) => {
           _push(`<!--[--><!--[-->`);
           ssrRenderList(__props.items, (f, i) => {
@@ -1154,7 +1163,7 @@ const _sfc_main$6 = {
                 _: 2
               }, _parent));
             } else {
-              _push(`<span class="aq-flash__item"${ssrRenderAttr("aria-hidden", rep === 2)} data-v-5e5b3f1c>${ssrInterpolate(unref(fr)(f.text))}</span>`);
+              _push(`<span class="aq-flash__item"${ssrRenderAttr("aria-hidden", rep === 2)} data-v-6b1512ab>${ssrInterpolate(unref(fr)(f.text))}</span>`);
             }
             _push(`<!--]-->`);
           });
@@ -1162,7 +1171,37 @@ const _sfc_main$6 = {
         });
         _push(`<!--]--></div></div>`);
         if (n.value > 1) {
-          _push(`<div class="aq-flash__nav" data-v-5e5b3f1c><button class="aq-flash__pause" type="button"${ssrRenderAttr("aria-label", paused.value ? "Reprendre le défilement" : "Mettre le défilement en pause")}${ssrRenderAttr("aria-pressed", paused.value)} data-v-5e5b3f1c><i class="${ssrRenderClass([paused.value ? "bi-play-fill" : "bi-pause-fill", "bi"])}" aria-hidden="true" data-v-5e5b3f1c></i></button></div>`);
+          _push(`<div class="aq-flash__nav" data-v-6b1512ab><button class="aq-flash__pause" type="button"${ssrRenderAttr("aria-label", paused.value ? "Reprendre le défilement" : "Mettre le défilement en pause")}${ssrRenderAttr("aria-pressed", paused.value)} data-v-6b1512ab><i class="${ssrRenderClass([paused.value ? "bi-play-fill" : "bi-pause-fill", "bi"])}" aria-hidden="true" data-v-6b1512ab></i></button></div>`);
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`</div><div class="aq-flash__rotator" role="group" aria-label="Flashs en cours" data-v-6b1512ab>`);
+        if (cur.value.url) {
+          _push(ssrRenderComponent(unref(Link), {
+            key: idx.value,
+            class: "aq-flash__ritem",
+            href: cur.value.url
+          }, {
+            default: withCtx((_, _push2, _parent2, _scopeId) => {
+              if (_push2) {
+                _push2(`${ssrInterpolate(unref(fr)(cur.value.text))}`);
+              } else {
+                return [
+                  createTextVNode(toDisplayString(unref(fr)(cur.value.text)), 1)
+                ];
+              }
+            }),
+            _: 1
+          }, _parent));
+        } else {
+          _push(`<span class="aq-flash__ritem" data-v-6b1512ab>${ssrInterpolate(unref(fr)(cur.value.text))}</span>`);
+        }
+        if (n.value > 1) {
+          _push(`<div class="aq-flash__dots" data-v-6b1512ab><!--[-->`);
+          ssrRenderList(__props.items, (f, i) => {
+            _push(`<button type="button" class="${ssrRenderClass({ on: i === idx.value })}"${ssrRenderAttr("aria-label", "Flash " + (i + 1) + " sur " + n.value)}${ssrRenderAttr("aria-pressed", i === idx.value)} data-v-6b1512ab></button>`);
+          });
+          _push(`<!--]--></div>`);
         } else {
           _push(`<!---->`);
         }
@@ -1179,7 +1218,7 @@ _sfc_main$6.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/FlashBar.vue");
   return _sfc_setup$6 ? _sfc_setup$6(props, ctx) : void 0;
 };
-const FlashBar = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["__scopeId", "data-v-5e5b3f1c"]]);
+const FlashBar = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["__scopeId", "data-v-6b1512ab"]]);
 const FLASH_N = 3;
 const _sfc_main$5 = {
   __name: "Home",
