@@ -274,23 +274,7 @@ class AdminStateController extends Controller
             $state['readerStats'] = ['readers' => (int) $own->sum('views'), 'articles' => (int) $own->clone()->count()];
             $state['readerGeo'] = app(GoogleAnalytics::class)->geo();
         }
-        $scope = Article::published();
-        if (! $editor) {
-            $this->ownArticles($scope, $me);
-        }
-        $allowed = $scope->pluck('slug')->flip();
-        $bySlug = [];
-        foreach (app(GoogleAnalytics::class)->geoByPage() as $r) {
-            if (preg_match('#^/article/([^/?]+)#', $r[0] ?? '', $mm) && $allowed->has($mm[1])) {
-                $bySlug[$mm[1]][$r[1] ?? ''] = ($bySlug[$mm[1]][$r[1] ?? ''] ?? 0) + (int) round($r[2] ?? 0);
-            }
-        }
-        $titles = $scope->clone()->whereIn('slug', array_keys($bySlug))->pluck('title', 'slug');
-        $state['articleCities'] = collect($bySlug)->map(fn ($cities, $slug) => [
-            'slug' => $slug, 'title' => (string) ($titles[$slug] ?? $slug),
-            'total' => array_sum($cities),
-            'cities' => collect($cities)->sortDesc()->take(3)->map(fn ($n, $ville) => [$ville, $n])->values()->all(),
-        ])->sortByDesc('total')->take(6)->values()->all();
+        $cityRows = collect(app(GoogleAnalytics::class)->geo()['articleCities'] ?? []);
         $publishedQuery = Article::published()->whereBetween('published_at', [now()->startOfDay(), now()->endOfDay()]);
         if (! $editor) {
             $this->ownArticles($publishedQuery, $me);
@@ -305,7 +289,14 @@ class AdminStateController extends Controller
             $this->ownArticles($topQuery, $me);
         }
         $state['topMine'] = $topQuery->get(['id', 'slug', 'rubrique_slug', 'country', 'ph', 'img', 'image_path', 'views', 'title', 'author_name', 'published_at', 'updated_at', 'status', 'user_id'])
-            ->map(fn ($a) => $this->articleItem($a))->all();
+            ->map(function ($a) use ($cityRows) {
+                $item = $this->articleItem($a);
+                $item['cities'] = $cityRows->filter(fn ($r) => str_ends_with($r[0], '/article/'.$a->slug))->groupBy(1)
+                    ->map(fn ($g, $c) => ['city' => $c, 'users' => (int) round(collect($g)->sum(2))])
+                    ->sortByDesc('users')->take(3)->values()->all();
+
+                return $item;
+            })->all();
         $loaded = array_flip(array_column($state['articles'], 'id'));
         foreach ($state['publishedToday'] as $item) {
             if (! isset($loaded[$item['id']])) {
@@ -508,7 +499,7 @@ class AdminStateController extends Controller
 
         return response()->json(['ok' => true, 'articles' => $saved, 'revisions' => $state['revisions'],
             'resources' => array_intersect_key($state, array_diff_key($s, ['articles' => true, 'revisions' => true, 'protocol' => true])),
-            'log' => $state['log'], 'teamStats' => $state['teamStats'], 'publishedToday' => $state['publishedToday'], 'topMine' => $state['topMine'], 'articleCities' => $state['articleCities'], 'publicationStats' => $state['publicationStats'], 'dashboardStats' => $state['dashboardStats'], 'warnings' => $this->warnings]);
+            'log' => $state['log'], 'teamStats' => $state['teamStats'], 'publishedToday' => $state['publishedToday'], 'topMine' => $state['topMine'], 'publicationStats' => $state['publicationStats'], 'dashboardStats' => $state['dashboardStats'], 'warnings' => $this->warnings]);
     }
 
     private function audit(string $action): void
