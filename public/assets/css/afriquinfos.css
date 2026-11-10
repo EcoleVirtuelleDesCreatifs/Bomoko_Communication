@@ -439,7 +439,7 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 /* Tips */
 .aq-tip a { display: flex; flex-direction: column; height: 100%; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--bg); transition: box-shadow .2s ease-out, transform .2s ease-out; }
 .aq-tip a:hover { box-shadow: 0 14px 30px -16px rgba(3,3,4,.35); transform: translateY(-2px); }
-.aq-tip .aq-media { position: relative; aspect-ratio: 16 / 9; flex: none; }
+.aq-tip .aq-media { position: relative; aspect-ratio: 16 / 10; flex: none; }
 .aq-tip__body { display: flex; flex-direction: column; gap: .6rem; padding: 1.15rem 1.2rem 1.3rem; }
 .aq-tip i { font-size: 1.5rem; color: var(--orange); line-height: 1; }
 .aq-tip h3 { font-weight: 600; font-size: 1.1875rem; line-height: 1.3; margin: 0; transition: color .15s ease-out; }
@@ -557,7 +557,7 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 .aq-tools__size { font-weight: 700; font-size: .8125rem; }
 .aq-tools__sep { width: 1px; height: 22px; background: var(--line); margin: 0 .4rem; }
 .aq-figure { margin: 0 0 2.25rem; }
-.aq-figure .aq-media { aspect-ratio: 16 / 9; }
+.aq-figure .aq-media { aspect-ratio: 16 / 10; }
 .aq-figure figcaption { font-family: var(--serif); font-style: italic; font-size: .875rem; color: var(--muted); margin-top: .6rem; }
 .aq-figure--body img { display: block; width: auto; max-width: 100%; height: auto; max-height: 420px; margin: 0 auto; object-fit: contain; }
 .aq-prose { font-family: var(--serif); font-size: max(1rem, calc(var(--aq-article-size) + var(--aq-article-size-adjustment, 0rem))); line-height: 1.8; max-width: 680px; min-width: 0; text-align: justify; text-align-last: auto; text-justify: inter-word; -webkit-hyphens: auto; hyphens: auto; hyphenate-limit-chars: 6 3 3; overflow-wrap: break-word; word-break: normal; }
@@ -710,7 +710,7 @@ main:focus { outline: none; }
   [data-theme="dark"] .row > .aq-card:not(.aq-card--h) > a, [data-theme="dark"] .aq-result a { background: rgba(255, 255, 255, .07); }
   .row > .aq-card { margin-bottom: .8rem; }
   .row > .aq-card:not(.aq-card--h) .aq-media,
-  .aq-result .aq-media { margin: 0; aspect-ratio: 16 / 9; border-radius: 8px; clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 24px, 100% 100%, 0 100%); }
+  .aq-result .aq-media { margin: 0; aspect-ratio: 16 / 10; border-radius: 8px; clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 24px, 100% 100%, 0 100%); }
   .row > .aq-card:not(.aq-card--h) > a { border-bottom: 0; }
   .row > .aq-card:not(.aq-card--h) .aq-card__title, .aq-result h3 { font-size: 1.15rem; line-height: 1.3; padding-inline: .35rem; }
   .row > .aq-card:not(.aq-card--h) .aq-card__place { font-size: .75rem; margin-bottom: .15rem; text-transform: uppercase; letter-spacing: .04em; padding-inline: .35rem; }
@@ -722,7 +722,7 @@ main:focus { outline: none; }
   .aq-hlist { display: grid; gap: .55rem; margin-top: 1rem; }
   .aq-card--h a { display: flex; flex-direction: column; gap: 0; padding: 0; background: rgba(3, 3, 4, .05); border-radius: 12px; overflow: hidden; }
   .aq-section--ink .aq-card--h a { background: rgba(255, 255, 255, .07); }
-  .aq-card--h .aq-media { aspect-ratio: 16 / 9; height: auto; width: 100%; border-radius: 0; clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 28px, 100% 100%, 0 100%); }
+  .aq-card--h .aq-media { aspect-ratio: 16 / 10; height: auto; width: 100%; border-radius: 0; clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 28px, 100% 100%, 0 100%); }
   .aq-card--h a > div:last-child { display: flex; flex-direction: column; justify-content: center; min-width: 0; padding: .75rem .95rem .95rem; }
   .aq-card--h .aq-card__title { font-size: 1.12rem; line-height: 1.32; font-weight: 600; }
   .aq-card--h .aq-card__place { font-size: .72rem; margin-bottom: .3rem; text-transform: uppercase; letter-spacing: .05em; }
