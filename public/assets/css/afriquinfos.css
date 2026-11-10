@@ -570,7 +570,7 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 .aq-tools__sep { width: 1px; height: 22px; background: var(--line); margin: 0 .4rem; }
 .aq-figure { margin: 0 0 2.25rem; }
 .aq-figure .aq-media { aspect-ratio: 16 / 10; }
-.aq-figure figcaption { font-family: var(--serif); font-style: italic; font-size: .875rem; color: var(--muted); margin-top: .6rem; }
+.aq-figure figcaption { font-family: var(--serif); font-style: italic; font-size: .875rem; color: var(--muted); margin-top: .6rem; text-align: center; }
 .aq-figure--body img { display: block; width: auto; max-width: 100%; height: auto; max-height: 420px; margin: 0 auto; object-fit: contain; }
 .aq-prose { font-family: var(--serif); font-size: max(1rem, calc(var(--aq-article-size) + var(--aq-article-size-adjustment, 0rem))); line-height: 1.8; max-width: 680px; min-width: 0; text-align: justify; text-align-last: auto; text-justify: inter-word; -webkit-hyphens: auto; hyphens: auto; hyphenate-limit-chars: 6 3 3; overflow-wrap: break-word; word-break: normal; }
 .aq-prose p { margin: 0 0 1.15em; }
@@ -585,7 +585,7 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 .aq-prose img { display: block; width: auto; max-width: 100%; height: auto; max-height: 420px; margin: 0 auto; object-fit: contain; }
 .aq-prose ul, .aq-prose ol { margin: 0 0 1.15em; padding-left: 1.5rem; text-align: start; }
 .aq-prose figure { margin: 0 0 2.25rem; }
-.aq-prose figcaption { font-family: var(--serif); font-style: italic; font-size: .875rem; color: var(--muted); margin-top: .6rem; text-align: start; }
+.aq-prose figcaption { font-family: var(--serif); font-style: italic; font-size: .875rem; color: var(--muted); margin-top: .6rem; text-align: center; }
 .aq-prose table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: 0 0 1.15em; text-align: start; }
 .aq-prose th, .aq-prose td { border: 1px solid var(--line); padding: .5rem; }
 .aq-prose [align="left"] { text-align: left; }
