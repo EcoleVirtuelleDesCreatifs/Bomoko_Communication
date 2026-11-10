@@ -395,6 +395,8 @@ class AdminStateController extends Controller
             'users.*.id' => 'required|string', 'users.*.name' => 'required|string|max:255',
             'users.*.email' => 'required|email|max:255', 'users.*.role' => 'required|in:admin,chef,journaliste,contributeur',
             'users.*.status' => 'required|in:actif,invite,suspendu',
+            'users.*.resend' => 'nullable|boolean',
+            'usersDeleted' => 'sometimes|array', 'usersDeleted.*' => 'required|string|max:255|distinct',
             'flash.*.id' => 'required|string|max:255', 'flash.*.active' => 'required|boolean',
             'flash.*.text' => 'required|string|max:1000', 'flash.*.start' => 'nullable|date_format:Y-m-d',
             'flash.*.end' => 'nullable|date_format:Y-m-d', 'flash.*.url' => 'nullable|url|max:500',
@@ -423,6 +425,9 @@ class AdminStateController extends Controller
                         'Conflit sur '.$key.' : rechargez les données avant de réessayer.');
                     if (isset($methods[$key]) || $key === 'users') {
                         $missing = array_diff(array_column($current[$key], 'id'), array_column($s[$key], 'id'));
+                        if ($key === 'users') {
+                            $missing = array_diff($missing, $s['usersDeleted'] ?? []);
+                        }
                         abort_if($missing !== [], 422, 'La suppression implicite est désactivée pour préserver les données : '.$key);
                     }
                 }
@@ -432,7 +437,7 @@ class AdminStateController extends Controller
                     }
                 }
                 if (isset($s['users'])) {
-                    $this->syncUsers($s['users'], $request->user());
+                    $this->syncUsers($s['users'], $request->user(), $s['usersDeleted'] ?? []);
                 }
                 if (isset($s['articles'])) {
                     $saved = $this->syncArticles($s['articles'], $s['medias'] ?? $current['medias'] ?? []);
@@ -793,7 +798,7 @@ class AdminStateController extends Controller
         $current?->update(['is_current' => true]);
     }
 
-    private function syncUsers(array $items, ?User $me): void
+    private function syncUsers(array $items, ?User $me, array $deleted = []): void
     {
         $kept = [];
         foreach ($items as $u) {
@@ -858,7 +863,9 @@ class AdminStateController extends Controller
                 $kept[] = $row->id;
             }
         }
-        $gone = User::whereNotIn('id', $kept)->where('id', '!=', $me?->id)->pluck('id');
+        $gone = collect($deleted)
+            ->map(fn ($id) => preg_match('/^u(\d+)$/', (string) $id, $m) ? (int) $m[1] : null)
+            ->filter()->unique()->diff([$me?->id])->values();
         if ($gone->isNotEmpty()) {
             Article::whereIn('user_id', $gone)->update(['user_id' => null]);
             User::whereIn('id', $gone)->delete();

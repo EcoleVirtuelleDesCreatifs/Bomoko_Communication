@@ -188,7 +188,7 @@
   }
   // les articles programmés dont l'heure est passée sont publiés
   var saveTimer, saveBusy = false, saveQueued = false, editorSubmission = null;
-  var SYNCED = {}, confirmedSchedules = Object.create(null), syncedResources = {}, revisions = S.revisions || {};
+  var SYNCED = {}, confirmedSchedules = Object.create(null), syncedResources = {}, revisions = S.revisions || {}, usersDeleted = [];
   var resourceKeys = ['rubriques', 'regions', 'agenda', 'comments', 'subscribers', 'messages', 'debats', 'users', 'flash', 'medias', 'ads', 'slots', 'settings'];
   function rememberSchedule(a) { if (a.status === 'programme') confirmedSchedules[a.id] = a.date; else delete confirmedSchedules[a.id]; }
   function markSynced(rows) { (rows || []).forEach(function (a) { SYNCED[a.id] = a.updated; rememberSchedule(a); }); }
@@ -275,6 +275,7 @@
       }
       payload.revisions[k] = revisions[k];
     });
+    if (sent.users && usersDeleted.length) payload.usersDeleted = usersDeleted.slice();
     if (!dirty.length && !Object.keys(sent).length) return;
     saveBusy = true;
     var indicator = $('#edSaved');
@@ -306,6 +307,7 @@
           else if (JSON.stringify(S[k]) === sent[k]) S[k] = canonical;
           syncedResources[k] = JSON.stringify(canonical); revisions[k] = j.revisions[k];
         });
+        if (sent.users) usersDeleted = [];
         S.log = j.log || []; S.teamStats = j.teamStats || S.teamStats; S.publishedToday = j.publishedToday || [];
         S.publicationStats = j.publicationStats || S.publicationStats; S.dashboardStats = j.dashboardStats || S.dashboardStats;
         if (sent.users) ME = S.users.filter(function (u) { return u.id === ME.id; })[0] || ME;
@@ -2235,7 +2237,7 @@
         u.resend = true; log('a renvoyé l’invitation à ' + u.email); save(); toast('Nouvelle invitation envoyée à ' + u.email); return;
       }
       if (b.hasAttribute('data-rmd')) {
-        confirmBox('Supprimer le compte de ' + u.name + ' ?', 'Le compte est définitivement retiré ; ses articles restent publiés sous son nom.', 'Supprimer le compte', function () { S.users = S.users.filter(function (x) { return x.id !== u.id; }); log('a supprimé le compte de ' + u.name); save(); draw(); toast('Suppression en attente de confirmation serveur'); }); return;
+        confirmBox('Supprimer le compte de ' + u.name + ' ?', 'Le compte est définitivement retiré ; ses articles restent publiés sous son nom.', 'Supprimer le compte', function () { S.users = S.users.filter(function (x) { return x.id !== u.id; }); if (/^u\d+$/.test(u.id)) usersDeleted.push(u.id); log('a supprimé le compte de ' + u.name); save(); draw(); toast('Suppression en attente de confirmation serveur'); }); return;
       }
       confirmBox('Suspendre l’accès de ' + u.name + ' ?', 'Le compte, son historique et ses articles seront conservés.', 'Suspendre l’accès', function () { u.status = 'suspendu'; log('a suspendu l’accès de ' + u.name); save(); draw(); toast('Suspension en attente de confirmation serveur'); });
     });
