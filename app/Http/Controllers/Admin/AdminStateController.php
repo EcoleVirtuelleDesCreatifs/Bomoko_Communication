@@ -281,7 +281,7 @@ class AdminStateController extends Controller
         $allowed = $scope->pluck('slug')->flip();
         $bySlug = [];
         foreach (app(GoogleAnalytics::class)->geoByPage() as $r) {
-            if (preg_match('#^/article/([^/?#]+)#', $r[0] ?? '', $mm) && $allowed->has($mm[1])) {
+            if (preg_match('#^/article/([^/?]+)#', $r[0] ?? '', $mm) && $allowed->has($mm[1])) {
                 $bySlug[$mm[1]][$r[1] ?? ''] = ($bySlug[$mm[1]][$r[1] ?? ''] ?? 0) + (int) round($r[2] ?? 0);
             }
         }
