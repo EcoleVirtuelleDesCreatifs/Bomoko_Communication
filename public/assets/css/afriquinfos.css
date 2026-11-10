@@ -80,7 +80,7 @@ h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; }
 /* ---------- Visuels de démonstration : noir et orange ---------- */
 .aq-media { position: relative; overflow: hidden; aspect-ratio: 16 / 10; background: #1a1918; }
 .aq-media--wide { aspect-ratio: 16 / 10; }
-.aq-media > img, .aq-slide__media > img, .aq-poster > img, .aq-portrait__visual > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.aq-media > img, .aq-slide__media > img, .aq-poster > img, .aq-portrait__visual > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
 .aq-media--cut, .aq-portrait__visual, .aq-slide__media { clip-path: polygon(0 0, calc(100% - 28px) 0, 100% 43px, 100% 100%, 0 100%); }
 .aq-ph { position: absolute; inset: 0; display: grid; place-items: center; background-color: #141312; background-size: 4px 4px, cover, cover; transition: transform .7s cubic-bezier(.2,.7,.2,1); }
 a:hover .aq-ph { transform: scale(1.03); }
