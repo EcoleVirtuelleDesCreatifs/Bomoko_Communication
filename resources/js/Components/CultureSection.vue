@@ -138,7 +138,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', update))
 .aq-culture__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: clamp(28px, 4vw, 48px); }
 .aq-culture__eyebrow { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; font-size: 12px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); }
 .aq-culture__eyebrow span { width: 28px; height: 2px; background: currentColor; }
-.aq-culture__title { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(48px, 8vw, 104px); line-height: .9; letter-spacing: -.02em; }
+.aq-culture__title { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(1.6rem, 1.3rem + .9vw, 2.1rem); line-height: 1.1; letter-spacing: -.02em; }
 .aq-culture__tagline { margin: 14px 0 0; max-width: 34ch; font-size: clamp(16px, 1.5vw, 19px); color: var(--muted); }
 .aq-culture__actions { display: flex; align-items: center; gap: 20px; }
 .aq-culture__nav { display: flex; gap: 8px; }
