@@ -334,6 +334,13 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 
 .aq-lead a { display: block; }
 .aq-lead .aq-media { margin-bottom: 1.4rem; }
+.aq-lead--hero > a { position: relative; display: block; border-radius: 12px; overflow: hidden; }
+.aq-lead--hero .aq-media { margin: 0; aspect-ratio: 16 / 8; clip-path: none; }
+.aq-lead--hero .aq-lead__overlay { position: absolute; inset: auto 0 0 0; padding: clamp(1.5rem, 3vw, 2.75rem); padding-top: 5rem; background: linear-gradient(180deg, transparent, rgba(5, 4, 3, .88) 55%); color: #f3f0eb; }
+.aq-lead--hero .aq-card__place { display: inline-block; padding: .3rem .6rem; background: var(--orange); color: #030304; border-radius: 4px; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin: 0 0 .6rem; }
+.aq-lead--hero .aq-lead__title { color: #fff; font-size: clamp(1.5rem, 3.2vw, 2.6rem); max-width: 46rem; }
+.aq-lead--hero .aq-lead__text { color: rgba(255,255,255,.82); max-width: 44rem; margin-bottom: .25rem; }
+.aq-lead--hero a:hover .aq-lead__title { color: #fff; }
 .aq-lead__title { font-weight: 700; font-size: clamp(1.5rem, 1.15rem + 1vw, 2.05rem); line-height: 1.15; letter-spacing: -.02em; margin: 0 0 .8rem; transition: color .15s ease-out; }
 .aq-lead__text { font-family: var(--serif); font-size: 1.125rem; line-height: 1.55; color: var(--text-2); margin: 0; }
 .aq-stack__item { display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); gap: 1.15rem; align-items: center; padding: 1.35rem 0; border-bottom: 1px solid var(--line); }
@@ -730,6 +737,10 @@ main:focus { outline: none; }
   .aq-section--ink .aq-lead > a, .aq-section--ink .aq-stack__item { background: rgba(255, 255, 255, .07); }
   .aq-lead__title { font-size: 1.5rem; }
   .aq-lead__text { font-size: 1.0625rem; }
+  .aq-lead--hero .aq-media { aspect-ratio: 4 / 3.4; }
+  .aq-lead--hero .aq-lead__overlay { padding: 1rem; padding-top: 3.5rem; }
+  .aq-lead--hero .aq-lead__title { font-size: 1.3rem; }
+  .aq-lead--hero .aq-lead__text { font-size: .92rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .aq-event { grid-template-columns: 64px 1fr; gap: 1rem; }
   .aq-event__day { font-size: 2.5rem; }
 

@@ -64,11 +64,9 @@ const kickerMode = computed(() => (props.mode === 'rubrique' ? null : 'rub'));
       <button type="button" :aria-pressed="filter === 'all'" @click="pickFilter('all')">Tout<small>{{ articles.length }}</small></button>
       <button v-for="c in chips" :key="c.value" type="button" :aria-pressed="filter === c.value" @click="pickFilter(c.value)">{{ c.label }}<small>{{ c.count }}</small></button>
     </div>
-    <article v-if="lead" class="aq-lead aq-fade"><Link :href="lead.url">
+    <article v-if="lead" class="aq-lead aq-lead--hero aq-fade"><Link :href="lead.url">
       <div class="aq-media aq-media--cut aq-media--wide"><AqMedia :a="lead" /></div>
-      <span class="aq-card__place mt-3">{{ fr(kicker(lead, kickerMode)) }}</span>
-      <h2 class="aq-lead__title mt-1">{{ fr(lead.title) }}</h2>
-      <p class="aq-lead__text">{{ fr(lead.chapo) }}</p></Link></article>
+      <div class="aq-lead__overlay"><span class="aq-card__place">{{ fr(kicker(lead, kickerMode)) }}</span><h2 class="aq-lead__title mt-1">{{ fr(lead.title) }}</h2><p class="aq-lead__text">{{ fr(lead.chapo) }}</p></div></Link></article>
     <p v-else class="aq-empty">Aucun article pour ce filtre. Choisissez « Tout » pour tout afficher.</p>
     <div class="row g-4 mt-1" aria-live="polite">
       <ArticleCard v-for="a in grid" :key="a.id" :a="a" col="col-md-6 aq-fade" :kicker-mode="kickerMode" />
