@@ -275,6 +275,12 @@ class AdminStateController extends Controller
                 'image_path', 'views', 'title', 'chapo', 'author_name', 'published_at', 'updated_at', 'read_time',
                 'tags', 'status', 'meta_desc', 'is_une', 'person', 'icon', 'media_id', 'user_id'])
             ->map(fn ($a) => $this->articleItem($a))->all();
+        $topQuery = Article::published()->orderByDesc('views')->limit(5);
+        if (! $editor) {
+            $this->ownArticles($topQuery, $me);
+        }
+        $state['topMine'] = $topQuery->get(['id', 'slug', 'rubrique_slug', 'country', 'ph', 'img', 'image_path', 'views', 'title', 'author_name', 'published_at', 'updated_at', 'status', 'user_id'])
+            ->map(fn ($a) => $this->articleItem($a))->all();
         $loaded = array_flip(array_column($state['articles'], 'id'));
         foreach ($state['publishedToday'] as $item) {
             if (! isset($loaded[$item['id']])) {
@@ -477,7 +483,7 @@ class AdminStateController extends Controller
 
         return response()->json(['ok' => true, 'articles' => $saved, 'revisions' => $state['revisions'],
             'resources' => array_intersect_key($state, array_diff_key($s, ['articles' => true, 'revisions' => true, 'protocol' => true])),
-            'log' => $state['log'], 'teamStats' => $state['teamStats'], 'publishedToday' => $state['publishedToday'], 'publicationStats' => $state['publicationStats'], 'dashboardStats' => $state['dashboardStats'], 'warnings' => $this->warnings]);
+            'log' => $state['log'], 'teamStats' => $state['teamStats'], 'publishedToday' => $state['publishedToday'], 'topMine' => $state['topMine'], 'publicationStats' => $state['publicationStats'], 'dashboardStats' => $state['dashboardStats'], 'warnings' => $this->warnings]);
     }
 
     private function audit(string $action): void

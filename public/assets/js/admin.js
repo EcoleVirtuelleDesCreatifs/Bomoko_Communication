@@ -518,7 +518,7 @@
     var counts = totals.rubriques || [];
     var cmax = Math.max.apply(null, counts.map(function (c) { return c.n; }));
     var recent = S.articles.filter(function (a) { return a.status !== 'corbeille'; }).sort(function (a, b) { return b.updated.localeCompare(a.updated); }).slice(0, 6);
-    var top = pub.slice().sort(function (a, b) { return b.views - a.views; }).slice(0, 5);
+    var top = (S.topMine && S.topMine.length ? S.topMine : pub.slice().sort(function (a, b) { return b.views - a.views; })).slice(0, 5);
     var todo = [];
     if (pending()) todo.push(['bi-chat-left-text', plural(pending(), 'commentaire attend', 'commentaires attendent') + ' une modération', '#commentaires']);
     S.articles.filter(function (a) { return a.status === 'relecture'; }).forEach(function (a) { todo.push(['bi-eye', 'À relire : « ' + a.title + ' »', 'edit:' + a.id]); });
@@ -584,7 +584,7 @@
         '</div></div></section>' +
       '</div>' +
       '<div class="ad-grid ad-grid--halves">' +
-        '<section class="ad-panel" aria-labelledby="hTop"><div class="ad-panel__head"><h2 id="hTop">Les plus lus</h2></div><ul class="ad-list">' +
+        '<section class="ad-panel" aria-labelledby="hTop"><div class="ad-panel__head"><h2 id="hTop">' + ((ME.role === 'admin' || ME.role === 'chef') ? 'Les plus lus' : 'Mes articles les plus lus') + '</h2></div><ul class="ad-list">' +
           top.map(function (a, k) { return '<li><span class="ad-rank">' + (k + 1) + '</span><div class="ad-thumb">' + coverOf(a) + '</div><div class="ad-list__main"><a href="#" data-edit="' + a.id + '">' + fr(a.title) + '</a><small class="tnum">' + fmtNum.format(a.views) + ' lectures</small></div></li>'; }).join('') + '</ul></section>' +
         '<section class="ad-panel" aria-labelledby="hLog"><div class="ad-panel__head"><h2 id="hLog">Activité de l’équipe</h2></div><ul class="ad-list">' +
           S.log.slice(0, 5).map(function (l) { return '<li><span class="ad-avatar ad-avatar--sm" aria-hidden="true">' + initials(l.who) + '</span><div class="ad-list__main"><strong>' + esc(l.who) + '</strong><small>' + fr(l.what) + ', ' + rel(l.at) + '</small></div></li>'; }).join('') + '</ul></section>' +
