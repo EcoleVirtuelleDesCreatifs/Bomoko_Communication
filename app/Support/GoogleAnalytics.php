@@ -83,6 +83,36 @@ class GoogleAnalytics
         return $result;
     }
 
+    public function geoByPage(): array
+    {
+        $cached = Cache::get('ga4-geo-page');
+        if (is_array($cached)) {
+            return $cached;
+        }
+        $property = config('services.google_analytics.property_id');
+        $credentials = config('services.google_analytics.credentials_path');
+        if (! $property || ! $credentials) {
+            return [];
+        }
+        if (! str_starts_with($credentials, '/')) {
+            $credentials = base_path($credentials);
+        }
+        if (! is_file($credentials)) {
+            return [];
+        }
+        try {
+            $client = new BetaAnalyticsDataClient(['credentials' => $credentials]);
+            $result = $this->report($client, 'properties/'.ltrim($property, 'properties/'),
+                [new DateRange(['start_date' => '30daysAgo', 'end_date' => 'today'])],
+                ['pagePath', 'city'], ['activeUsers'], 'activeUsers', 400);
+        } catch (Throwable) {
+            $result = [];
+        }
+        Cache::put('ga4-geo-page', $result, now()->addMinutes(30));
+
+        return $result;
+    }
+
     private function fetch(string $property, string $credentials, string $start, string $end): array
     {
         $client = new BetaAnalyticsDataClient(['credentials' => $credentials]);
