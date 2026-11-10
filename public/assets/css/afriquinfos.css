@@ -353,7 +353,7 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 .aq-hlist { display: flex; flex-direction: column; }
 .aq-card--h { padding: 1.5rem 0; border-bottom: 1px solid var(--line); }
 .aq-card--h:first-child { padding-top: 0; }
-.aq-card--h a { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 1.5rem; align-items: start; }
+.aq-card--h a { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.5rem; align-items: start; }
 .aq-card--h .aq-media { margin: 0; }
 
 /* Filtres : texte souligné */
