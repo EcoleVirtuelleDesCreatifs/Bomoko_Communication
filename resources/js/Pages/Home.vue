@@ -318,10 +318,10 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
 <style scoped>
 #cultureRail { grid-auto-columns: min(78%, 280px); justify-content: start; }
 #cultureRail .aq-poster { min-width: 0; }
-#cultureRail .aq-poster :deep(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+#cultureRail .aq-poster :deep(.aq-media) { aspect-ratio: 16 / 10; width: 100%; clip-path: polygon(0 0, calc(100% - 26px) 0, 100% 40px, 100% 100%, 0 100%); }
+#cultureRail .aq-poster :deep(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
 @media (min-width: 992px) {
   #cultureRail { grid-auto-columns: 360px; }
-  #cultureRail .aq-poster { width: 360px; height: 225px; aspect-ratio: 8 / 5; }
-  #cultureRail .aq-poster__kind { right: 1.25rem; width: fit-content; max-width: calc(100% - 2.5rem); }
+  #cultureRail .aq-poster { width: 360px; }
 }
 </style>
