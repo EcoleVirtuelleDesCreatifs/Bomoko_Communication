@@ -2283,15 +2283,17 @@ const _sfc_main$1 = {
             if (_push2) {
               _push2(`<div class="aq-media aq-media--cut aq-media--wide"${_scopeId}>`);
               _push2(ssrRenderComponent(_sfc_main$c, { a: lead.value }, null, _parent2, _scopeId));
-              _push2(`</div><span class="aq-card__place mt-3"${_scopeId}>${ssrInterpolate(unref(fr)(unref(kicker)(lead.value, kickerMode.value)))}</span><h2 class="aq-lead__title mt-1"${_scopeId}>${ssrInterpolate(unref(fr)(lead.value.title))}</h2><p class="aq-lead__text"${_scopeId}>${ssrInterpolate(unref(fr)(lead.value.chapo))}</p>`);
+              _push2(`</div><div class="aq-lead__info"${_scopeId}><span class="aq-card__place"${_scopeId}>${ssrInterpolate(unref(fr)(unref(kicker)(lead.value, kickerMode.value)))}</span><h2 class="aq-lead__title"${_scopeId}>${ssrInterpolate(unref(fr)(lead.value.title))}</h2><p class="aq-lead__text"${_scopeId}>${ssrInterpolate(unref(fr)(lead.value.chapo))}</p></div>`);
             } else {
               return [
                 createVNode("div", { class: "aq-media aq-media--cut aq-media--wide" }, [
                   createVNode(_sfc_main$c, { a: lead.value }, null, 8, ["a"])
                 ]),
-                createVNode("span", { class: "aq-card__place mt-3" }, toDisplayString(unref(fr)(unref(kicker)(lead.value, kickerMode.value))), 1),
-                createVNode("h2", { class: "aq-lead__title mt-1" }, toDisplayString(unref(fr)(lead.value.title)), 1),
-                createVNode("p", { class: "aq-lead__text" }, toDisplayString(unref(fr)(lead.value.chapo)), 1)
+                createVNode("div", { class: "aq-lead__info" }, [
+                  createVNode("span", { class: "aq-card__place" }, toDisplayString(unref(fr)(unref(kicker)(lead.value, kickerMode.value))), 1),
+                  createVNode("h2", { class: "aq-lead__title" }, toDisplayString(unref(fr)(lead.value.title)), 1),
+                  createVNode("p", { class: "aq-lead__text" }, toDisplayString(unref(fr)(lead.value.chapo)), 1)
+                ])
               ];
             }
           }),
