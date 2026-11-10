@@ -302,7 +302,8 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 .aq-section--orange {
   background: var(--orange); --text: #030304; --text-2: #1c1a18; --muted: #1c1a18; --line: rgba(3,3,4,.28); --accent: #030304; --mark: #ffffff; --bg: #de5011;
 }
-.aq-afriques { position: relative; overflow: hidden; }
+.aq-afriques { position: relative; overflow: hidden; background: linear-gradient(115deg, #a83a0a 0%, var(--orange) 52%, #f27a28 100%); }
+.aq-afriques::after { content: ""; position: absolute; width: 3rem; height: 30rem; top: -6rem; right: 21%; background: rgba(255,255,255,.05); transform: skewX(var(--slant)); pointer-events: none; }
 .aq-afriques::before { content: ""; position: absolute; top: 50%; right: -4rem; width: min(46vw, 34rem); aspect-ratio: 600 / 158; transform: translateY(-50%); background: url('/assets/img/logo-compact-negatif.png') center / contain no-repeat; opacity: .14; pointer-events: none; }
 .aq-afriques > .container-xl { position: relative; }
 .aq-afriques .aq-card a { background: rgba(255, 255, 255, .94); border-radius: 10px; padding: 1rem; box-shadow: 0 10px 24px -14px rgba(3,3,4,.35); }
