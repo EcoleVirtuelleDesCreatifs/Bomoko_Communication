@@ -291,7 +291,7 @@ class AdminStateController extends Controller
             $this->ownArticles($topQuery, $me);
         }
         $state['topMine'] = $topQuery->get(['id', 'slug', 'rubrique_slug', 'country', 'ph', 'img', 'image_path', 'views', 'title', 'author_name', 'published_at', 'updated_at', 'status', 'user_id'])
-            ->map(function ($a) use ($cityRows) {
+            ->map(function ($a) use ($cityRows, $countryRows) {
                 $item = $this->articleItem($a);
                 $item['cities'] = $cityRows->filter(fn ($r) => str_ends_with($r[0], '/article/'.$a->slug))->groupBy(1)
                     ->map(fn ($g, $c) => ['city' => $c, 'users' => (int) round(collect($g)->sum(2))])
