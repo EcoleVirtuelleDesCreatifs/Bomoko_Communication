@@ -567,3 +567,16 @@ h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
   .aq-prose h3, .ad-prose h3, .ad-editor__body h3 { font-size: 1.15rem; margin: 1.6rem 0 .6rem; }
   .aq-prose blockquote, .ad-prose blockquote, .ad-editor__body blockquote { margin: 1.5rem 0; padding: .9rem 1rem .9rem 1.25rem; font-size: 1.15rem; line-height: 1.45; }
 }
+
+/* Audience personnelle : KPI + barres géographiques */
+.ad-audkpi { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; padding-bottom: 1rem; }
+.ad-audkpi__card { display: flex; align-items: center; gap: .85rem; padding: .9rem 1rem; border: 1px solid var(--ad-line); border-left: 4px solid var(--orange); border-radius: 10px; background: rgba(3, 3, 4, .03); }
+.ad-audkpi__card > i { font-size: 1.5rem; color: var(--orange); }
+.ad-audkpi__num { font-size: 1.6rem; font-weight: 800; line-height: 1.05; letter-spacing: -.02em; }
+.ad-geo { list-style: none; margin: 0; padding: 0; display: grid; gap: .55rem; }
+.ad-geo li { display: flex; align-items: center; gap: .7rem; }
+.ad-geo__name { flex: 0 0 38%; font-weight: 600; font-size: .875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ad-geo__track { flex: 1; height: .45rem; background: rgba(3, 3, 4, .08); border-radius: 3px; overflow: hidden; }
+.ad-geo__bar { display: block; height: 100%; background: var(--orange); border-radius: 3px; }
+.ad-geo__val { flex: none; font-size: .8125rem; font-weight: 700; }
+@media (max-width: 575.98px) { .ad-audkpi { grid-template-columns: 1fr; } }

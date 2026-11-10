@@ -274,7 +274,9 @@ class AdminStateController extends Controller
             $state['readerStats'] = ['readers' => (int) $own->sum('views'), 'articles' => (int) $own->clone()->count()];
             $state['readerGeo'] = app(GoogleAnalytics::class)->geo();
         }
-        $cityRows = collect(app(GoogleAnalytics::class)->geo()['articleCities'] ?? []);
+        $geoData = app(GoogleAnalytics::class)->geo();
+        $cityRows = collect($geoData['articleCities'] ?? []);
+        $countryRows = collect($geoData['articleCountries'] ?? []);
         $publishedQuery = Article::published()->whereBetween('published_at', [now()->startOfDay(), now()->endOfDay()]);
         if (! $editor) {
             $this->ownArticles($publishedQuery, $me);
@@ -293,6 +295,9 @@ class AdminStateController extends Controller
                 $item = $this->articleItem($a);
                 $item['cities'] = $cityRows->filter(fn ($r) => str_ends_with($r[0], '/article/'.$a->slug))->groupBy(1)
                     ->map(fn ($g, $c) => ['city' => $c, 'users' => (int) round(collect($g)->sum(2))])
+                    ->sortByDesc('users')->take(3)->values()->all();
+                $item['countries'] = $countryRows->filter(fn ($r) => str_ends_with($r[0], '/article/'.$a->slug))->groupBy(1)
+                    ->map(fn ($g, $c) => ['country' => $c, 'users' => (int) round(collect($g)->sum(2))])
                     ->sortByDesc('users')->take(3)->values()->all();
 
                 return $item;

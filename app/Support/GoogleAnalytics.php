@@ -75,6 +75,7 @@ class GoogleAnalytics
                 'countries' => $this->report($client, $property, $range, ['country'], ['activeUsers'], 'activeUsers', 8),
                 'cities' => $this->report($client, $property, $range, ['city'], ['activeUsers'], 'activeUsers', 8),
                 'articleCities' => $this->report($client, $property, $range, ['pagePath', 'city'], ['activeUsers'], 'activeUsers', 60),
+                'articleCountries' => $this->report($client, $property, $range, ['pagePath', 'country'], ['activeUsers'], 'activeUsers', 60),
             ];
         } catch (Throwable $e) {
             $result = ['configured' => true, 'error' => 'API GA4 indisponible : '.$e->getMessage()];
