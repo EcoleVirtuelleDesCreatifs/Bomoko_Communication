@@ -183,8 +183,11 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
       <button type="button" :aria-pressed="regionFilter === 'all'" @click="regionFilter = 'all'">Toutes</button>
       <button v-for="g in regions" :key="g.slug" type="button" :aria-pressed="regionFilter === g.slug" @click="regionFilter = g.slug">{{ g.label }}</button>
     </div>
-    <div class="row g-4 g-xl-5" aria-live="polite">
-      <ArticleCard v-for="a in regionList" :key="a.id" :a="a" col="col-md-6 col-xl-4 aq-fade" kicker-mode="rub" />
+    <div class="aq-afr" aria-live="polite">
+      <article v-if="regionList[0]" class="aq-afr__lead"><Link :href="regionList[0].url">
+        <div class="aq-media aq-media--cut"><AqMedia :a="regionList[0]" /></div>
+        <div class="aq-afr__body"><span class="aq-card__place">{{ fr(kicker(regionList[0], 'rub')) }}</span><h3 class="aq-afr__title">{{ fr(regionList[0].title) }}</h3><time class="aq-card__meta" :datetime="regionList[0].date">{{ rel(regionList[0].date) }}</time></div></Link></article>
+      <div class="aq-afr__grid"><ArticleCard v-for="a in regionList.slice(1)" :key="a.id" :a="a" col="aq-fade" kicker-mode="rub" /></div>
       <p v-if="!regionList.length" class="aq-empty">Aucun article récent pour cette région.</p>
     </div>
   </div></section>

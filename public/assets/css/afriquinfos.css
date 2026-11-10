@@ -859,3 +859,19 @@ main:focus { outline: none; }
 .aq-ra__headline { font-size: .9375rem; font-weight: 600; line-height: 1.35; display: block; transition: color .25s; }
 .aq-ra__link:hover .aq-ra__headline { color: #fff; }
 @media (max-width: 420px) { .aq-ra__link { grid-template-columns: 4.5rem minmax(0, 1fr); gap: .9rem; } }
+
+/* Les Afriques : lead horizontal + grille */
+.aq-afr__lead > a { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; background: #f8f4ec; border: 1px solid rgba(3,3,4,.12); border-radius: 14px; overflow: hidden; margin-bottom: 1.5rem; transition: box-shadow .2s ease-out; }
+.aq-afr__lead > a:hover { box-shadow: 0 18px 40px -20px rgba(3,3,4,.45); }
+.aq-afr__lead .aq-media { aspect-ratio: auto; min-height: 100%; clip-path: none; }
+.aq-afr__body { display: flex; flex-direction: column; justify-content: center; padding: 1.5rem 1.6rem; }
+.aq-afr__title { font-weight: 700; font-size: clamp(1.3rem, 1rem + 1.1vw, 1.9rem); line-height: 1.15; letter-spacing: -.02em; margin: .4rem 0 .7rem; text-wrap: balance; }
+.aq-afr__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+@media (max-width: 991.98px) {
+  .aq-afr__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 575.98px) {
+  .aq-afr__lead > a { grid-template-columns: 1fr; }
+  .aq-afr__lead .aq-media { aspect-ratio: 16 / 10; min-height: 0; }
+  .aq-afr__grid { grid-template-columns: 1fr; }
+}
