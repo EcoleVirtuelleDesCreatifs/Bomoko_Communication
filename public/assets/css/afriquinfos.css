@@ -307,7 +307,14 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 .aq-afriques > .container-xl { position: relative; }
 .aq-afriques .aq-card a { background: rgba(255, 255, 255, .94); border-radius: 10px; padding: 1rem; box-shadow: 0 10px 24px -14px rgba(3,3,4,.35); }
 .aq-afriques .aq-card .aq-media { border-radius: 8px; }
+.aq-afriques .aq-filters button { border: 1.5px solid rgba(3, 3, 4, .55); background: transparent; color: #030304; font-weight: 600; border-radius: 999px; padding: .45rem 1rem; }
+.aq-afriques .aq-filters button:hover { border-color: #030304; background: rgba(3, 3, 4, .08); }
 .aq-afriques .aq-filters button[aria-pressed="true"] { background: #030304; color: #f3f0eb; border-color: #030304; }
+.aq-afriques .aq-chapter__head { border-top-color: #030304; }
+.aq-afriques .aq-chapter__tagline { color: rgba(3, 3, 4, .72); }
+.aq-afriques .aq-card { transition: transform .2s ease-out; }
+.aq-afriques .aq-card:hover { transform: translateY(-3px); }
+.aq-afriques .aq-card a { border-top: 4px solid #030304; }
 
 /* En-tête de section : nom, accroche, lien */
 .aq-chapter__head { display: grid; grid-template-columns: 1fr auto; column-gap: 1.5rem; align-items: end; border-top: 2px solid var(--text); padding-top: 1.1rem; margin-bottom: 2.5rem; }
