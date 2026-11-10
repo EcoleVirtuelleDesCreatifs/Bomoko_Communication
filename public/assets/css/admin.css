@@ -580,3 +580,13 @@ h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
 .ad-geo__bar { display: block; height: 100%; background: var(--orange); border-radius: 3px; }
 .ad-geo__val { flex: none; font-size: .8125rem; font-weight: 700; }
 @media (max-width: 575.98px) { .ad-audkpi { grid-template-columns: 1fr; } }
+
+/* Refonte Mon audience : cartes dégradé + rangs + parts */
+.ad-audkpi__card--orange { background: linear-gradient(135deg, #de5011, #a83a09); border-color: transparent; color: #fff; }
+.ad-audkpi__card--orange > i { color: rgba(255,255,255,.9); }
+.ad-audkpi__card--orange .ad-audkpi__num { color: #fff; }
+.ad-audkpi__card--orange .ad-muted { color: rgba(255,255,255,.8); }
+.ad-audkpi__card--ink { background: linear-gradient(135deg, #1a1918, #030304); border-color: transparent; color: #f3f0eb; }
+.ad-audkpi__card--ink .ad-muted { color: rgba(243,240,235,.6); }
+.ad-geo__rank { flex: none; width: 1.35rem; height: 1.35rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(222,80,17,.12); color: #a83a09; font-size: .68rem; font-weight: 800; }
+.ad-geo__val em { font-style: normal; margin-left: .35rem; color: var(--ad-muted, #8a8580); font-size: .72rem; font-weight: 600; }
