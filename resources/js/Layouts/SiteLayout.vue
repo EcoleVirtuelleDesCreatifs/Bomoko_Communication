@@ -118,8 +118,8 @@ onUnmounted(() => { window.removeEventListener('scroll', onScroll); revealObs?.d
   <header class="aq-head"><div class="container-xl aq-head__row">
     <button class="aq-icon d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#menu" aria-controls="menu" aria-label="Ouvrir le menu"><i class="bi bi-list" aria-hidden="true"></i></button>
     <Link class="aq-head__brand" href="/" aria-label="Afriquinfos, accueil">
-      <picture class="aq-logo--light"><source media="(max-width: 575.98px)" :srcset="logoAsset('assets/img/logo-compact.png')" width="600" height="158"><img :src="logoAsset('assets/img/logo-afriquinfos.png')" alt="Afriquinfos — Ni totems, ni tabous" width="600" height="214"></picture>
-      <picture class="aq-logo--dark"><source media="(max-width: 575.98px)" :srcset="logoAsset('assets/img/logo-compact-negatif.png')" width="600" height="158"><img :src="logoAsset('assets/img/logo-afriquinfos-negatif.png')" alt="Afriquinfos — Ni totems, ni tabous" width="600" height="214" loading="lazy"></picture>
+      <picture class="aq-logo--light"><img :src="logoAsset('assets/img/logo-afriquinfos.png')" alt="Afriquinfos — Ni totems, ni tabous" width="600" height="214"></picture>
+      <picture class="aq-logo--dark"><img :src="logoAsset('assets/img/logo-afriquinfos-negatif.png')" alt="Afriquinfos — Ni totems, ni tabous" width="600" height="214" loading="lazy"></picture>
     </Link>
     <form class="aq-searchbar d-none d-lg-block" action="/recherche" role="search"><i class="bi bi-search" aria-hidden="true"></i>
       <label class="visually-hidden" for="hq">Rechercher</label><input id="hq" name="q" type="search" placeholder="Rechercher une actualité, un pays, un sujet…"></form>
