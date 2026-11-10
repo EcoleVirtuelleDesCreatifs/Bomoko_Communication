@@ -861,7 +861,7 @@ main:focus { outline: none; }
 @media (max-width: 420px) { .aq-ra__link { grid-template-columns: 4.5rem minmax(0, 1fr); gap: .9rem; } }
 
 /* Les Afriques : lead horizontal + grille */
-.aq-afr__lead > a { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; background: #f8f4ec; border: 1px solid rgba(3,3,4,.12); border-radius: 14px; overflow: hidden; margin-bottom: 1.5rem; transition: box-shadow .2s ease-out; }
+.aq-afr__lead > a { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); align-items: stretch; background: #f8f4ec; border: 1px solid rgba(3,3,4,.12); border-radius: 14px; overflow: hidden; margin-bottom: 1.5rem; min-height: clamp(20rem, 26vw, 26rem); transition: box-shadow .2s ease-out; }
 .aq-afr__lead > a:hover { box-shadow: 0 18px 40px -20px rgba(3,3,4,.45); }
 .aq-afr__lead .aq-media { aspect-ratio: auto; min-height: 100%; clip-path: none; }
 .aq-afr__body { display: flex; flex-direction: column; justify-content: center; padding: 1.5rem 1.6rem; }
