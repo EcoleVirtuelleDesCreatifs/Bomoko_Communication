@@ -334,6 +334,11 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 
 .aq-lead a { display: block; }
 .aq-lead .aq-media { margin-bottom: 1.4rem; }
+.aq-lead > a { display: block; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; transition: box-shadow .2s ease-out; }
+.aq-lead > a:hover { box-shadow: 0 16px 34px -18px rgba(3,3,4,.4); }
+.aq-lead .aq-media { margin-bottom: 0; clip-path: none; border-radius: 0; }
+.aq-lead__info { display: block; padding: 1.15rem 1.3rem 1.4rem; }
+.aq-lead__info .aq-card__place { margin-bottom: .35rem; }
 .aq-lead--hero > a { position: relative; display: block; border-radius: 12px; overflow: hidden; }
 .aq-lead--hero .aq-media { margin: 0; aspect-ratio: 16 / 8; clip-path: none; }
 .aq-lead--hero .aq-lead__overlay { position: absolute; inset: auto 0 0 0; padding: clamp(1.5rem, 3vw, 2.75rem); padding-top: 4rem; background: linear-gradient(180deg, transparent 0%, rgba(5, 4, 3, .82) 78%); color: #f3f0eb; }

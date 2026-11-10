@@ -208,9 +208,9 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
   <section class="aq-section aq-section--white" id="politique" aria-labelledby="h-politique"><div class="container-xl" v-if="pol.length">
     <ChapterHead id="politique" title="Politique" tagline="Les arcanes de la politique africaine" href="/rubrique/politique" more="Toute la rubrique" />
     <div class="row g-5">
-      <article class="col-lg-7 aq-lead aq-lead--hero"><Link :href="pol[0].url">
+      <article class="col-lg-7 aq-lead"><Link :href="pol[0].url">
         <div class="aq-media aq-media--cut aq-media--wide"><AqMedia :a="pol[0]" /></div>
-        <div class="aq-lead__overlay"><span class="aq-card__place">{{ fr(kicker(pol[0])) }}</span><h3 class="aq-lead__title">{{ fr(pol[0].title) }}</h3><p class="aq-lead__text">{{ fr(pol[0].chapo) }}</p></div></Link></article>
+        <div class="aq-lead__info"><span class="aq-card__place">{{ fr(kicker(pol[0])) }}</span><h3 class="aq-lead__title">{{ fr(pol[0].title) }}</h3><p class="aq-lead__text">{{ fr(pol[0].chapo) }}</p></div></Link></article>
       <div class="col-lg-5 aq-hlist">
         <ArticleCard v-for="a in pol.slice(1, 5)" :key="a.id" :a="a" h />
       </div>
@@ -222,9 +222,9 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
   <section class="aq-section aq-section--ink" id="economie" aria-labelledby="h-economie"><div class="container-xl" v-if="eco.length">
     <ChapterHead id="economie" title="Économie" tagline="L’information économique panafricaine de référence" href="/rubrique/economie" more="Toute la rubrique" />
     <div class="row g-5">
-      <article class="col-lg-6 aq-lead aq-lead--hero"><Link :href="eco[0].url">
+      <article class="col-lg-6 aq-lead"><Link :href="eco[0].url">
         <div class="aq-media aq-media--cut aq-media--wide"><AqMedia :a="eco[0]" /></div>
-        <div class="aq-lead__overlay"><span class="aq-card__place">{{ fr(eco[0].country) }}</span><h3 class="aq-lead__title">{{ fr(eco[0].title) }}</h3><p class="aq-lead__text">{{ fr(eco[0].chapo) }}</p></div></Link></article>
+        <div class="aq-lead__info"><span class="aq-card__place">{{ fr(eco[0].country) }}</span><h3 class="aq-lead__title">{{ fr(eco[0].title) }}</h3><p class="aq-lead__text">{{ fr(eco[0].chapo) }}</p></div></Link></article>
       <div class="col-lg-6 aq-hlist"><ArticleCard v-for="a in eco.slice(1, 5)" :key="a.id" :a="a" h /></div>
     </div>
   </div></section>
@@ -248,9 +248,9 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
   <section class="aq-section aq-section--white aq-below" id="sports" aria-labelledby="h-sports"><div class="container-xl" v-if="spo.length">
     <ChapterHead id="sports" title="Sports" tagline="La passion du sport africain est contagieuse" href="/rubrique/sports" more="Toute la rubrique" />
     <div class="row g-5">
-      <article class="col-lg-7 aq-lead aq-lead--hero"><Link :href="spo[0].url">
+      <article class="col-lg-7 aq-lead"><Link :href="spo[0].url">
         <div class="aq-media aq-media--cut aq-media--wide"><AqMedia :a="spo[0]" /></div>
-        <div class="aq-lead__overlay"><span class="aq-card__place">{{ fr(spo[0].country) }}</span><h3 class="aq-lead__title">{{ fr(spo[0].title) }}</h3><p class="aq-lead__text">{{ fr(spo[0].chapo) }}</p></div></Link></article>
+        <div class="aq-lead__info"><span class="aq-card__place">{{ fr(spo[0].country) }}</span><h3 class="aq-lead__title">{{ fr(spo[0].title) }}</h3><p class="aq-lead__text">{{ fr(spo[0].chapo) }}</p></div></Link></article>
       <div class="col-lg-5 aq-hlist">
         <ArticleCard v-for="a in spo.slice(1, 5)" :key="a.id" :a="a" h />
       </div>
