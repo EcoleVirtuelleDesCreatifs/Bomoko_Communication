@@ -300,7 +300,8 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
     <ChapterHead id="tips" title="Tips" tagline="Conseils pratiques pour voyager, entreprendre et mieux vivre" href="/rubrique/tips" more="Tout voir" />
     <div class="row g-4 g-xl-5">
       <article v-for="a in tips.slice(0, 3)" :key="a.id" class="col-md-4 aq-tip"><Link :href="a.url">
-        <i class="bi" :class="a.icon || 'bi-lightbulb'" aria-hidden="true"></i><h3>{{ fr(a.title) }}</h3><p>{{ fr(a.chapo) }}</p></Link></article>
+        <div class="aq-media aq-media--cut"><AqMedia :a="a" /></div>
+        <div class="aq-tip__body"><i class="bi" :class="a.icon || 'bi-lightbulb'" aria-hidden="true"></i><h3>{{ fr(a.title) }}</h3><p>{{ fr(a.chapo) }}</p></div></Link></article>
     </div>
   </div></section>
 

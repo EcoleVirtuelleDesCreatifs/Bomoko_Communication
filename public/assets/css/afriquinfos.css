@@ -435,8 +435,11 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 [data-theme="dark"] .aq-avatar { background: #2a2a2d; }
 
 /* Tips */
-.aq-tip a { display: flex; flex-direction: column; gap: .75rem; height: 100%; border-top: 2px solid var(--text); padding-top: 1.5rem; }
-.aq-tip i { font-size: 1.6rem; color: var(--orange); line-height: 1; }
+.aq-tip a { display: flex; flex-direction: column; height: 100%; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--bg); transition: box-shadow .2s ease-out, transform .2s ease-out; }
+.aq-tip a:hover { box-shadow: 0 14px 30px -16px rgba(3,3,4,.35); transform: translateY(-2px); }
+.aq-tip .aq-media { position: relative; aspect-ratio: 16 / 9; flex: none; }
+.aq-tip__body { display: flex; flex-direction: column; gap: .6rem; padding: 1.15rem 1.2rem 1.3rem; }
+.aq-tip i { font-size: 1.5rem; color: var(--orange); line-height: 1; }
 .aq-tip h3 { font-weight: 600; font-size: 1.1875rem; line-height: 1.3; margin: 0; transition: color .15s ease-out; }
 .aq-tip p { font-family: var(--serif); color: var(--text-2); margin: 0; }
 .aq-tip a:hover h3 { color: var(--accent); }
@@ -804,11 +807,8 @@ main:focus { outline: none; }
   .aq-tribune p { font-size: .78rem; }
   .aq-tribune + .aq-tribune { margin-top: .55rem; }
 
-  /* Tips : médaillon icône orange + texte, cartes de guide tactiles */
-  .aq-tip a { display: grid; grid-template-columns: 2.9rem 1fr; gap: .15rem 1rem; border-top: 0; padding: .95rem 1rem; background: rgba(3, 3, 4, .045); border-radius: 10px; }
-  [data-theme="dark"] .aq-tip a { background: rgba(255, 255, 255, .07); }
-  .aq-tip i { grid-row: 1 / span 2; display: inline-flex; align-items: center; justify-content: center; width: 2.9rem; height: 2.9rem; font-size: 1.25rem; color: #fff; background: var(--orange); border-radius: 50%; }
-  .aq-tip h3 { font-size: 1.05rem; line-height: 1.3; }
-  .aq-tip p { font-size: .85rem; line-height: 1.4; }
+  /* Tips : carte photo — texte un peu plus compact */
+  .aq-tip h3 { font-size: 1.08rem; }
+  .aq-tip p { font-size: .9rem; }
   .aq-tip + .aq-tip { margin-top: .6rem; }
 }
