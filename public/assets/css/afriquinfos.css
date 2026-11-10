@@ -856,6 +856,6 @@ main:focus { outline: none; }
 .aq-ra__num { position: absolute; left: 6px; bottom: 4px; font-size: .8125rem; font-weight: 800; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,.6); }
 .aq-ra__body { display: flex; flex-direction: column; gap: .45rem; min-width: 0; }
 .aq-ra__kind { font-size: .6875rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--orange); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.aq-ra__headline { font-size: .9375rem; font-weight: 600; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; transition: color .25s; }
+.aq-ra__headline { font-size: .9375rem; font-weight: 600; line-height: 1.35; display: block; transition: color .25s; }
 .aq-ra__link:hover .aq-ra__headline { color: #fff; }
 @media (max-width: 420px) { .aq-ra__link { grid-template-columns: 4.5rem minmax(0, 1fr); gap: .9rem; } }
