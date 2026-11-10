@@ -5,6 +5,7 @@ import AqAd from '../Components/AqAd.vue';
 import AqMedia from '../Components/AqMedia.vue';
 import AqSkin from '../Components/AqSkin.vue';
 import ArticleCard from '../Components/ArticleCard.vue';
+import CultureSection from '../Components/CultureSection.vue';
 import ChapterHead from '../Components/ChapterHead.vue';
 import EventItem from '../Components/EventItem.vue';
 import FlashBar from '../Components/FlashBar.vue';
@@ -83,30 +84,13 @@ onMounted(() => {
         flash.value = pickFlash;
     } catch (e) {}
     progress.value = slides.value.map((_, k) => (k === 0 ? 1 : 0));
-    const rail = document.getElementById('cultureRail');
-    if (rail) checkRail();
     mediaMotion = createHomeMediaMotion(homeRoot.value);
-    window.addEventListener('resize', checkRail);
 });
 watch([() => props.articles, regionFilter], () => mediaMotion?.refresh(), { flush: 'post' });
 onBeforeUnmount(() => {
-    window.removeEventListener('resize', checkRail);
     mediaMotion?.destroy();
     mediaMotion = null;
 });
-
-const railNav = ref(false);
-function checkRail() {
-    const rail = document.getElementById('cultureRail');
-    railNav.value = rail ? rail.scrollWidth > rail.clientWidth + 4 : false;
-}
-function railScroll(dir) {
-    const rail = document.getElementById('cultureRail');
-    if (!rail) return;
-    const item = rail.firstElementChild;
-    const step = item ? item.getBoundingClientRect().width + 20 : 280;
-    rail.scrollBy({ left: step * dir, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-}
 
 function sliderKey(e) {
     if (e.key === 'ArrowRight') { go(cur.value + 1, true); e.preventDefault(); }
@@ -234,16 +218,7 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
     <div class="row g-4 g-xl-5"><ArticleCard v-for="a in soc.slice(0, 3)" :key="a.id" :a="a" col="col-md-4" /></div>
   </div></section>
 
-  <section class="aq-section aq-section--white aq-below" id="culture" aria-labelledby="h-culture"><div class="container-xl">
-    <ChapterHead id="culture" title="Culture" tagline="Vivez au rythme de la culture africaine" href="/rubrique/culture" more="Toute la rubrique" />
-    <div class="aq-rail-x" id="cultureRail" tabindex="0" aria-label="Articles culture">
-      <Link v-for="a in cul" :key="a.id" class="aq-poster" :href="a.url"><AqMedia :a="a" /><span class="aq-poster__kind">{{ fr(a.country) }}</span><h3>{{ fr(a.title) }}</h3></Link>
-    </div>
-    <div class="aq-rail-x__nav" v-if="railNav">
-      <button type="button" class="aq-icon aq-icon--outline" aria-label="Précédent" @click="railScroll(-1)"><i class="bi bi-arrow-left" aria-hidden="true"></i></button>
-      <button type="button" class="aq-icon aq-icon--outline" aria-label="Suivant" @click="railScroll(1)"><i class="bi bi-arrow-right" aria-hidden="true"></i></button>
-    </div>
-  </div></section>
+  <CultureSection :items="cul" />
 
   <section class="aq-section aq-section--white aq-below" id="sports" aria-labelledby="h-sports"><div class="container-xl" v-if="spo.length">
     <ChapterHead id="sports" title="Sports" tagline="La passion du sport africain est contagieuse" href="/rubrique/sports" more="Toute la rubrique" />
