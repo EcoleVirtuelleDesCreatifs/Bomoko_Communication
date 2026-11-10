@@ -551,6 +551,18 @@
         '<a href="#articles" data-tab="relecture" class="ad-panel ad-kpi"><p class="ad-kpi__label">Brouillons et relectures</p><p class="ad-kpi__value">' + (totals.drafts || 0) + '</p><p class="ad-kpi__hint">' + (totals.review || 0) + ' en relecture</p></a>' +
         '<a href="#commentaires" class="ad-panel ad-kpi ad-kpi--dark"><p class="ad-kpi__label">Commentaires à modérer</p><p class="ad-kpi__value">' + pending() + '</p><p class="ad-kpi__hint">' + fmtNum.format(subs) + ' abonnés à la newsletter</p></a>' +
       '</div>' +
+      (isEditorD ? '' : '<div class="ad-grid ad-grid--halves mb-4">' +
+        '<section class="ad-panel" aria-labelledby="hAud"><div class="ad-panel__head"><h2 id="hAud"><i class="bi bi-people" aria-hidden="true"></i>Mon audience</h2><span class="ad-muted" style="font-size:.8125rem">30 derniers jours</span></div>' +
+          '<div class="ad-audkpi">' +
+            '<div class="ad-audkpi__card"><i class="bi bi-eye" aria-hidden="true"></i><div><div class="ad-audkpi__num">' + fmtNum.format((S.readerStats || {}).readers || 0) + '</div><div class="ad-muted">lectures cumulées</div></div></div>' +
+            '<div class="ad-audkpi__card"><i class="bi bi-newspaper" aria-hidden="true"></i><div><div class="ad-audkpi__num">' + fmtNum.format((S.readerStats || {}).articles || 0) + '</div><div class="ad-muted">articles publiés</div></div></div>' +
+          '</div>' +
+          (S.readerGeo && S.readerGeo.countries && S.readerGeo.countries.length ? '<div class="ad-muted" style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding-bottom:.4rem">Pays des lecteurs</div><ul class="ad-geo">' + (function () { var mx = Math.max.apply(null, S.readerGeo.countries.slice(0, 5).map(function (r) { return r[1]; })) || 1; return S.readerGeo.countries.slice(0, 5).map(function (r) { return '<li><span class="ad-geo__name">' + esc(r[0]) + '</span><span class="ad-geo__track"><span class="ad-geo__bar" style="width:' + Math.max(4, Math.round(r[1] / mx * 100)) + '%"></span></span><span class="ad-geo__val tnum">' + fmtNum.format(Math.round(r[1])) + '</span></li>'; }).join(''); })() + '</ul>' : '<div class="ad-empty"><strong>Audience en cours d’analyse</strong>Les origines de vos lecteurs apparaîtront ici dès que Google Analytics les fournira.</div>') +
+        '</section>' +
+        '<section class="ad-panel" aria-labelledby="hVil"><div class="ad-panel__head"><h2 id="hVil"><i class="bi bi-geo-alt" aria-hidden="true"></i>Villes de vos lecteurs</h2></div>' +
+          (S.readerGeo && S.readerGeo.cities && S.readerGeo.cities.length ? '<ul class="ad-geo">' + (function () { var mx = Math.max.apply(null, S.readerGeo.cities.slice(0, 8).map(function (r) { return r[1]; })) || 1; return S.readerGeo.cities.slice(0, 8).map(function (r) { return '<li><span class="ad-geo__name">' + esc(r[0]) + '</span><span class="ad-geo__track"><span class="ad-geo__bar" style="width:' + Math.max(4, Math.round(r[1] / mx * 100)) + '%"></span></span><span class="ad-geo__val tnum">' + fmtNum.format(Math.round(r[1])) + '</span></li>'; }).join(''); })() + '</ul>' : '<div class="ad-empty"><strong>Aucune ville pour le moment</strong>Les villes de vos lecteurs apparaîtront ici dès que disponibles.</div>') +
+        '</section>' +
+      '</div>') +
       (function () {
         var isEditor = ME.role === 'admin' || ME.role === 'chef';
         var today = new Date(); today.setHours(0, 0, 0, 0);
@@ -584,18 +596,6 @@
           counts.map(function (c) { return '<div class="ad-hbar"><span>' + esc(c.label) + '</span><div class="ad-hbar__track"><div class="ad-hbar__fill" style="width:' + (c.n / cmax * 100) + '%"></div></div><b>' + c.n + '</b></div>'; }).join('') +
         '</div></div></section>' +
       '</div>' +
-      (isEditorD ? '' : '<div class="ad-grid ad-grid--halves">' +
-        '<section class="ad-panel" aria-labelledby="hAud"><div class="ad-panel__head"><h2 id="hAud"><i class="bi bi-people" aria-hidden="true"></i>Mon audience</h2><span class="ad-muted" style="font-size:.8125rem">30 derniers jours</span></div>' +
-          '<div class="ad-audkpi">' +
-            '<div class="ad-audkpi__card"><i class="bi bi-eye" aria-hidden="true"></i><div><div class="ad-audkpi__num">' + fmtNum.format((S.readerStats || {}).readers || 0) + '</div><div class="ad-muted">lectures cumulées</div></div></div>' +
-            '<div class="ad-audkpi__card"><i class="bi bi-newspaper" aria-hidden="true"></i><div><div class="ad-audkpi__num">' + fmtNum.format((S.readerStats || {}).articles || 0) + '</div><div class="ad-muted">articles publiés</div></div></div>' +
-          '</div>' +
-          (S.readerGeo && S.readerGeo.countries && S.readerGeo.countries.length ? '<div class="ad-muted" style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding-bottom:.4rem">Pays des lecteurs</div><ul class="ad-geo">' + (function () { var mx = Math.max.apply(null, S.readerGeo.countries.slice(0, 5).map(function (r) { return r[1]; })) || 1; return S.readerGeo.countries.slice(0, 5).map(function (r) { return '<li><span class="ad-geo__name">' + esc(r[0]) + '</span><span class="ad-geo__track"><span class="ad-geo__bar" style="width:' + Math.max(4, Math.round(r[1] / mx * 100)) + '%"></span></span><span class="ad-geo__val tnum">' + fmtNum.format(Math.round(r[1])) + '</span></li>'; }).join(''); })() + '</ul>' : '<div class="ad-empty"><strong>Audience en cours d’analyse</strong>Les origines de vos lecteurs apparaîtront ici dès que Google Analytics les fournira.</div>') +
-        '</section>' +
-        '<section class="ad-panel" aria-labelledby="hVil"><div class="ad-panel__head"><h2 id="hVil"><i class="bi bi-geo-alt" aria-hidden="true"></i>Villes de vos lecteurs</h2></div>' +
-          (S.readerGeo && S.readerGeo.cities && S.readerGeo.cities.length ? '<ul class="ad-geo">' + (function () { var mx = Math.max.apply(null, S.readerGeo.cities.slice(0, 8).map(function (r) { return r[1]; })) || 1; return S.readerGeo.cities.slice(0, 8).map(function (r) { return '<li><span class="ad-geo__name">' + esc(r[0]) + '</span><span class="ad-geo__track"><span class="ad-geo__bar" style="width:' + Math.max(4, Math.round(r[1] / mx * 100)) + '%"></span></span><span class="ad-geo__val tnum">' + fmtNum.format(Math.round(r[1])) + '</span></li>'; }).join(''); })() + '</ul>' : '<div class="ad-empty"><strong>Aucune ville pour le moment</strong>Les villes de vos lecteurs apparaîtront ici dès que disponibles.</div>') +
-        '</section>' +
-      '</div>') +
       '<div class="ad-grid ad-grid--halves">' +
         '<section class="ad-panel" aria-labelledby="hTop"><div class="ad-panel__head"><h2 id="hTop">' + (isEditorD ? 'Les plus lus' : 'Mes articles les plus lus') + '</h2>' +
           (isEditorD ? '' : '<span class="ad-muted" style="font-size:.8125rem">' + fmtNum.format(S.articles.reduce(function (s, a) { return s + (a.views || 0); }, 0)) + ' lectures au total</span><a class="ad-btn ad-btn--outline" style="padding:.3rem .7rem;font-size:.8125rem" href="https://analytics.google.com/analytics/web/?authuser=0#/a305979906p442953417/reports/dashboard?params=_u..nav%3Dmaui&ruid=c82e0ce5-3641-482a-9c7b-70cf6aa5e57c&collectionId=10859037730&r=lifecycle-engagement-overview" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>Google Analytics</a>') +
