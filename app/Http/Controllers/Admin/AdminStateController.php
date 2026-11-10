@@ -266,6 +266,14 @@ class AdminStateController extends Controller
         $state['publicationStats'] = $stats->publications($editor ? null : $me);
         $state['dashboardStats'] = $stats->dashboard($editor ? null : $me);
         $state['gaStats'] = $editor ? app(GoogleAnalytics::class)->summary() : [];
+        $state['readerStats'] = [];
+        $state['readerGeo'] = [];
+        if (! $editor) {
+            $own = Article::published();
+            $this->ownArticles($own, $me);
+            $state['readerStats'] = ['readers' => (int) $own->sum('views'), 'articles' => (int) $own->clone()->count()];
+            $state['readerGeo'] = app(GoogleAnalytics::class)->geo();
+        }
         $publishedQuery = Article::published()->whereBetween('published_at', [now()->startOfDay(), now()->endOfDay()]);
         if (! $editor) {
             $this->ownArticles($publishedQuery, $me);

@@ -49,6 +49,40 @@ class GoogleAnalytics
         return $result;
     }
 
+    public function geo(): array
+    {
+        $property = config('services.google_analytics.property_id');
+        $credentials = config('services.google_analytics.credentials_path');
+        if (! $property || ! $credentials) {
+            return ['configured' => false];
+        }
+        if (! str_starts_with($credentials, '/')) {
+            $credentials = base_path($credentials);
+        }
+        if (! is_file($credentials)) {
+            return ['configured' => false];
+        }
+        $cached = Cache::get('ga4-geo');
+        if (is_array($cached)) {
+            return $cached;
+        }
+        try {
+            $client = new BetaAnalyticsDataClient(['credentials' => $credentials]);
+            $property = 'properties/'.ltrim($property, 'properties/');
+            $range = [new DateRange(['start_date' => '30daysAgo', 'end_date' => 'today'])];
+            $result = [
+                'configured' => true,
+                'countries' => $this->report($client, $property, $range, ['country'], ['activeUsers'], 'activeUsers', 8),
+                'cities' => $this->report($client, $property, $range, ['city'], ['activeUsers'], 'activeUsers', 8),
+            ];
+        } catch (Throwable $e) {
+            $result = ['configured' => true, 'error' => 'API GA4 indisponible : '.$e->getMessage()];
+        }
+        Cache::put('ga4-geo', $result, now()->addMinutes(isset($result['error']) ? 5 : 30));
+
+        return $result;
+    }
+
     private function fetch(string $property, string $credentials, string $start, string $end): array
     {
         $client = new BetaAnalyticsDataClient(['credentials' => $credentials]);
