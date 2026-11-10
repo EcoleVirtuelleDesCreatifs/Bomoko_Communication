@@ -519,6 +519,7 @@
     var cmax = Math.max.apply(null, counts.map(function (c) { return c.n; }));
     var recent = S.articles.filter(function (a) { return a.status !== 'corbeille'; }).sort(function (a, b) { return b.updated.localeCompare(a.updated); }).slice(0, 6);
     var top = (S.topMine && S.topMine.length ? S.topMine : pub.slice().sort(function (a, b) { return b.views - a.views; })).slice(0, 5);
+    var isEditorD = ME.role === 'admin' || ME.role === 'chef';
     var todo = [];
     if (pending()) todo.push(['bi-chat-left-text', plural(pending(), 'commentaire attend', 'commentaires attendent') + ' une modération', '#commentaires']);
     S.articles.filter(function (a) { return a.status === 'relecture'; }).forEach(function (a) { todo.push(['bi-eye', 'À relire : « ' + a.title + ' »', 'edit:' + a.id]); });
@@ -584,10 +585,14 @@
         '</div></div></section>' +
       '</div>' +
       '<div class="ad-grid ad-grid--halves">' +
-        '<section class="ad-panel" aria-labelledby="hTop"><div class="ad-panel__head"><h2 id="hTop">' + ((ME.role === 'admin' || ME.role === 'chef') ? 'Les plus lus' : 'Mes articles les plus lus') + '</h2></div><ul class="ad-list">' +
+        '<section class="ad-panel" aria-labelledby="hTop"><div class="ad-panel__head"><h2 id="hTop">' + (isEditorD ? 'Les plus lus' : 'Mes articles les plus lus') + '</h2>' +
+          (isEditorD ? '' : '<span class="ad-muted" style="font-size:.8125rem">' + fmtNum.format(S.articles.reduce(function (s, a) { return s + (a.views || 0); }, 0)) + ' lectures au total</span><a class="ad-btn ad-btn--outline" style="padding:.3rem .7rem;font-size:.8125rem" href="https://analytics.google.com/analytics/web/?authuser=0#/a305979906p442953417/reports/dashboard?params=_u..nav%3Dmaui&ruid=c82e0ce5-3641-482a-9c7b-70cf6aa5e57c&collectionId=10859037730&r=lifecycle-engagement-overview" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>Google Analytics</a>') +
+        '</div><ul class="ad-list">' +
           top.map(function (a, k) { return '<li><span class="ad-rank">' + (k + 1) + '</span><div class="ad-thumb">' + coverOf(a) + '</div><div class="ad-list__main"><a href="#" data-edit="' + a.id + '">' + fr(a.title) + '</a><small class="tnum">' + fmtNum.format(a.views) + ' lectures</small></div></li>'; }).join('') + '</ul></section>' +
-        '<section class="ad-panel" aria-labelledby="hLog"><div class="ad-panel__head"><h2 id="hLog">Activité de l’équipe</h2></div><ul class="ad-list">' +
-          S.log.slice(0, 5).map(function (l) { return '<li><span class="ad-avatar ad-avatar--sm" aria-hidden="true">' + initials(l.who) + '</span><div class="ad-list__main"><strong>' + esc(l.who) + '</strong><small>' + fr(l.what) + ', ' + rel(l.at) + '</small></div></li>'; }).join('') + '</ul></section>' +
+        '<section class="ad-panel" aria-labelledby="hLog"><div class="ad-panel__head"><h2 id="hLog">' + (isEditorD ? 'Activité de l’équipe' : 'Mon activité') + '</h2></div>' +
+          (function () { var acts = isEditorD ? S.log.slice(0, 5) : S.log.filter(function (l) { return l.who === ME.name; }).slice(0, 5);
+            return acts.length ? '<ul class="ad-list">' + acts.map(function (l) { return '<li><span class="ad-avatar ad-avatar--sm" aria-hidden="true">' + initials(l.who) + '</span><div class="ad-list__main"><strong>' + esc(l.who) + '</strong><small>' + fr(l.what) + ', ' + rel(l.at) + '</small></div></li>'; }).join('') + '</ul>'
+              : '<div class="ad-empty"><strong>Aucune activité récente</strong>Vos actions dans l’administration apparaîtront ici.</div>'; })() + '</section>' +
       '</div>' +
       '<section class="ad-panel" aria-labelledby="hSubs"><div class="ad-panel__head"><h2 id="hSubs">Derniers abonnés à la newsletter</h2><a href="#newsletter">Gérer les abonnés</a></div>' +
         (S.subscribers.length ? '<div class="ad-tablewrap"><table class="ad-table"><thead><tr><th>Abonné</th><th>Pays</th><th>Inscription</th><th>Statut</th></tr></thead><tbody>' +
