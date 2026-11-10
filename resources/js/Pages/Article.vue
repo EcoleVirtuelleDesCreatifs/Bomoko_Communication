@@ -217,8 +217,11 @@ function sendComment() {
       </nav>
     </div>
     <aside class="col-lg-4"><div class="aq-sticky">
-      <div class="aq-side-box"><h2>À lire aussi</h2>
-        <Link v-for="x in related" :key="x.id" class="aq-stack__item" :href="x.url"><span class="aq-card__place">{{ fr(kicker(x)) }}</span><h3>{{ fr(x.title) }}</h3></Link>
+      <div class="aq-ra"><h2 class="aq-ra__title"><span class="aq-ra__slash" aria-hidden="true"></span>À lire aussi</h2>
+        <ol class="aq-ra__list"><li v-for="(x, i) in related" :key="x.id" class="aq-ra__item">
+          <Link class="aq-ra__link" :href="x.url"><span class="aq-ra__thumb" aria-hidden="true"><AqMedia :a="x" /><span class="aq-ra__num">{{ String(i + 1).padStart(2, '0') }}</span></span>
+          <span class="aq-ra__body"><span class="aq-ra__kind">{{ fr(kicker(x)) }}</span><span class="aq-ra__headline">{{ fr(x.title) }}</span></span></Link>
+        </li></ol>
       </div>
       <div class="aq-side-box"><h2>Les plus lus</h2>
         <ol class="aq-top5"><li v-for="x in top" :key="x.id"><Link :href="x.url"><span>{{ fr(x.title) }}</span></Link></li></ol>

@@ -842,3 +842,20 @@ main:focus { outline: none; }
   .aq-tip p { font-size: .9rem; }
   .aq-tip + .aq-tip { margin-top: .6rem; }
 }
+
+/* Sidebar « À lire aussi » */
+.aq-ra { background: #0f0f0f; color: #f4f1ec; border-radius: 16px; padding: 1.4rem 1.2rem .6rem; box-shadow: 0 24px 48px -24px rgba(0,0,0,.45); margin-bottom: 1.5rem; }
+.aq-ra__title { display: flex; align-items: center; gap: .6rem; margin: 0 0 1rem; font-size: 1.2rem; font-weight: 700; letter-spacing: -.01em; padding-bottom: 1rem; border-bottom: 1px solid rgba(244,241,236,.1); }
+.aq-ra__slash { width: 9px; height: 22px; background: var(--orange); transform: skewX(-22deg); border-radius: 1px; }
+.aq-ra__list { list-style: none; margin: 0; padding: 0; }
+.aq-ra__item + .aq-ra__item { border-top: 1px solid rgba(244,241,236,.1); }
+.aq-ra__link { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); gap: 1rem; align-items: start; padding: 1rem .35rem; color: inherit; text-decoration: none; border-radius: 10px; transition: background .25s; }
+.aq-ra__link:hover { background: rgba(244,241,236,.04); }
+.aq-ra__thumb { position: relative; display: block; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: #1c1c1c; }
+.aq-ra__thumb .aq-media { position: absolute; inset: 0; aspect-ratio: auto; }
+.aq-ra__num { position: absolute; left: 6px; bottom: 4px; font-size: .8125rem; font-weight: 800; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,.6); }
+.aq-ra__body { display: flex; flex-direction: column; gap: .45rem; min-width: 0; }
+.aq-ra__kind { font-size: .6875rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--orange); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.aq-ra__headline { font-size: .9375rem; font-weight: 600; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; transition: color .25s; }
+.aq-ra__link:hover .aq-ra__headline { color: #fff; }
+@media (max-width: 420px) { .aq-ra__link { grid-template-columns: 4.5rem minmax(0, 1fr); gap: .9rem; } }

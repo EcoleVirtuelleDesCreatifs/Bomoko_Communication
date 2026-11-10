@@ -890,27 +890,39 @@ const _sfc_main$a = {
       } else {
         _push(`<!---->`);
       }
-      _push(`</nav></div><aside class="col-lg-4"><div class="aq-sticky"><div class="aq-side-box"><h2>À lire aussi</h2><!--[-->`);
-      ssrRenderList(__props.related, (x) => {
+      _push(`</nav></div><aside class="col-lg-4"><div class="aq-sticky"><div class="aq-ra"><h2 class="aq-ra__title"><span class="aq-ra__slash" aria-hidden="true"></span>À lire aussi</h2><ol class="aq-ra__list"><!--[-->`);
+      ssrRenderList(__props.related, (x, i) => {
+        _push(`<li class="aq-ra__item">`);
         _push(ssrRenderComponent(unref(Link), {
-          key: x.id,
-          class: "aq-stack__item",
+          class: "aq-ra__link",
           href: x.url
         }, {
           default: withCtx((_, _push2, _parent2, _scopeId) => {
             if (_push2) {
-              _push2(`<span class="aq-card__place"${_scopeId}>${ssrInterpolate(unref(fr)(unref(kicker)(x)))}</span><h3${_scopeId}>${ssrInterpolate(unref(fr)(x.title))}</h3>`);
+              _push2(`<span class="aq-ra__thumb" aria-hidden="true"${_scopeId}>`);
+              _push2(ssrRenderComponent(_sfc_main$d, { a: x }, null, _parent2, _scopeId));
+              _push2(`<span class="aq-ra__num"${_scopeId}>${ssrInterpolate(String(i + 1).padStart(2, "0"))}</span></span><span class="aq-ra__body"${_scopeId}><span class="aq-ra__kind"${_scopeId}>${ssrInterpolate(unref(fr)(unref(kicker)(x)))}</span><span class="aq-ra__headline"${_scopeId}>${ssrInterpolate(unref(fr)(x.title))}</span></span>`);
             } else {
               return [
-                createVNode("span", { class: "aq-card__place" }, toDisplayString(unref(fr)(unref(kicker)(x))), 1),
-                createVNode("h3", null, toDisplayString(unref(fr)(x.title)), 1)
+                createVNode("span", {
+                  class: "aq-ra__thumb",
+                  "aria-hidden": "true"
+                }, [
+                  createVNode(_sfc_main$d, { a: x }, null, 8, ["a"]),
+                  createVNode("span", { class: "aq-ra__num" }, toDisplayString(String(i + 1).padStart(2, "0")), 1)
+                ]),
+                createVNode("span", { class: "aq-ra__body" }, [
+                  createVNode("span", { class: "aq-ra__kind" }, toDisplayString(unref(fr)(unref(kicker)(x))), 1),
+                  createVNode("span", { class: "aq-ra__headline" }, toDisplayString(unref(fr)(x.title)), 1)
+                ])
               ];
             }
           }),
           _: 2
         }, _parent));
+        _push(`</li>`);
       });
-      _push(`<!--]--></div><div class="aq-side-box"><h2>Les plus lus</h2><ol class="aq-top5"><!--[-->`);
+      _push(`<!--]--></ol></div><div class="aq-side-box"><h2>Les plus lus</h2><ol class="aq-top5"><!--[-->`);
       ssrRenderList(__props.top, (x) => {
         _push(`<li>`);
         _push(ssrRenderComponent(unref(Link), {
