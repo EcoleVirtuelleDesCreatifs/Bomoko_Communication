@@ -336,7 +336,7 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 .aq-lead .aq-media { margin-bottom: 1.4rem; }
 .aq-lead--hero > a { position: relative; display: block; border-radius: 12px; overflow: hidden; }
 .aq-lead--hero .aq-media { margin: 0; aspect-ratio: 16 / 8; clip-path: none; }
-.aq-lead--hero .aq-lead__overlay { position: absolute; inset: auto 0 0 0; padding: clamp(1.5rem, 3vw, 2.75rem); padding-top: 5rem; background: linear-gradient(180deg, transparent, rgba(5, 4, 3, .88) 55%); color: #f3f0eb; }
+.aq-lead--hero .aq-lead__overlay { position: absolute; inset: auto 0 0 0; padding: clamp(1.5rem, 3vw, 2.75rem); padding-top: 4rem; background: linear-gradient(180deg, transparent 0%, rgba(5, 4, 3, .82) 78%); color: #f3f0eb; }
 .aq-lead--hero .aq-card__place { display: inline-block; padding: .3rem .6rem; background: var(--orange); color: #030304; border-radius: 4px; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin: 0 0 .6rem; }
 .aq-lead--hero .aq-lead__title { color: #fff; font-size: clamp(1.5rem, 3.2vw, 2.6rem); max-width: 46rem; }
 .aq-lead--hero .aq-lead__text { color: rgba(255,255,255,.82); max-width: 44rem; margin-bottom: .25rem; }
