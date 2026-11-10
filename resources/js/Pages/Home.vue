@@ -211,8 +211,8 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
       <article class="col-lg-7 aq-lead"><Link :href="pol[0].url">
         <div class="aq-media aq-media--cut aq-media--wide"><AqMedia :a="pol[0]" /></div>
         <span class="aq-card__place">{{ fr(kicker(pol[0])) }}</span><h3 class="aq-lead__title">{{ fr(pol[0].title) }}</h3><p class="aq-lead__text">{{ fr(pol[0].chapo) }}</p></Link></article>
-      <div class="col-lg-5 aq-stack">
-        <Link v-for="a in pol.slice(1, 5)" :key="a.id" class="aq-stack__item" :href="a.url"><div class="aq-media aq-media--cut aq-stack__media"><AqMedia :a="a" /></div><div class="aq-stack__body"><span class="aq-card__place">{{ fr(kicker(a)) }}</span><h3>{{ fr(a.title) }}</h3><time class="aq-card__meta">{{ rel(a.date) }}</time></div></Link>
+      <div class="col-lg-5 aq-hlist">
+        <ArticleCard v-for="a in pol.slice(1, 5)" :key="a.id" :a="a" h />
       </div>
     </div>
   </div></section>
@@ -251,8 +251,8 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
       <article class="col-lg-7 aq-lead"><Link :href="spo[0].url">
         <div class="aq-media aq-media--cut aq-media--wide"><AqMedia :a="spo[0]" /></div>
         <span class="aq-card__place">{{ fr(spo[0].country) }}</span><h3 class="aq-lead__title">{{ fr(spo[0].title) }}</h3><p class="aq-lead__text">{{ fr(spo[0].chapo) }}</p></Link></article>
-      <div class="col-lg-5 aq-stack">
-        <Link v-for="a in spo.slice(1, 5)" :key="a.id" class="aq-stack__item" :href="a.url"><div class="aq-media aq-media--cut aq-stack__media"><AqMedia :a="a" /></div><div class="aq-stack__body"><span class="aq-card__place">{{ fr(a.country) }}</span><h3>{{ fr(a.title) }}</h3><time class="aq-card__meta">{{ rel(a.date) }}</time></div></Link>
+      <div class="col-lg-5 aq-hlist">
+        <ArticleCard v-for="a in spo.slice(1, 5)" :key="a.id" :a="a" h />
       </div>
     </div>
   </div></section>
