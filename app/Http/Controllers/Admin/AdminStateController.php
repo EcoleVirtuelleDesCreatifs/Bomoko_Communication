@@ -806,6 +806,12 @@ class AdminStateController extends Controller
             if (preg_match('/^u(\d+)$/', $u['id'] ?? '', $m) && ($row = User::find($m[1]))) {
                 abort_if($row->id === $me?->id && ($data['role'] !== $row->role || $data['status'] !== 'actif'), 422,
                     'Vous ne pouvez pas retirer votre propre accès administrateur.');
+                if ($row->email !== $data['email'] && User::where('email', $data['email'])->where('id', '!=', $row->id)->exists()) {
+                    $this->warnings[] = 'L’adresse '.$data['email'].' est déjà utilisée par un autre compte.';
+                    $kept[] = (int) $m[1];
+
+                    continue;
+                }
                 $oldName = $row->name;
                 $oldNameAlone = User::where('name', $oldName)->count() === 1;
                 $row->update($data);
@@ -814,6 +820,14 @@ class AdminStateController extends Controller
                     if ($oldNameAlone) {
                         Article::whereNull('user_id')->where('author_name', $oldName)
                             ->update(['author_name' => $row->name, 'user_id' => $row->id]);
+                    }
+                }
+                if (! empty($u['resend']) && $row->status === 'invite') {
+                    try {
+                        Mail::to($row->email)->send(new TeamInvitation($row));
+                    } catch (\Throwable $e) {
+                        report($e);
+                        $this->warnings[] = 'Invitation non renvoyée à '.$row->email.' : '.$e->getMessage();
                     }
                 }
                 $kept[] = (int) $m[1];
@@ -844,6 +858,10 @@ class AdminStateController extends Controller
                 $kept[] = $row->id;
             }
         }
-
+        $gone = User::whereNotIn('id', $kept)->where('id', '!=', $me?->id)->pluck('id');
+        if ($gone->isNotEmpty()) {
+            Article::whereIn('user_id', $gone)->update(['user_id' => null]);
+            User::whereIn('id', $gone)->delete();
+        }
     }
 }

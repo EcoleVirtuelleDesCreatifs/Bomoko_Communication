@@ -559,3 +559,11 @@ h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
   .ad-kpi__hint { font-size: .6875rem; }
   .ad-table th, .ad-table td { padding: .7rem .6rem; }
 }
+
+/* Même base de lecture mobile que la prose publique (parité aperçu/éditeur) */
+@media (max-width: 575.98px) {
+  .aq-prose, .ad-prose, .ad-editor__body { font-size: 1.05rem; line-height: 1.75; text-align: left; text-align-last: left; -webkit-hyphens: none; hyphens: none; }
+  .aq-prose h2, .ad-prose h2, .ad-editor__body h2 { font-size: 1.35rem; margin: 2rem 0 .8rem; }
+  .aq-prose h3, .ad-prose h3, .ad-editor__body h3 { font-size: 1.15rem; margin: 1.6rem 0 .6rem; }
+  .aq-prose blockquote, .ad-prose blockquote, .ad-editor__body blockquote { margin: 1.5rem 0; padding: .9rem 1rem .9rem 1.25rem; font-size: 1.15rem; line-height: 1.45; }
+}

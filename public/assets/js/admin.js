@@ -2208,10 +2208,10 @@
         S.users.map(function (u) {
           var stats = (S.teamStats || {})[u.id] || { total: 0, today: 0, logins: 0 };
           var n = stats.total, nj = stats.today, me = u.id === ME.id;
-          return '<tr><td><div class="d-flex align-items-center gap-3"><span class="ad-avatar ad-avatar--sm" aria-hidden="true">' + initials(u.name) + '</span><div class="ad-title-cell" style="min-width:180px">' + (isAdmin ? '<label class="visually-hidden" for="name' + u.id + '">Nom de ' + esc(u.name) + '</label><input class="ad-input" id="name' + u.id + '" data-uname="' + u.id + '" value="' + esc(u.name) + '" style="max-width:240px">' + (me ? ' <span class="ad-muted fw-normal">(vous)</span>' : '') : '<strong>' + esc(u.name) + (me ? ' <span class="ad-muted fw-normal">(vous)</span>' : '') + '</strong>') + '<small>' + esc(u.email) + '</small></div></div></td>' +
+          return '<tr><td><div class="d-flex align-items-center gap-3"><span class="ad-avatar ad-avatar--sm" aria-hidden="true">' + initials(u.name) + '</span><div class="ad-title-cell" style="min-width:180px">' + (isAdmin ? '<label class="visually-hidden" for="name' + u.id + '">Nom de ' + esc(u.name) + '</label><input class="ad-input" id="name' + u.id + '" data-uname="' + u.id + '" value="' + esc(u.name) + '" style="max-width:240px">' + (me ? ' <span class="ad-muted fw-normal">(vous)</span>' : '') : '<strong>' + esc(u.name) + (me ? ' <span class="ad-muted fw-normal">(vous)</span>' : '') + '</strong>') + (isAdmin ? '<label class="visually-hidden" for="mail' + u.id + '">E-mail de ' + esc(u.name) + '</label><input class="ad-input" id="mail' + u.id + '" type="email" data-umail="' + u.id + '" value="' + esc(u.email) + '" style="max-width:240px;margin-top:.35rem">' : '<small>' + esc(u.email) + '</small>') + '</div></div></td>' +
             '<td><label class="visually-hidden" for="role' + u.id + '">Rôle de ' + esc(u.name) + '</label><select class="ad-select" style="min-width:170px" id="role' + u.id + '" data-role="' + u.id + '"' + (me || !isAdmin ? ' disabled' : '') + '>' + options(Object.keys(ROLES).map(function (k) { return { value: k, label: ROLES[k] }; }), u.role) + '</select></td>' +
             '<td class="tnum">' + n + '</td><td class="tnum">' + (nj || '—') + '</td><td class="tnum">' + stats.logins + '</td><td class="ad-muted">' + (u.last ? rel(u.last) : 'Jamais connecté') + '</td><td><span class="ad-status ad-status--' + (u.status === 'invite' ? 'invite' : 'active') + '">' + (u.status === 'invite' ? 'Invitation envoyée' : u.status === 'suspendu' ? 'Suspendu' : 'Actif') + '</span></td>' +
-            '<td class="actions">' + (me || !isAdmin ? '' : '<button type="button" class="ad-iconbtn ad-iconbtn--sm ad-iconbtn--danger" data-rmu="' + u.id + '" aria-label="Retirer l’accès de ' + esc(u.name) + '"><i class="bi bi-person-dash" aria-hidden="true"></i></button>') + '</td></tr>';
+            '<td class="actions"><div class="d-flex gap-1 justify-content-end">' + (!isAdmin ? '' : (u.status === 'invite' ? '<button type="button" class="ad-iconbtn ad-iconbtn--sm" data-rmi="' + u.id + '" title="Renvoyer l’invitation" aria-label="Renvoyer l’invitation à ' + esc(u.name) + '"><i class="bi bi-envelope-paper" aria-hidden="true"></i></button>' : '') + (me ? '' : '<button type="button" class="ad-iconbtn ad-iconbtn--sm ad-iconbtn--danger" data-rmu="' + u.id + '" title="Suspendre l’accès" aria-label="Suspendre l’accès de ' + esc(u.name) + '"><i class="bi bi-person-dash" aria-hidden="true"></i></button><button type="button" class="ad-iconbtn ad-iconbtn--sm ad-iconbtn--danger" data-rmd="' + u.id + '" title="Supprimer le compte" aria-label="Supprimer le compte de ' + esc(u.name) + '"><i class="bi bi-trash3" aria-hidden="true"></i></button>')) + '</div></td></tr>';
         }).join('') + '</tbody>';
     }
     v.addEventListener('change', function (e) {
@@ -2221,10 +2221,22 @@
         if (!n) { e.target.value = m.name; toast('Le nom ne peut pas être vide', 'error'); return; }
         if (n !== m.name) { var old = m.name; m.name = n; log('a renommé ' + old + ' en ' + n); save(); draw(); toast('« ' + old + ' » est désormais « ' + n + ' »'); }
       }
+      else if (e.target.hasAttribute('data-umail')) {
+        var um = S.users.filter(function (x) { return x.id === e.target.getAttribute('data-umail'); })[0], em = e.target.value.trim().toLowerCase();
+        if (!validEmail(em)) { e.target.value = um.email; toast('Adresse e-mail invalide', 'error'); return; }
+        if (em !== um.email && S.users.some(function (x) { return x.id !== um.id && x.email === em; })) { e.target.value = um.email; toast('Cette adresse est déjà utilisée par un autre compte', 'error'); return; }
+        if (em !== um.email) { var oe = um.email; um.email = em; log('a changé l’e-mail de ' + um.name); save(); draw(); toast('E-mail de ' + um.name + ' mis à jour : ' + em); }
+      }
     });
     v.addEventListener('click', function (e) {
-      var b = e.target.closest('[data-rmu]'); if (!b) return;
-      var u = S.users.filter(function (x) { return x.id === b.getAttribute('data-rmu'); })[0];
+      var b = e.target.closest('[data-rmu],[data-rmd],[data-rmi]'); if (!b) return;
+      var u = S.users.filter(function (x) { return x.id === b.getAttribute('data-rmu') || x.id === b.getAttribute('data-rmd') || x.id === b.getAttribute('data-rmi'); })[0];
+      if (b.hasAttribute('data-rmi')) {
+        u.resend = true; log('a renvoyé l’invitation à ' + u.email); save(); toast('Nouvelle invitation envoyée à ' + u.email); return;
+      }
+      if (b.hasAttribute('data-rmd')) {
+        confirmBox('Supprimer le compte de ' + u.name + ' ?', 'Le compte est définitivement retiré ; ses articles restent publiés sous son nom.', 'Supprimer le compte', function () { S.users = S.users.filter(function (x) { return x.id !== u.id; }); log('a supprimé le compte de ' + u.name); save(); draw(); toast('Suppression en attente de confirmation serveur'); }); return;
+      }
       confirmBox('Suspendre l’accès de ' + u.name + ' ?', 'Le compte, son historique et ses articles seront conservés.', 'Suspendre l’accès', function () { u.status = 'suspendu'; log('a suspendu l’accès de ' + u.name); save(); draw(); toast('Suspension en attente de confirmation serveur'); });
     });
     $('#tmInvite').addEventListener('click', function () {
