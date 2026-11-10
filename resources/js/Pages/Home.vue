@@ -193,7 +193,7 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
     </ol>
   </div></div></section>
 
-  <section class="aq-section aq-section--white" id="afriques" aria-labelledby="h-afriques"><div class="container-xl">
+  <section class="aq-section aq-section--orange aq-afriques" id="afriques" aria-labelledby="h-afriques"><div class="container-xl">
     <ChapterHead id="afriques" title="Les Afriques" tagline="Toutes les Afriques, sans détour" href="/afriques" />
     <div class="aq-filters" role="group" aria-label="Filtrer par région">
       <button type="button" :aria-pressed="regionFilter === 'all'" @click="regionFilter = 'all'">Toutes</button>
