@@ -341,7 +341,7 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 .aq-card a { display: block; }
 .aq-card .aq-media { margin-bottom: 1.1rem; }
 .aq-card__place { display: block; font-size: .8125rem; font-weight: 700; color: var(--accent); margin-bottom: .45rem; }
-.aq-card__title { font-weight: 600; font-size: 1.1875rem; line-height: 1.3; letter-spacing: -.01em; margin: 0; text-align: justify; -webkit-hyphens: auto; hyphens: auto; text-wrap: balance; transition: color .15s ease-out; }
+.aq-card__title { font-weight: 600; font-size: 1.1875rem; line-height: 1.3; letter-spacing: -.01em; margin: 0; text-align: left; text-wrap: balance; transition: color .15s ease-out; }
 .aq-card__meta { display: block; margin-top: .55rem; font-size: .8125rem; color: var(--muted); }
 .aq-card a:hover .aq-card__title, .aq-lead a:hover .aq-lead__title, .aq-stack__item:hover h3 { color: var(--accent); }
 
