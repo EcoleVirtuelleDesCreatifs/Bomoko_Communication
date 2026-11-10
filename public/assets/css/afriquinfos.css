@@ -79,6 +79,7 @@ h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; }
 
 /* ---------- Visuels de démonstration : noir et orange ---------- */
 .aq-media { position: relative; overflow: hidden; aspect-ratio: 16 / 10; background: #1a1918; }
+.aq-media--wide { aspect-ratio: 16 / 10; }
 .aq-media > img, .aq-slide__media > img, .aq-poster > img, .aq-portrait__visual > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .aq-media--cut, .aq-portrait__visual, .aq-slide__media { clip-path: polygon(0 0, calc(100% - 28px) 0, 100% 43px, 100% 100%, 0 100%); }
 .aq-ph { position: absolute; inset: 0; display: grid; place-items: center; background-color: #141312; background-size: 4px 4px, cover, cover; transition: transform .7s cubic-bezier(.2,.7,.2,1); }
@@ -337,7 +338,7 @@ a.aq-flash__item:hover, a.aq-flash__item:focus-visible { color: #fff; text-decor
 .aq-lead__text { font-family: var(--serif); font-size: 1.125rem; line-height: 1.55; color: var(--text-2); margin: 0; }
 .aq-stack__item { display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); gap: 1.15rem; align-items: center; padding: 1.35rem 0; border-bottom: 1px solid var(--line); }
 .aq-stack__item:first-child { padding-top: 0; }
-.aq-stack__media { aspect-ratio: 4 / 3; margin: 0; }
+.aq-stack__media { aspect-ratio: 16 / 10; margin: 0; }
 .aq-stack__item h3 { font-weight: 600; font-size: 1.125rem; line-height: 1.32; margin: 0; transition: color .15s ease-out; }
 .aq-section--ink .aq-card a:hover .aq-card__title, .aq-section--ink .aq-lead a:hover .aq-lead__title { color: var(--accent); }
 
@@ -759,7 +760,7 @@ main:focus { outline: none; }
   .aq-stack { display: grid; gap: .55rem; margin-top: 1rem; }
   .aq-stack__item { position: relative; grid-template-columns: 5.75rem minmax(0, 1fr); gap: .85rem; padding: .55rem .9rem .55rem .55rem; background: rgba(3, 3, 4, .04); border: 0; border-radius: 10px; }
   .aq-stack__item::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--orange); border-radius: 10px 0 0 10px; }
-  .aq-stack__media { aspect-ratio: 1 / 1; border-radius: 8px; }
+  .aq-stack__media { aspect-ratio: 16 / 10; border-radius: 8px; }
   .aq-stack__item .aq-card__place { font-size: .72rem; margin-bottom: .25rem; text-transform: uppercase; letter-spacing: .03em; }
   .aq-stack__item h3 { font-size: 1rem; line-height: 1.3; margin: 0; }
   .aq-stack__item .aq-card__meta { margin-top: .35rem; font-size: .75rem; }
