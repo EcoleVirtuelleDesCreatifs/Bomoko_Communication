@@ -1,6 +1,6 @@
 /* Le Cercle — service worker : la carte reste consultable sans connexion.
    Après une modification de la carte, augmenter VERSION pour forcer la mise à jour. */
-const VERSION = "cercle-v10";
+const VERSION = "cercle-v11";
 const FILES = [
   "./", "./index.html", "./manifest.json",
   "./css/style.css", "./css/fonts.css",

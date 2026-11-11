@@ -9,7 +9,7 @@
 const ADMIN_PASSWORD_INITIAL = 'cercle2026';
 
 // Fichier de base de données SQLite (créé automatiquement).
-const DB_FILE = __DIR__.'/../data/cercle.sqlite';
+define('DB_FILE', dirname(__DIR__, 3).'/storage/app/carte/cercle.sqlite');
 
 // Carte de départ, importée au premier lancement.
 const MENU_SEED_FILE = __DIR__.'/../data/menu.seed.json';
