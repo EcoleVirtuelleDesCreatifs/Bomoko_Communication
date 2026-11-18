@@ -174,7 +174,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', update))
 
 .aq-cc { position: relative; display: flex; flex-direction: column; border-radius: var(--radius); overflow: hidden; color: var(--paper); text-decoration: none; background: var(--ink-2); border: 1px solid rgba(245, 239, 228, .09); scroll-snap-align: start; }
 .aq-cc__media { position: relative; }
-.aq-cc__media :deep(.aq-media) { position: relative; width: 100%; aspect-ratio: 16 / 10; }
+.aq-cc__media :deep(.aq-media) { position: relative; width: 100%; aspect-ratio: 5 / 7; }
 .aq-cc__media :deep(img), .aq-cc__media :deep(.aq-ph) { transition: transform .8s cubic-bezier(.2, .7, .2, 1); }
 .aq-cc__body { padding: clamp(16px, 1.8vw, 24px); flex: 1; display: flex; flex-direction: column; }
 .aq-cc__kicker { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: 0 0 12px; font-size: 12px; }
