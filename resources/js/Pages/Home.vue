@@ -5,7 +5,6 @@ import AqAd from '../Components/AqAd.vue';
 import AqMedia from '../Components/AqMedia.vue';
 import AqSkin from '../Components/AqSkin.vue';
 import ArticleCard from '../Components/ArticleCard.vue';
-import CultureSection from '../Components/CultureSection.vue';
 import ChapterHead from '../Components/ChapterHead.vue';
 import EventItem from '../Components/EventItem.vue';
 import FlashBar from '../Components/FlashBar.vue';
@@ -221,7 +220,17 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
     <div class="row g-4 g-xl-5"><ArticleCard v-for="a in soc.slice(0, 3)" :key="a.id" :a="a" col="col-md-4" /></div>
   </div></section>
 
-  <CultureSection :items="cul" />
+  <section class="aq-section aq-section--white aq-below" id="culture" aria-labelledby="h-culture"><div class="container-xl" v-if="cul.length">
+    <ChapterHead id="culture" title="Culture" tagline="Vivez au rythme de la culture africaine" href="/rubrique/culture" more="Toute la rubrique" />
+    <div class="row g-5">
+      <article class="col-lg-7 aq-lead"><Link :href="cul[0].url">
+        <div class="aq-media aq-media--cut aq-media--wide"><AqMedia :a="cul[0]" /></div>
+        <div class="aq-lead__info"><span class="aq-card__place">{{ fr(kicker(cul[0])) }}</span><h3 class="aq-lead__title">{{ fr(cul[0].title) }}</h3><p class="aq-lead__text">{{ fr(cul[0].chapo) }}</p></div></Link></article>
+      <div class="col-lg-5 aq-hlist">
+        <ArticleCard v-for="a in cul.slice(1, 5)" :key="a.id" :a="a" h />
+      </div>
+    </div>
+  </div></section>
 
   <section class="aq-section aq-section--white aq-below" id="sports" aria-labelledby="h-sports"><div class="container-xl" v-if="spo.length">
     <ChapterHead id="sports" title="Sports" tagline="La passion du sport africain est contagieuse" href="/rubrique/sports" more="Toute la rubrique" />
