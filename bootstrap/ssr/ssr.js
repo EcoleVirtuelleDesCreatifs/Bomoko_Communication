@@ -1172,9 +1172,9 @@ const _sfc_main$7 = {
           class: "aq-culture",
           id: "culture",
           "aria-labelledby": "h-culture"
-        }, _attrs))} data-v-1279898e><div class="container-xl" data-v-1279898e><header class="aq-culture__head" data-v-1279898e><div class="aq-culture__titles" data-v-1279898e><p class="aq-culture__eyebrow" data-v-1279898e><span aria-hidden="true" data-v-1279898e></span>Rubrique</p><h2 class="aq-culture__title" id="h-culture" data-v-1279898e>${ssrInterpolate(__props.title)}</h2><p class="aq-culture__tagline" data-v-1279898e>${ssrInterpolate(__props.tagline)}</p></div><div class="aq-culture__actions" data-v-1279898e>`);
+        }, _attrs))} data-v-78b59ab2><div class="container-xl" data-v-78b59ab2><header class="aq-culture__head" data-v-78b59ab2><div class="aq-culture__titles" data-v-78b59ab2><p class="aq-culture__eyebrow" data-v-78b59ab2><span aria-hidden="true" data-v-78b59ab2></span>Rubrique</p><h2 class="aq-culture__title" id="h-culture" data-v-78b59ab2>${ssrInterpolate(__props.title)}</h2><p class="aq-culture__tagline" data-v-78b59ab2>${ssrInterpolate(__props.tagline)}</p></div><div class="aq-culture__actions" data-v-78b59ab2>`);
         if (rest.value.length > 1) {
-          _push(`<div class="aq-culture__nav" role="group" aria-label="Faire défiler les articles" data-v-1279898e><button type="button" class="aq-culture__btn"${ssrIncludeBooleanAttr(atStart.value) ? " disabled" : ""} aria-label="Articles précédents" data-v-1279898e><svg viewBox="0 0 24 24" aria-hidden="true" data-v-1279898e><path d="M15 18l-6-6 6-6" data-v-1279898e></path></svg></button><button type="button" class="aq-culture__btn"${ssrIncludeBooleanAttr(atEnd.value) ? " disabled" : ""} aria-label="Articles suivants" data-v-1279898e><svg viewBox="0 0 24 24" aria-hidden="true" data-v-1279898e><path d="M9 6l6 6-6 6" data-v-1279898e></path></svg></button></div>`);
+          _push(`<div class="aq-culture__nav" role="group" aria-label="Faire défiler les articles" data-v-78b59ab2><button type="button" class="aq-culture__btn"${ssrIncludeBooleanAttr(atStart.value) ? " disabled" : ""} aria-label="Articles précédents" data-v-78b59ab2><svg viewBox="0 0 24 24" aria-hidden="true" data-v-78b59ab2><path d="M15 18l-6-6 6-6" data-v-78b59ab2></path></svg></button><button type="button" class="aq-culture__btn"${ssrIncludeBooleanAttr(atEnd.value) ? " disabled" : ""} aria-label="Articles suivants" data-v-78b59ab2><svg viewBox="0 0 24 24" aria-hidden="true" data-v-78b59ab2><path d="M9 6l6 6-6 6" data-v-78b59ab2></path></svg></button></div>`);
         } else {
           _push(`<!---->`);
         }
@@ -1184,7 +1184,7 @@ const _sfc_main$7 = {
         }, {
           default: withCtx((_, _push2, _parent2, _scopeId) => {
             if (_push2) {
-              _push2(` Toute la rubrique <svg viewBox="0 0 24 24" aria-hidden="true" data-v-1279898e${_scopeId}><path d="M5 12h14M13 6l6 6-6 6" data-v-1279898e${_scopeId}></path></svg>`);
+              _push2(` Toute la rubrique <svg viewBox="0 0 24 24" aria-hidden="true" data-v-78b59ab2${_scopeId}><path d="M5 12h14M13 6l6 6-6 6" data-v-78b59ab2${_scopeId}></path></svg>`);
             } else {
               return [
                 createTextVNode(" Toute la rubrique "),
@@ -1199,7 +1199,7 @@ const _sfc_main$7 = {
           }),
           _: 1
         }, _parent));
-        _push(`</div></header><div class="${ssrRenderClass([{ "is-solo": !rest.value.length }, "aq-culture__grid"])}" data-v-1279898e>`);
+        _push(`</div></header><div class="${ssrRenderClass([{ "is-solo": !rest.value.length }, "aq-culture__grid"])}" data-v-78b59ab2>`);
         if (lead.value) {
           _push(ssrRenderComponent(unref(Link), {
             class: "aq-cc aq-cc--lead",
@@ -1207,15 +1207,15 @@ const _sfc_main$7 = {
           }, {
             default: withCtx((_, _push2, _parent2, _scopeId) => {
               if (_push2) {
-                _push2(`<div class="aq-cc__media" data-v-1279898e${_scopeId}>`);
+                _push2(`<div class="aq-cc__media" data-v-78b59ab2${_scopeId}>`);
                 _push2(ssrRenderComponent(_sfc_main$d, { a: lead.value }, null, _parent2, _scopeId));
-                _push2(`</div><div class="aq-cc__body" data-v-1279898e${_scopeId}><p class="aq-cc__kicker" data-v-1279898e${_scopeId}><span class="aq-cc__place" data-v-1279898e${_scopeId}>${ssrInterpolate(lead.value.place)}</span>`);
+                _push2(`</div><div class="aq-cc__body" data-v-78b59ab2${_scopeId}><p class="aq-cc__kicker" data-v-78b59ab2${_scopeId}><span class="aq-cc__place" data-v-78b59ab2${_scopeId}>${ssrInterpolate(lead.value.place)}</span>`);
                 if (lead.value.label) {
-                  _push2(`<span class="aq-cc__label" data-v-1279898e${_scopeId}>${ssrInterpolate(lead.value.label)}</span>`);
+                  _push2(`<span class="aq-cc__label" data-v-78b59ab2${_scopeId}>${ssrInterpolate(lead.value.label)}</span>`);
                 } else {
                   _push2(`<!---->`);
                 }
-                _push2(`</p><h3 class="aq-cc__title" data-v-1279898e${_scopeId}><span data-v-1279898e${_scopeId}>${ssrInterpolate(unref(fr)(lead.value.title))}</span></h3><span class="aq-cc__cta" data-v-1279898e${_scopeId}>Lire l&#39;article</span></div>`);
+                _push2(`</p><h3 class="aq-cc__title" data-v-78b59ab2${_scopeId}><span data-v-78b59ab2${_scopeId}>${ssrInterpolate(unref(fr)(lead.value.title))}</span></h3><span class="aq-cc__cta" data-v-78b59ab2${_scopeId}>Lire l&#39;article</span></div>`);
               } else {
                 return [
                   createVNode("div", { class: "aq-cc__media" }, [
@@ -1243,7 +1243,7 @@ const _sfc_main$7 = {
           _push(`<!---->`);
         }
         if (rest.value.length) {
-          _push(`<div class="aq-culture__railwrap" data-v-1279898e><div class="aq-culture__rail" tabindex="0" aria-label="Autres articles culture" data-v-1279898e><!--[-->`);
+          _push(`<div class="aq-culture__railwrap" data-v-78b59ab2><div class="aq-culture__rail" tabindex="0" aria-label="Autres articles culture" data-v-78b59ab2><!--[-->`);
           ssrRenderList(rest.value, (it) => {
             _push(ssrRenderComponent(unref(Link), {
               key: it.id,
@@ -1252,9 +1252,9 @@ const _sfc_main$7 = {
             }, {
               default: withCtx((_, _push2, _parent2, _scopeId) => {
                 if (_push2) {
-                  _push2(`<div class="aq-cc__media" data-v-1279898e${_scopeId}>`);
+                  _push2(`<div class="aq-cc__media" data-v-78b59ab2${_scopeId}>`);
                   _push2(ssrRenderComponent(_sfc_main$d, { a: it }, null, _parent2, _scopeId));
-                  _push2(`</div><div class="aq-cc__body" data-v-1279898e${_scopeId}><p class="aq-cc__kicker" data-v-1279898e${_scopeId}><span class="aq-cc__place" data-v-1279898e${_scopeId}>${ssrInterpolate(it.place)}</span></p><h3 class="aq-cc__title" data-v-1279898e${_scopeId}><span data-v-1279898e${_scopeId}>${ssrInterpolate(unref(fr)(it.title))}</span></h3></div>`);
+                  _push2(`</div><div class="aq-cc__body" data-v-78b59ab2${_scopeId}><p class="aq-cc__kicker" data-v-78b59ab2${_scopeId}><span class="aq-cc__place" data-v-78b59ab2${_scopeId}>${ssrInterpolate(it.place)}</span></p><h3 class="aq-cc__title" data-v-78b59ab2${_scopeId}><span data-v-78b59ab2${_scopeId}>${ssrInterpolate(unref(fr)(it.title))}</span></h3></div>`);
                 } else {
                   return [
                     createVNode("div", { class: "aq-cc__media" }, [
@@ -1274,7 +1274,7 @@ const _sfc_main$7 = {
               _: 2
             }, _parent));
           });
-          _push(`<!--]--></div><div class="aq-culture__progress" aria-hidden="true" data-v-1279898e><span style="${ssrRenderStyle({ transform: `scaleX(${Math.max(progress.value, 0.08)})` })}" data-v-1279898e></span></div></div>`);
+          _push(`<!--]--></div><div class="aq-culture__progress" aria-hidden="true" data-v-78b59ab2><span style="${ssrRenderStyle({ transform: `scaleX(${Math.max(progress.value, 0.08)})` })}" data-v-78b59ab2></span></div></div>`);
         } else {
           _push(`<!---->`);
         }
@@ -1291,7 +1291,7 @@ _sfc_main$7.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/CultureSection.vue");
   return _sfc_setup$7 ? _sfc_setup$7(props, ctx) : void 0;
 };
-const CultureSection = /* @__PURE__ */ _export_sfc(_sfc_main$7, [["__scopeId", "data-v-1279898e"]]);
+const CultureSection = /* @__PURE__ */ _export_sfc(_sfc_main$7, [["__scopeId", "data-v-78b59ab2"]]);
 const _sfc_main$6 = {
   __name: "FlashBar",
   __ssrInlineRender: true,
