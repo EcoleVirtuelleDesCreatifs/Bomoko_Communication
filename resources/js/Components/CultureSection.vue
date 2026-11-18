@@ -175,13 +175,13 @@ onBeforeUnmount(() => window.removeEventListener('resize', update))
 .aq-cc { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 380px; border-radius: var(--radius); overflow: hidden; color: var(--paper); text-decoration: none; background: var(--ink-2); scroll-snap-align: start; isolation: isolate; }
 .aq-cc__media { position: absolute; inset: 0; z-index: -1; }
 .aq-cc__media :deep(.aq-media) { position: absolute; inset: 0; aspect-ratio: auto; }
-.aq-cc__media :deep(.aq-media)::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20, 17, 14, 0) 15%, rgba(20, 17, 14, .35) 45%, rgba(20, 17, 14, .92) 78%, rgba(20, 17, 14, .98) 100%); }
+.aq-cc__media :deep(.aq-media)::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20, 17, 14, 0) 22%, rgba(20, 17, 14, .55) 52%, rgba(20, 17, 14, .94) 75%, rgba(20, 17, 14, .99) 100%); }
 .aq-cc__media :deep(img), .aq-cc__media :deep(.aq-ph) { transition: transform .8s cubic-bezier(.2, .7, .2, 1), filter .5s; filter: saturate(1); }
 .aq-cc__body { padding: clamp(18px, 2vw, 28px); }
 .aq-cc__kicker { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: 0 0 12px; font-size: 12px; }
 .aq-cc__place { padding: 5px 10px; border-radius: 999px; background: var(--accent); color: var(--ink); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .aq-cc__label { color: var(--muted); font-weight: 500; }
-.aq-cc__title { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(1.15rem, 1.6vw, 1.375rem); line-height: 1.25; text-wrap: balance; color: #fff; text-shadow: 0 1px 8px rgba(0,0,0,.45); }
+.aq-cc__title { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(1.15rem, 1.6vw, 1.375rem); line-height: 1.25; text-wrap: balance; color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,.65), 0 1px 4px rgba(0,0,0,.8); }
 .aq-cc__title span { background: linear-gradient(var(--accent), var(--accent)) 0 100% / 0 2px no-repeat; transition: background-size .45s; }
 .aq-cc:hover .aq-cc__media :deep(img), .aq-cc:focus-visible .aq-cc__media :deep(img) { transform: scale(1.06); filter: saturate(1.05); }
 .aq-cc:hover .aq-cc__title span, .aq-cc:focus-visible .aq-cc__title span { background-size: 100% 2px; }
