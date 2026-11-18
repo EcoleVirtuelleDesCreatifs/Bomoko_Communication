@@ -18,8 +18,11 @@ const splitKind = (kind = '') => {
     : { place: kind.slice(0, i).trim(), label: kind.slice(i + 1).trim() }
 }
 
-const lead = computed(() => props.items[0] && { ...props.items[0], ...splitKind(props.items[0].country || '') })
-const rest = computed(() => props.items.slice(1).map((it) => ({ ...it, ...splitKind(it.country || '') })))
+const lead = computed(() => {
+    const first = props.items.find((it) => it.src) || props.items[0]
+    return first && { ...first, ...splitKind(first.country || '') }
+})
+const rest = computed(() => props.items.filter((it) => !lead.value || it.id !== lead.value.id).map((it) => ({ ...it, ...splitKind(it.country || '') })))
 
 const rail = ref(null)
 const progress = ref(0)
@@ -81,8 +84,8 @@ onBeforeUnmount(() => window.removeEventListener('resize', update))
         <Link v-if="lead" class="aq-cc aq-cc--lead" :href="lead.url">
           <div class="aq-cc__media"><AqMedia :a="lead" /></div>
           <div class="aq-cc__body">
-            <p class="aq-cc__kicker">
-              <span class="aq-cc__place">{{ lead.place }}</span>
+            <p v-if="lead.place || lead.label" class="aq-cc__kicker">
+              <span v-if="lead.place" class="aq-cc__place">{{ lead.place }}</span>
               <span v-if="lead.label" class="aq-cc__label">{{ lead.label }}</span>
             </p>
             <h3 class="aq-cc__title"><span>{{ fr(lead.title) }}</span></h3>
@@ -95,7 +98,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', update))
             <Link v-for="it in rest" :key="it.id" class="aq-cc" :href="it.url">
               <div class="aq-cc__media"><AqMedia :a="it" /></div>
               <div class="aq-cc__body">
-                <p class="aq-cc__kicker"><span class="aq-cc__place">{{ it.place }}</span></p>
+                <p v-if="it.place || it.label" class="aq-cc__kicker"><span v-if="it.place" class="aq-cc__place">{{ it.place }}</span><span v-if="it.label" class="aq-cc__label">{{ it.label }}</span></p>
                 <h3 class="aq-cc__title"><span>{{ fr(it.title) }}</span></h3>
               </div>
             </Link>
