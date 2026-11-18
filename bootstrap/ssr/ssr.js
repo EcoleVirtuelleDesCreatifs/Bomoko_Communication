@@ -1231,7 +1231,6 @@ _sfc_main$6.setup = (props, ctx) => {
   return _sfc_setup$6 ? _sfc_setup$6(props, ctx) : void 0;
 };
 const FlashBar = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["__scopeId", "data-v-6b1512ab"]]);
-const FLASH_N = 3;
 const _sfc_main$5 = {
   __name: "Home",
   __ssrInlineRender: true,
@@ -1252,7 +1251,6 @@ const _sfc_main$5 = {
     const slides = computed(() => sorted.value.filter((a) => a.une).slice(0, 4));
     const fil = computed(() => sorted.value.filter((a) => !slides.value.includes(a) && a.rub !== "portraits").slice(0, 4));
     const flashAll = computed(() => props.flashes);
-    const flash = ref(flashAll.value.slice(0, FLASH_N));
     const seen = computed(() => [...slides.value, ...fil.value]);
     function pick(list, n) {
       const fresh = list.filter((a) => !seen.value.includes(a));
@@ -1267,7 +1265,7 @@ const _sfc_main$5 = {
     const pol = computed(() => pick(byRub("politique"), 5));
     const eco = computed(() => pick(byRub("economie"), 5));
     const soc = computed(() => pick(byRub("societe"), 3));
-    const cul = computed(() => pick(byRub("culture"), 6));
+    const cul = computed(() => pick(byRub("culture"), 5));
     const spo = computed(() => pick(byRub("sports"), 5));
     const opi = computed(() => byRub("opinion"));
     const tips = computed(() => byRub("tips"));
@@ -1281,18 +1279,6 @@ const _sfc_main$5 = {
     const cur = ref(0);
     const progress = ref([]);
     onMounted(() => {
-      try {
-        let seenIds = JSON.parse(store("aq-flash-seen") || "[]");
-        let unseen = flashAll.value.filter((f) => !seenIds.includes(f.id));
-        if (unseen.length < FLASH_N) {
-          seenIds = [];
-          unseen = flashAll.value;
-        }
-        const pickFlash = unseen.slice(0, FLASH_N);
-        store("aq-flash-seen", JSON.stringify(seenIds.concat(pickFlash.map((f) => f.id))));
-        flash.value = pickFlash;
-      } catch (e) {
-      }
       progress.value = slides.value.map((_, k) => k === 0 ? 1 : 0);
       mediaMotion = createHomeMediaMotion(homeRoot.value);
     });
@@ -1323,14 +1309,14 @@ const _sfc_main$5 = {
         class: "aq-home",
         ref_key: "homeRoot",
         ref: homeRoot
-      }, _attrs))} data-v-ba193997>`);
+      }, _attrs))}>`);
       _push(ssrRenderComponent(FlashBar, { items: flashAll.value }, null, _parent));
       _push(ssrRenderComponent(_sfc_main$7, null, null, _parent));
-      _push(`<h1 class="visually-hidden" data-v-ba193997>Afriquinfos, l’actualité panafricaine</h1><div class="aq-hero" data-v-ba193997>`);
+      _push(`<h1 class="visually-hidden">Afriquinfos, l’actualité panafricaine</h1><div class="aq-hero">`);
       if (slides.value.length) {
-        _push(`<section class="aq-slider" aria-roledescription="carrousel" aria-label="À la une" data-v-ba193997><div class="container-xl" data-v-ba193997><div class="aq-slider__stage" aria-live="off" data-v-ba193997><!--[-->`);
+        _push(`<section class="aq-slider" aria-roledescription="carrousel" aria-label="À la une"><div class="container-xl"><div class="aq-slider__stage" aria-live="off"><!--[-->`);
         ssrRenderList(slides.value, (a, i) => {
-          _push(`<article class="${ssrRenderClass([{ "is-active": i === cur.value }, "aq-slide"])}"${ssrRenderAttr("id", "slide-" + i)} role="group" aria-roledescription="diapositive"${ssrRenderAttr("aria-label", i + 1 + " sur " + slides.value.length)}${ssrRenderAttr("aria-hidden", i === cur.value ? null : "true")} data-v-ba193997>`);
+          _push(`<article class="${ssrRenderClass([{ "is-active": i === cur.value }, "aq-slide"])}"${ssrRenderAttr("id", "slide-" + i)} role="group" aria-roledescription="diapositive"${ssrRenderAttr("aria-label", i + 1 + " sur " + slides.value.length)}${ssrRenderAttr("aria-hidden", i === cur.value ? null : "true")}>`);
           _push(ssrRenderComponent(unref(Link), {
             class: "aq-slide__media",
             href: a.url,
@@ -1356,7 +1342,7 @@ const _sfc_main$5 = {
             }),
             _: 2
           }, _parent));
-          _push(`<div class="aq-slide__text" data-v-ba193997><span class="aq-slide__kicker" data-v-ba193997>${ssrInterpolate(unref(fr)(unref(kicker)(a, "rub")))}</span><h2 class="aq-slide__title" data-v-ba193997>`);
+          _push(`<div class="aq-slide__text"><span class="aq-slide__kicker">${ssrInterpolate(unref(fr)(unref(kicker)(a, "rub")))}</span><h2 class="aq-slide__title">`);
           _push(ssrRenderComponent(unref(Link), {
             href: a.url,
             tabindex: i === cur.value ? null : "-1"
@@ -1372,7 +1358,7 @@ const _sfc_main$5 = {
             }),
             _: 2
           }, _parent));
-          _push(`</h2><p class="aq-slide__chapo" data-v-ba193997>${ssrInterpolate(unref(fr)(a.chapo))}</p><p class="aq-slide__meta" data-v-ba193997>Par ${ssrInterpolate(a.author)}, ${ssrInterpolate(unref(rel)(a.date))}, ${ssrInterpolate(a.read)} min de lecture</p>`);
+          _push(`</h2><p class="aq-slide__chapo">${ssrInterpolate(unref(fr)(a.chapo))}</p><p class="aq-slide__meta">Par ${ssrInterpolate(a.author)}, ${ssrInterpolate(unref(rel)(a.date))}, ${ssrInterpolate(a.read)} min de lecture</p>`);
           _push(ssrRenderComponent(unref(Link), {
             class: "aq-slide__cta",
             href: a.url,
@@ -1391,23 +1377,23 @@ const _sfc_main$5 = {
           }, _parent));
           _push(`</div></article>`);
         });
-        _push(`<!--]--></div><div class="aq-slider__nav" data-v-ba193997><div class="aq-slider__tabs" role="tablist" aria-label="Articles à la une" data-v-ba193997><!--[-->`);
+        _push(`<!--]--></div><div class="aq-slider__nav"><div class="aq-slider__tabs" role="tablist" aria-label="Articles à la une"><!--[-->`);
         ssrRenderList(slides.value, (a, i) => {
-          _push(`<button type="button" role="tab" class="aq-slider__tab"${ssrRenderAttr("aria-controls", "slide-" + i)}${ssrRenderAttr("aria-selected", i === cur.value)} data-v-ba193997><span class="aq-slider__progress" aria-hidden="true" style="${ssrRenderStyle({ "--p": progress.value[i] || 0 })}" data-v-ba193997></span><small data-v-ba193997><b data-v-ba193997>${ssrInterpolate(two(i + 1))}</b>${ssrInterpolate(a.rub_label)}</small><span class="aq-slider__tabtitle" data-v-ba193997>${ssrInterpolate(unref(fr)(a.title))}</span></button>`);
+          _push(`<button type="button" role="tab" class="aq-slider__tab"${ssrRenderAttr("aria-controls", "slide-" + i)}${ssrRenderAttr("aria-selected", i === cur.value)}><span class="aq-slider__progress" aria-hidden="true" style="${ssrRenderStyle({ "--p": progress.value[i] || 0 })}"></span><small><b>${ssrInterpolate(two(i + 1))}</b>${ssrInterpolate(a.rub_label)}</small><span class="aq-slider__tabtitle">${ssrInterpolate(unref(fr)(a.title))}</span></button>`);
         });
-        _push(`<!--]--></div><div class="aq-slider__btns" data-v-ba193997><button type="button" class="aq-slider__btn" aria-label="Article précédent" data-v-ba193997><i class="bi bi-arrow-left" aria-hidden="true" data-v-ba193997></i></button><button type="button" class="aq-slider__btn" aria-label="Article suivant" data-v-ba193997><i class="bi bi-arrow-right" aria-hidden="true" data-v-ba193997></i></button></div></div></div></section>`);
+        _push(`<!--]--></div><div class="aq-slider__btns"><button type="button" class="aq-slider__btn" aria-label="Article précédent"><i class="bi bi-arrow-left" aria-hidden="true"></i></button><button type="button" class="aq-slider__btn" aria-label="Article suivant"><i class="bi bi-arrow-right" aria-hidden="true"></i></button></div></div></div></section>`);
       } else {
         _push(`<!---->`);
       }
-      _push(`</div><section class="aq-section aq-section--white aq-section--fil" aria-labelledby="filTitre" data-v-ba193997><div class="container-xl" data-v-ba193997><div class="aq-filrow" data-v-ba193997><h2 class="aq-filrow__title" id="filTitre" data-v-ba193997><span class="aq-live" aria-hidden="true" data-v-ba193997></span>Le fil</h2><ol class="aq-filrow__list" data-v-ba193997><!--[-->`);
+      _push(`</div><section class="aq-section aq-section--white aq-section--fil" aria-labelledby="filTitre"><div class="container-xl"><div class="aq-filrow"><h2 class="aq-filrow__title" id="filTitre"><span class="aq-live" aria-hidden="true"></span>Le fil</h2><ol class="aq-filrow__list"><!--[-->`);
       ssrRenderList(fil.value, (a) => {
-        _push(`<li data-v-ba193997>`);
+        _push(`<li>`);
         _push(ssrRenderComponent(unref(Link), {
           href: a.url
         }, {
           default: withCtx((_, _push2, _parent2, _scopeId) => {
             if (_push2) {
-              _push2(`<span class="aq-filrow__meta" data-v-ba193997${_scopeId}><time${ssrRenderAttr("datetime", a.date)} data-v-ba193997${_scopeId}>${ssrInterpolate(unref(rel)(a.date))}</time>${ssrInterpolate(a.rub_label)}</span><strong data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)(a.title))}</strong>`);
+              _push2(`<span class="aq-filrow__meta"${_scopeId}><time${ssrRenderAttr("datetime", a.date)}${_scopeId}>${ssrInterpolate(unref(rel)(a.date))}</time>${ssrInterpolate(a.rub_label)}</span><strong${_scopeId}>${ssrInterpolate(unref(fr)(a.title))}</strong>`);
             } else {
               return [
                 createVNode("span", { class: "aq-filrow__meta" }, [
@@ -1424,30 +1410,30 @@ const _sfc_main$5 = {
         }, _parent));
         _push(`</li>`);
       });
-      _push(`<!--]--></ol></div></div></section><section class="aq-section aq-section--orange aq-afriques" id="afriques" aria-labelledby="h-afriques" data-v-ba193997><div class="container-xl" data-v-ba193997>`);
+      _push(`<!--]--></ol></div></div></section><section class="aq-section aq-section--orange aq-afriques" id="afriques" aria-labelledby="h-afriques"><div class="container-xl">`);
       _push(ssrRenderComponent(_sfc_main$h, {
         id: "afriques",
         title: "Les Afriques",
         tagline: "Toutes les Afriques, sans détour",
         href: "/afriques"
       }, null, _parent));
-      _push(`<div class="aq-filters" role="group" aria-label="Filtrer par région" data-v-ba193997><button type="button"${ssrRenderAttr("aria-pressed", regionFilter.value === "all")} data-v-ba193997>Toutes</button><!--[-->`);
+      _push(`<div class="aq-filters" role="group" aria-label="Filtrer par région"><button type="button"${ssrRenderAttr("aria-pressed", regionFilter.value === "all")}>Toutes</button><!--[-->`);
       ssrRenderList(unref(regions), (g) => {
-        _push(`<button type="button"${ssrRenderAttr("aria-pressed", regionFilter.value === g.slug)} data-v-ba193997>${ssrInterpolate(g.label)}</button>`);
+        _push(`<button type="button"${ssrRenderAttr("aria-pressed", regionFilter.value === g.slug)}>${ssrInterpolate(g.label)}</button>`);
       });
-      _push(`<!--]--></div><div class="aq-afr" aria-live="polite" data-v-ba193997>`);
+      _push(`<!--]--></div><div class="aq-afr" aria-live="polite">`);
       if (regionList.value[0]) {
-        _push(`<article class="aq-afr__lead" data-v-ba193997>`);
+        _push(`<article class="aq-afr__lead">`);
         _push(ssrRenderComponent(unref(Link), {
           href: regionList.value[0].url
         }, {
           default: withCtx((_, _push2, _parent2, _scopeId) => {
             if (_push2) {
-              _push2(`<div class="aq-media aq-media--cut" data-v-ba193997${_scopeId}>`);
+              _push2(`<div class="aq-media aq-media--cut"${_scopeId}>`);
               _push2(ssrRenderComponent(_sfc_main$c, {
                 a: regionList.value[0]
               }, null, _parent2, _scopeId));
-              _push2(`</div><div class="aq-afr__body" data-v-ba193997${_scopeId}><span class="aq-card__place" data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)(unref(kicker)(regionList.value[0], "rub")))}</span><h3 class="aq-afr__title" data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)(regionList.value[0].title))}</h3><time class="aq-card__meta"${ssrRenderAttr("datetime", regionList.value[0].date)} data-v-ba193997${_scopeId}>${ssrInterpolate(unref(rel)(regionList.value[0].date))}</time></div>`);
+              _push2(`</div><div class="aq-afr__body"${_scopeId}><span class="aq-card__place"${_scopeId}>${ssrInterpolate(unref(fr)(unref(kicker)(regionList.value[0], "rub")))}</span><h3 class="aq-afr__title"${_scopeId}>${ssrInterpolate(unref(fr)(regionList.value[0].title))}</h3><time class="aq-card__meta"${ssrRenderAttr("datetime", regionList.value[0].date)}${_scopeId}>${ssrInterpolate(unref(rel)(regionList.value[0].date))}</time></div>`);
             } else {
               return [
                 createVNode("div", { class: "aq-media aq-media--cut" }, [
@@ -1472,7 +1458,7 @@ const _sfc_main$5 = {
       } else {
         _push(`<!---->`);
       }
-      _push(`<div class="aq-afr__grid" data-v-ba193997><!--[-->`);
+      _push(`<div class="aq-afr__grid"><!--[-->`);
       ssrRenderList(regionList.value.slice(1), (a) => {
         _push(ssrRenderComponent(_sfc_main$b, {
           key: a.id,
@@ -1483,13 +1469,13 @@ const _sfc_main$5 = {
       });
       _push(`<!--]--></div>`);
       if (!regionList.value.length) {
-        _push(`<p class="aq-empty" data-v-ba193997>Aucun article récent pour cette région.</p>`);
+        _push(`<p class="aq-empty">Aucun article récent pour cette région.</p>`);
       } else {
         _push(`<!---->`);
       }
-      _push(`</div></div></section><section class="aq-section aq-section--white" id="politique" aria-labelledby="h-politique" data-v-ba193997>`);
+      _push(`</div></div></section><section class="aq-section aq-section--white" id="politique" aria-labelledby="h-politique">`);
       if (pol.value.length) {
-        _push(`<div class="container-xl" data-v-ba193997>`);
+        _push(`<div class="container-xl">`);
         _push(ssrRenderComponent(_sfc_main$h, {
           id: "politique",
           title: "Politique",
@@ -1497,17 +1483,17 @@ const _sfc_main$5 = {
           href: "/rubrique/politique",
           more: "Toute la rubrique"
         }, null, _parent));
-        _push(`<div class="row g-5" data-v-ba193997><article class="col-lg-7 aq-lead" data-v-ba193997>`);
+        _push(`<div class="row g-5"><article class="col-lg-7 aq-lead">`);
         _push(ssrRenderComponent(unref(Link), {
           href: pol.value[0].url
         }, {
           default: withCtx((_, _push2, _parent2, _scopeId) => {
             if (_push2) {
-              _push2(`<div class="aq-media aq-media--cut aq-media--wide" data-v-ba193997${_scopeId}>`);
+              _push2(`<div class="aq-media aq-media--cut aq-media--wide"${_scopeId}>`);
               _push2(ssrRenderComponent(_sfc_main$c, {
                 a: pol.value[0]
               }, null, _parent2, _scopeId));
-              _push2(`</div><div class="aq-lead__info" data-v-ba193997${_scopeId}><span class="aq-card__place" data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)(unref(kicker)(pol.value[0])))}</span><h3 class="aq-lead__title" data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)(pol.value[0].title))}</h3><p class="aq-lead__text" data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)(pol.value[0].chapo))}</p></div>`);
+              _push2(`</div><div class="aq-lead__info"${_scopeId}><span class="aq-card__place"${_scopeId}>${ssrInterpolate(unref(fr)(unref(kicker)(pol.value[0])))}</span><h3 class="aq-lead__title"${_scopeId}>${ssrInterpolate(unref(fr)(pol.value[0].title))}</h3><p class="aq-lead__text"${_scopeId}>${ssrInterpolate(unref(fr)(pol.value[0].chapo))}</p></div>`);
             } else {
               return [
                 createVNode("div", { class: "aq-media aq-media--cut aq-media--wide" }, [
@@ -1525,7 +1511,7 @@ const _sfc_main$5 = {
           }),
           _: 1
         }, _parent));
-        _push(`</article><div class="col-lg-5 aq-hlist" data-v-ba193997><!--[-->`);
+        _push(`</article><div class="col-lg-5 aq-hlist"><!--[-->`);
         ssrRenderList(pol.value.slice(1, 5), (a) => {
           _push(ssrRenderComponent(_sfc_main$b, {
             key: a.id,
@@ -1537,14 +1523,14 @@ const _sfc_main$5 = {
       } else {
         _push(`<!---->`);
       }
-      _push(`</section><div class="container-xl" data-v-ba193997>`);
+      _push(`</section><div class="container-xl">`);
       _push(ssrRenderComponent(_sfc_main$d, {
         slot: "billboard",
         variant: "billboard"
       }, null, _parent));
-      _push(`</div><section class="aq-section aq-section--ink" id="economie" aria-labelledby="h-economie" data-v-ba193997>`);
+      _push(`</div><section class="aq-section aq-section--ink" id="economie" aria-labelledby="h-economie">`);
       if (eco.value.length) {
-        _push(`<div class="container-xl" data-v-ba193997>`);
+        _push(`<div class="container-xl">`);
         _push(ssrRenderComponent(_sfc_main$h, {
           id: "economie",
           title: "Économie",
@@ -1552,17 +1538,17 @@ const _sfc_main$5 = {
           href: "/rubrique/economie",
           more: "Toute la rubrique"
         }, null, _parent));
-        _push(`<div class="row g-5" data-v-ba193997><article class="col-lg-6 aq-lead" data-v-ba193997>`);
+        _push(`<div class="row g-5"><article class="col-lg-6 aq-lead">`);
         _push(ssrRenderComponent(unref(Link), {
           href: eco.value[0].url
         }, {
           default: withCtx((_, _push2, _parent2, _scopeId) => {
             if (_push2) {
-              _push2(`<div class="aq-media aq-media--cut aq-media--wide" data-v-ba193997${_scopeId}>`);
+              _push2(`<div class="aq-media aq-media--cut aq-media--wide"${_scopeId}>`);
               _push2(ssrRenderComponent(_sfc_main$c, {
                 a: eco.value[0]
               }, null, _parent2, _scopeId));
-              _push2(`</div><div class="aq-lead__info" data-v-ba193997${_scopeId}><span class="aq-card__place" data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)(eco.value[0].country))}</span><h3 class="aq-lead__title" data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)(eco.value[0].title))}</h3><p class="aq-lead__text" data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)(eco.value[0].chapo))}</p></div>`);
+              _push2(`</div><div class="aq-lead__info"${_scopeId}><span class="aq-card__place"${_scopeId}>${ssrInterpolate(unref(fr)(eco.value[0].country))}</span><h3 class="aq-lead__title"${_scopeId}>${ssrInterpolate(unref(fr)(eco.value[0].title))}</h3><p class="aq-lead__text"${_scopeId}>${ssrInterpolate(unref(fr)(eco.value[0].chapo))}</p></div>`);
             } else {
               return [
                 createVNode("div", { class: "aq-media aq-media--cut aq-media--wide" }, [
@@ -1580,7 +1566,7 @@ const _sfc_main$5 = {
           }),
           _: 1
         }, _parent));
-        _push(`</article><div class="col-lg-6 aq-hlist" data-v-ba193997><!--[-->`);
+        _push(`</article><div class="col-lg-6 aq-hlist"><!--[-->`);
         ssrRenderList(eco.value.slice(1, 5), (a) => {
           _push(ssrRenderComponent(_sfc_main$b, {
             key: a.id,
@@ -1592,7 +1578,7 @@ const _sfc_main$5 = {
       } else {
         _push(`<!---->`);
       }
-      _push(`</section><section class="aq-section aq-section--white aq-below" id="societe" aria-labelledby="h-societe" data-v-ba193997><div class="container-xl" data-v-ba193997>`);
+      _push(`</section><section class="aq-section aq-section--white aq-below" id="societe" aria-labelledby="h-societe"><div class="container-xl">`);
       _push(ssrRenderComponent(_sfc_main$h, {
         id: "societe",
         title: "Société",
@@ -1600,7 +1586,7 @@ const _sfc_main$5 = {
         href: "/rubrique/societe",
         more: "Toute la rubrique"
       }, null, _parent));
-      _push(`<div class="row g-4 g-xl-5" data-v-ba193997><!--[-->`);
+      _push(`<div class="row g-4 g-xl-5"><!--[-->`);
       ssrRenderList(soc.value.slice(0, 3), (a) => {
         _push(ssrRenderComponent(_sfc_main$b, {
           key: a.id,
@@ -1608,9 +1594,9 @@ const _sfc_main$5 = {
           col: "col-md-4"
         }, null, _parent));
       });
-      _push(`<!--]--></div></div></section><section class="aq-section aq-section--ink aq-culture aq-below" id="culture" aria-labelledby="h-culture" data-v-ba193997>`);
+      _push(`<!--]--></div></div></section><section class="aq-section aq-section--ink aq-culture aq-below" id="culture" aria-labelledby="h-culture">`);
       if (cul.value.length) {
-        _push(`<div class="container-xl" data-v-ba193997>`);
+        _push(`<div class="container-xl">`);
         _push(ssrRenderComponent(_sfc_main$h, {
           id: "culture",
           title: "Culture",
@@ -1618,17 +1604,17 @@ const _sfc_main$5 = {
           href: "/rubrique/culture",
           more: "Toute la rubrique"
         }, null, _parent));
-        _push(`<div class="row g-5" data-v-ba193997><article class="col-lg-7 aq-lead" data-v-ba193997>`);
+        _push(`<div class="row g-5"><article class="col-lg-7 aq-lead">`);
         _push(ssrRenderComponent(unref(Link), {
           href: cul.value[0].url
         }, {
           default: withCtx((_, _push2, _parent2, _scopeId) => {
             if (_push2) {
-              _push2(`<div class="aq-media aq-media--cut aq-media--wide" data-v-ba193997${_scopeId}>`);
+              _push2(`<div class="aq-media aq-media--cut aq-media--wide"${_scopeId}>`);
               _push2(ssrRenderComponent(_sfc_main$c, {
                 a: cul.value[0]
               }, null, _parent2, _scopeId));
-              _push2(`</div><div class="aq-lead__info" data-v-ba193997${_scopeId}><span class="aq-card__place" data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)(unref(kicker)(cul.value[0])))}</span><h3 class="aq-lead__title" data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)(cul.value[0].title))}</h3><p class="aq-lead__text" data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)(cul.value[0].chapo))}</p></div>`);
+              _push2(`</div><div class="aq-lead__info"${_scopeId}><span class="aq-card__place"${_scopeId}>${ssrInterpolate(unref(fr)(unref(kicker)(cul.value[0])))}</span><h3 class="aq-lead__title"${_scopeId}>${ssrInterpolate(unref(fr)(cul.value[0].title))}</h3><p class="aq-lead__text"${_scopeId}>${ssrInterpolate(unref(fr)(cul.value[0].chapo))}</p></div>`);
             } else {
               return [
                 createVNode("div", { class: "aq-media aq-media--cut aq-media--wide" }, [
@@ -1646,7 +1632,7 @@ const _sfc_main$5 = {
           }),
           _: 1
         }, _parent));
-        _push(`</article><div class="col-lg-5 aq-hlist" data-v-ba193997><!--[-->`);
+        _push(`</article><div class="col-lg-5 aq-hlist"><!--[-->`);
         ssrRenderList(cul.value.slice(1, 5), (a) => {
           _push(ssrRenderComponent(_sfc_main$b, {
             key: a.id,
@@ -1658,9 +1644,9 @@ const _sfc_main$5 = {
       } else {
         _push(`<!---->`);
       }
-      _push(`</section><section class="aq-section aq-section--white aq-below" id="sports" aria-labelledby="h-sports" data-v-ba193997>`);
+      _push(`</section><section class="aq-section aq-section--white aq-below" id="sports" aria-labelledby="h-sports">`);
       if (spo.value.length) {
-        _push(`<div class="container-xl" data-v-ba193997>`);
+        _push(`<div class="container-xl">`);
         _push(ssrRenderComponent(_sfc_main$h, {
           id: "sports",
           title: "Sports",
@@ -1668,17 +1654,17 @@ const _sfc_main$5 = {
           href: "/rubrique/sports",
           more: "Toute la rubrique"
         }, null, _parent));
-        _push(`<div class="row g-5" data-v-ba193997><article class="col-lg-7 aq-lead" data-v-ba193997>`);
+        _push(`<div class="row g-5"><article class="col-lg-7 aq-lead">`);
         _push(ssrRenderComponent(unref(Link), {
           href: spo.value[0].url
         }, {
           default: withCtx((_, _push2, _parent2, _scopeId) => {
             if (_push2) {
-              _push2(`<div class="aq-media aq-media--cut aq-media--wide" data-v-ba193997${_scopeId}>`);
+              _push2(`<div class="aq-media aq-media--cut aq-media--wide"${_scopeId}>`);
               _push2(ssrRenderComponent(_sfc_main$c, {
                 a: spo.value[0]
               }, null, _parent2, _scopeId));
-              _push2(`</div><div class="aq-lead__info" data-v-ba193997${_scopeId}><span class="aq-card__place" data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)(spo.value[0].country))}</span><h3 class="aq-lead__title" data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)(spo.value[0].title))}</h3><p class="aq-lead__text" data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)(spo.value[0].chapo))}</p></div>`);
+              _push2(`</div><div class="aq-lead__info"${_scopeId}><span class="aq-card__place"${_scopeId}>${ssrInterpolate(unref(fr)(spo.value[0].country))}</span><h3 class="aq-lead__title"${_scopeId}>${ssrInterpolate(unref(fr)(spo.value[0].title))}</h3><p class="aq-lead__text"${_scopeId}>${ssrInterpolate(unref(fr)(spo.value[0].chapo))}</p></div>`);
             } else {
               return [
                 createVNode("div", { class: "aq-media aq-media--cut aq-media--wide" }, [
@@ -1696,7 +1682,7 @@ const _sfc_main$5 = {
           }),
           _: 1
         }, _parent));
-        _push(`</article><div class="col-lg-5 aq-hlist" data-v-ba193997><!--[-->`);
+        _push(`</article><div class="col-lg-5 aq-hlist"><!--[-->`);
         ssrRenderList(spo.value.slice(1, 5), (a) => {
           _push(ssrRenderComponent(_sfc_main$b, {
             key: a.id,
@@ -1708,25 +1694,25 @@ const _sfc_main$5 = {
       } else {
         _push(`<!---->`);
       }
-      _push(`</section><section class="aq-section aq-section--stone aq-below" id="portraits" aria-labelledby="h-portraits" data-v-ba193997><div class="container-xl" data-v-ba193997>`);
+      _push(`</section><section class="aq-section aq-section--stone aq-below" id="portraits" aria-labelledby="h-portraits"><div class="container-xl">`);
       _push(ssrRenderComponent(_sfc_main$h, {
         id: "portraits",
         title: "Portraits",
         tagline: "Celles et ceux qui font l’Afrique d’aujourd’hui",
         href: "/portraits"
       }, null, _parent));
-      _push(`<div class="row g-4" data-v-ba193997><!--[-->`);
+      _push(`<div class="row g-4"><!--[-->`);
       ssrRenderList(por.value.slice(0, 4), (a) => {
-        _push(`<article class="aq-portrait col-sm-6 col-lg-3" data-v-ba193997>`);
+        _push(`<article class="aq-portrait col-sm-6 col-lg-3">`);
         _push(ssrRenderComponent(unref(Link), {
           href: a.url
         }, {
           default: withCtx((_, _push2, _parent2, _scopeId) => {
             var _a2, _b2, _c2, _d, _e, _f;
             if (_push2) {
-              _push2(`<div class="aq-portrait__visual" data-v-ba193997${_scopeId}>`);
+              _push2(`<div class="aq-portrait__visual"${_scopeId}>`);
               _push2(ssrRenderComponent(_sfc_main$c, { a }, null, _parent2, _scopeId));
-              _push2(`</div><h3 class="aq-portrait__name" data-v-ba193997${_scopeId}>${ssrInterpolate((_a2 = a.person) == null ? void 0 : _a2.name)}</h3><p class="aq-portrait__role" data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)((((_b2 = a.person) == null ? void 0 : _b2.role) || "") + ", " + (((_c2 = a.person) == null ? void 0 : _c2.city) || "") + " (" + a.country + ")"))}</p><p class="aq-portrait__chapo" data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)(a.chapo))}</p>`);
+              _push2(`</div><h3 class="aq-portrait__name"${_scopeId}>${ssrInterpolate((_a2 = a.person) == null ? void 0 : _a2.name)}</h3><p class="aq-portrait__role"${_scopeId}>${ssrInterpolate(unref(fr)((((_b2 = a.person) == null ? void 0 : _b2.role) || "") + ", " + (((_c2 = a.person) == null ? void 0 : _c2.city) || "") + " (" + a.country + ")"))}</p><p class="aq-portrait__chapo"${_scopeId}>${ssrInterpolate(unref(fr)(a.chapo))}</p>`);
             } else {
               return [
                 createVNode("div", { class: "aq-portrait__visual" }, [
@@ -1742,7 +1728,7 @@ const _sfc_main$5 = {
         }, _parent));
         _push(`</article>`);
       });
-      _push(`<!--]--></div></div></section><section class="aq-section aq-section--orange aq-below" id="opinion" aria-labelledby="h-opinion" data-v-ba193997><div class="container-xl" data-v-ba193997>`);
+      _push(`<!--]--></div></div></section><section class="aq-section aq-section--orange aq-below" id="opinion" aria-labelledby="h-opinion"><div class="container-xl">`);
       _push(ssrRenderComponent(_sfc_main$h, {
         id: "opinion",
         title: "Opinion/Tribune",
@@ -1751,21 +1737,21 @@ const _sfc_main$5 = {
         more: "Toutes les tribunes"
       }, null, _parent));
       if (__props.debate) {
-        _push(`<div class="aq-debate" data-v-ba193997><p class="aq-debate__q" data-v-ba193997>Le débat de la semaine</p><h3 class="aq-debate__title" data-v-ba193997>${ssrInterpolate(unref(fr)(__props.debate.question))}</h3><div class="aq-debate__sides" data-v-ba193997><article class="aq-side" data-v-ba193997><span class="aq-side__label" data-v-ba193997>Pour</span><blockquote data-v-ba193997>« ${ssrInterpolate(unref(fr)(__props.debate.pour.text))} »</blockquote><p class="aq-side__who" data-v-ba193997>${ssrInterpolate(unref(fr)(__props.debate.pour.who))}</p></article><article class="aq-side" data-v-ba193997><span class="aq-side__label" data-v-ba193997>Contre</span><blockquote data-v-ba193997>« ${ssrInterpolate(unref(fr)(__props.debate.contre.text))} »</blockquote><p class="aq-side__who" data-v-ba193997>${ssrInterpolate(unref(fr)(__props.debate.contre.who))}</p></article></div><div class="aq-poll" data-v-ba193997><p class="aq-poll__ask" data-v-ba193997>Et vous, qu’en pensez-vous ?</p><div class="aq-poll__buttons" data-v-ba193997><button type="button" class="aq-btn aq-btn--ink"${ssrRenderAttr("aria-pressed", voted.value === "pour")}${ssrIncludeBooleanAttr(voting.value || !!voted.value || !__props.debate.open) ? " disabled" : ""} data-v-ba193997>Je suis pour</button><button type="button" class="aq-btn aq-btn--outline"${ssrRenderAttr("aria-pressed", voted.value === "contre")}${ssrIncludeBooleanAttr(voting.value || !!voted.value || !__props.debate.open) ? " disabled" : ""} data-v-ba193997>Je suis contre</button></div>`);
+        _push(`<div class="aq-debate"><p class="aq-debate__q">Le débat de la semaine</p><h3 class="aq-debate__title">${ssrInterpolate(unref(fr)(__props.debate.question))}</h3><div class="aq-debate__sides"><article class="aq-side"><span class="aq-side__label">Pour</span><blockquote>« ${ssrInterpolate(unref(fr)(__props.debate.pour.text))} »</blockquote><p class="aq-side__who">${ssrInterpolate(unref(fr)(__props.debate.pour.who))}</p></article><article class="aq-side"><span class="aq-side__label">Contre</span><blockquote>« ${ssrInterpolate(unref(fr)(__props.debate.contre.text))} »</blockquote><p class="aq-side__who">${ssrInterpolate(unref(fr)(__props.debate.contre.who))}</p></article></div><div class="aq-poll"><p class="aq-poll__ask">Et vous, qu’en pensez-vous ?</p><div class="aq-poll__buttons"><button type="button" class="aq-btn aq-btn--ink"${ssrRenderAttr("aria-pressed", voted.value === "pour")}${ssrIncludeBooleanAttr(voting.value || !!voted.value || !__props.debate.open) ? " disabled" : ""}>Je suis pour</button><button type="button" class="aq-btn aq-btn--outline"${ssrRenderAttr("aria-pressed", voted.value === "contre")}${ssrIncludeBooleanAttr(voting.value || !!voted.value || !__props.debate.open) ? " disabled" : ""}>Je suis contre</button></div>`);
         if (voteError.value) {
-          _push(`<p role="alert" data-v-ba193997>${ssrInterpolate(voteError.value)}</p>`);
+          _push(`<p role="alert">${ssrInterpolate(voteError.value)}</p>`);
         } else {
           _push(`<!---->`);
         }
         if (!__props.debate.open) {
-          _push(`<p class="aq-poll__thanks" data-v-ba193997>Ce débat est fermé aux votes.</p>`);
+          _push(`<p class="aq-poll__thanks">Ce débat est fermé aux votes.</p>`);
         } else {
           _push(`<!---->`);
         }
         if ((voted.value || !__props.debate.open) && poll.value) {
-          _push(`<div data-v-ba193997><div class="aq-poll__bar" role="img"${ssrRenderAttr("aria-label", pollLabel.value)} data-v-ba193997><span class="aq-poll__pour" style="${ssrRenderStyle({ width: poll.value.pctP + "%" })}" data-v-ba193997></span><span class="aq-poll__contre" style="${ssrRenderStyle({ width: poll.value.pctC + "%" })}" data-v-ba193997></span></div><p class="aq-poll__legend" data-v-ba193997><b data-v-ba193997>${ssrInterpolate(poll.value.pctP)} %</b> pour, <b data-v-ba193997>${ssrInterpolate(poll.value.pctC)} %</b> contre, <b data-v-ba193997>${ssrInterpolate(poll.value.total)}</b> votes</p>`);
+          _push(`<div><div class="aq-poll__bar" role="img"${ssrRenderAttr("aria-label", pollLabel.value)}><span class="aq-poll__pour" style="${ssrRenderStyle({ width: poll.value.pctP + "%" })}"></span><span class="aq-poll__contre" style="${ssrRenderStyle({ width: poll.value.pctC + "%" })}"></span></div><p class="aq-poll__legend"><b>${ssrInterpolate(poll.value.pctP)} %</b> pour, <b>${ssrInterpolate(poll.value.pctC)} %</b> contre, <b>${ssrInterpolate(poll.value.total)}</b> votes</p>`);
           if (voted.value) {
-            _push(`<p class="aq-poll__thanks" role="status" data-v-ba193997>Vote confirmé : vous êtes ${ssrInterpolate(voted.value)}. Un vote par navigateur et par débat.</p>`);
+            _push(`<p class="aq-poll__thanks" role="status">Vote confirmé : vous êtes ${ssrInterpolate(voted.value)}. Un vote par navigateur et par débat.</p>`);
           } else {
             _push(`<!---->`);
           }
@@ -1777,15 +1763,15 @@ const _sfc_main$5 = {
       } else {
         _push(`<!---->`);
       }
-      _push(`<div class="row g-4" data-v-ba193997><!--[-->`);
+      _push(`<div class="row g-4"><!--[-->`);
       ssrRenderList(opi.value.slice(0, 3), (a) => {
-        _push(`<article class="col-md-4 aq-tribune" data-v-ba193997>`);
+        _push(`<article class="col-md-4 aq-tribune">`);
         _push(ssrRenderComponent(unref(Link), {
           href: a.url
         }, {
           default: withCtx((_, _push2, _parent2, _scopeId) => {
             if (_push2) {
-              _push2(`<span class="aq-avatar" aria-hidden="true" data-v-ba193997${_scopeId}>${ssrInterpolate(unref(initials)(a.author))}</span><h3 data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)(a.title))}</h3><p data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)(a.author))}</p>`);
+              _push2(`<span class="aq-avatar" aria-hidden="true"${_scopeId}>${ssrInterpolate(unref(initials)(a.author))}</span><h3${_scopeId}>${ssrInterpolate(unref(fr)(a.title))}</h3><p${_scopeId}>${ssrInterpolate(unref(fr)(a.author))}</p>`);
             } else {
               return [
                 createVNode("span", {
@@ -1801,7 +1787,7 @@ const _sfc_main$5 = {
         }, _parent));
         _push(`</article>`);
       });
-      _push(`<!--]--></div></div></section><section class="aq-section aq-section--white aq-below" id="tips" aria-labelledby="h-tips" data-v-ba193997><div class="container-xl" data-v-ba193997>`);
+      _push(`<!--]--></div></div></section><section class="aq-section aq-section--white aq-below" id="tips" aria-labelledby="h-tips"><div class="container-xl">`);
       _push(ssrRenderComponent(_sfc_main$h, {
         id: "tips",
         title: "Tips",
@@ -1809,17 +1795,17 @@ const _sfc_main$5 = {
         href: "/rubrique/tips",
         more: "Tout voir"
       }, null, _parent));
-      _push(`<div class="row g-4 g-xl-5" data-v-ba193997><!--[-->`);
+      _push(`<div class="row g-4 g-xl-5"><!--[-->`);
       ssrRenderList(tips.value.slice(0, 3), (a) => {
-        _push(`<article class="col-md-4 aq-tip" data-v-ba193997>`);
+        _push(`<article class="col-md-4 aq-tip">`);
         _push(ssrRenderComponent(unref(Link), {
           href: a.url
         }, {
           default: withCtx((_, _push2, _parent2, _scopeId) => {
             if (_push2) {
-              _push2(`<div class="aq-media aq-media--cut" data-v-ba193997${_scopeId}>`);
+              _push2(`<div class="aq-media aq-media--cut"${_scopeId}>`);
               _push2(ssrRenderComponent(_sfc_main$c, { a }, null, _parent2, _scopeId));
-              _push2(`</div><div class="aq-tip__body" data-v-ba193997${_scopeId}><i class="${ssrRenderClass([a.icon || "bi-lightbulb", "bi"])}" aria-hidden="true" data-v-ba193997${_scopeId}></i><h3 data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)(a.title))}</h3><p data-v-ba193997${_scopeId}>${ssrInterpolate(unref(fr)(a.chapo))}</p></div>`);
+              _push2(`</div><div class="aq-tip__body"${_scopeId}><i class="${ssrRenderClass([a.icon || "bi-lightbulb", "bi"])}" aria-hidden="true"${_scopeId}></i><h3${_scopeId}>${ssrInterpolate(unref(fr)(a.title))}</h3><p${_scopeId}>${ssrInterpolate(unref(fr)(a.chapo))}</p></div>`);
             } else {
               return [
                 createVNode("div", { class: "aq-media aq-media--cut" }, [
@@ -1840,7 +1826,7 @@ const _sfc_main$5 = {
         }, _parent));
         _push(`</article>`);
       });
-      _push(`<!--]--></div></div></section><section class="aq-section aq-section--white aq-below" id="agenda" aria-labelledby="h-agenda" data-v-ba193997><div class="container-xl" data-v-ba193997>`);
+      _push(`<!--]--></div></div></section><section class="aq-section aq-section--white aq-below" id="agenda" aria-labelledby="h-agenda"><div class="container-xl">`);
       _push(ssrRenderComponent(_sfc_main$h, {
         id: "agenda",
         title: "Agenda",
@@ -1849,7 +1835,7 @@ const _sfc_main$5 = {
         more: "Tout l’agenda"
       }, null, _parent));
       if (__props.events.length) {
-        _push(`<div class="aq-agenda-row" data-v-ba193997><!--[-->`);
+        _push(`<div class="aq-agenda-row"><!--[-->`);
         ssrRenderList(__props.events.slice(0, 3), (e) => {
           _push(ssrRenderComponent(_sfc_main$f, {
             key: e.slug,
@@ -1858,7 +1844,7 @@ const _sfc_main$5 = {
         });
         _push(`<!--]--></div>`);
       } else {
-        _push(`<p class="aq-empty" data-v-ba193997>Aucun événement à venir pour le moment.</p>`);
+        _push(`<p class="aq-empty">Aucun événement à venir pour le moment.</p>`);
       }
       _push(`</div></section>`);
       _push(ssrRenderComponent(_sfc_main$a, null, null, _parent));
@@ -1872,10 +1858,9 @@ _sfc_main$5.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Home.vue");
   return _sfc_setup$5 ? _sfc_setup$5(props, ctx) : void 0;
 };
-const Home = /* @__PURE__ */ _export_sfc(_sfc_main$5, [["__scopeId", "data-v-ba193997"]]);
 const __vite_glob_0_5 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: Home
+  default: _sfc_main$5
 }, Symbol.toStringTag, { value: "Module" }));
 const _sfc_main$4 = {
   __name: "Legal",

@@ -9,7 +9,7 @@ import ChapterHead from '../Components/ChapterHead.vue';
 import EventItem from '../Components/EventItem.vue';
 import FlashBar from '../Components/FlashBar.vue';
 import Newsletter from '../Components/Newsletter.vue';
-import { createHomeMediaMotion, fr, initials, kicker, rel, store } from '../utils';
+import { createHomeMediaMotion, fr, initials, kicker, rel } from '../utils';
 
 const props = defineProps({
     articles: { type: Array, required: true },
@@ -28,10 +28,7 @@ const byRegion = (g) => sorted.value.filter((a) => a.region === g);
 // À la une
 const slides = computed(() => sorted.value.filter((a) => a.une).slice(0, 4));
 const fil = computed(() => sorted.value.filter((a) => !slides.value.includes(a) && a.rub !== 'portraits').slice(0, 4));
-// Flash info : 3 items par visite, priorité à ceux jamais vus (rotation mémorisée)
-const FLASH_N = 3;
 const flashAll = computed(() => props.flashes);
-const flash = ref(flashAll.value.slice(0, FLASH_N));
 
 const seen = computed(() => [...slides.value, ...fil.value]);
 function pick(list, n) {
@@ -45,7 +42,7 @@ const afr = computed(() => pick(sorted.value.filter((a) => a.region && a.rub !==
 const pol = computed(() => pick(byRub('politique'), 5));
 const eco = computed(() => pick(byRub('economie'), 5));
 const soc = computed(() => pick(byRub('societe'), 3));
-const cul = computed(() => pick(byRub('culture'), 6));
+const cul = computed(() => pick(byRub('culture'), 5));
 const spo = computed(() => pick(byRub('sports'), 5));
 const opi = computed(() => byRub('opinion'));
 const tips = computed(() => byRub('tips'));
@@ -73,15 +70,6 @@ function go(n) {
 }
 
 onMounted(() => {
-    // Choisit 3 flashs non encore vus par ce visiteur ; repart à zéro quand tout a été vu
-    try {
-        let seenIds = JSON.parse(store('aq-flash-seen') || '[]');
-        let unseen = flashAll.value.filter((f) => !seenIds.includes(f.id));
-        if (unseen.length < FLASH_N) { seenIds = []; unseen = flashAll.value; }
-        const pickFlash = unseen.slice(0, FLASH_N);
-        store('aq-flash-seen', JSON.stringify(seenIds.concat(pickFlash.map((f) => f.id))));
-        flash.value = pickFlash;
-    } catch (e) {}
     progress.value = slides.value.map((_, k) => (k === 0 ? 1 : 0));
     mediaMotion = createHomeMediaMotion(homeRoot.value);
 });
@@ -301,14 +289,3 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
   <Newsletter />
   </div>
 </template>
-
-<style scoped>
-#cultureRail { grid-auto-columns: min(78%, 280px); justify-content: start; }
-#cultureRail .aq-poster { min-width: 0; }
-#cultureRail .aq-poster :deep(.aq-media) { aspect-ratio: 16 / 10; width: 100%; clip-path: polygon(0 0, calc(100% - 26px) 0, 100% 40px, 100% 100%, 0 100%); }
-#cultureRail .aq-poster :deep(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
-@media (min-width: 992px) {
-  #cultureRail { grid-auto-columns: 360px; }
-  #cultureRail .aq-poster { width: 360px; }
-}
-</style>
