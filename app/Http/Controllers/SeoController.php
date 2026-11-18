@@ -132,6 +132,27 @@ class SeoController extends Controller
         return $this->urlset($urls);
     }
 
+    public function news()
+    {
+        $items = Article::published()->with('rubrique')
+            ->where('published_at', '>=', Date::now()->subDays(2))
+            ->orderByDesc('published_at')->get(['slug', 'title', 'rubrique_slug', 'published_at'])
+            ->map(function ($a) {
+                return "  <url>\n    <loc>".e(route('article.show', $a->slug)).'</loc>'."\n"
+                    ."    <news:news>\n"
+                    ."      <news:publication><news:name>Afriquinfos</news:name><news:language>fr</news:language></news:publication>\n"
+                    .'      <news:publication_date>'.$a->published_at->toW3cString()."</news:publication_date>\n"
+                    .'      <news:title>'.e($a->title)."</news:title>\n"
+                    .($a->rubrique ? '      <news:keywords>'.e($a->rubrique->label)."</news:keywords>\n" : '')
+                    ."    </news:news>\n  </url>";
+            })->implode("\n");
+
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n"
+            .'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">'."\n".$items."\n</urlset>";
+
+        return response($xml, 200, ['Content-Type' => 'application/xml; charset=UTF-8']);
+    }
+
     private function urlset(array $urls)
     {
         $body = collect($urls)->map(function ($u) {

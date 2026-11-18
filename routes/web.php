@@ -35,8 +35,30 @@ Route::get('/site-assets/{version}/{file}/content', [SiteAssetController::class,
 Route::get('/sitemaps/pages.xml', [SeoController::class, 'pages'])->name('sitemap.pages');
 Route::get('/sitemaps/articles-{page}.xml', [SeoController::class, 'articles'])->whereNumber('page')->name('sitemap.articles');
 Route::get('/rss.xml', [SeoController::class, 'rss'])->name('rss');
+Route::get('/feed', [SeoController::class, 'rss']);
+Route::get('/news-sitemap.xml', [SeoController::class, 'news'])->name('sitemap.news');
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
+
+// Anciennes pages de la maquette : redirections 301 vers les URLs canoniques
+Route::get('/article.html', function () {
+    $id = request('id');
+    return redirect()->to($id ? '/article/'.rawurlencode($id) : '/', 301);
+});
+Route::get('/rubrique.html', function () {
+    $r = request('r');
+    return redirect()->to($r ? '/rubrique/'.rawurlencode($r) : '/', 301);
+});
+Route::get('/afriques.html', fn () => redirect('/afriques', 301));
+Route::get('/portraits.html', fn () => redirect('/portraits', 301));
+Route::get('/agendas.html', fn () => redirect('/agendas', 301));
+Route::get('/contact.html', fn () => redirect('/contact', 301));
+Route::get('/recherche.html', function () {
+    return redirect()->to('/recherche'.(request('q') ? '?q='.rawurlencode(request('q')) : ''), 301);
+});
+Route::get('/communique.html', fn () => redirect('/', 301));
+Route::get('/index.html', fn () => redirect('/', 301));
+Route::get('/rss.xsl', fn () => redirect('/assets/rss.xsl', 301));
 Route::get('/llms.txt', [SeoController::class, 'llms'])->name('llms');
 
 Route::prefix('admin')->name('admin.')->group(function () {
