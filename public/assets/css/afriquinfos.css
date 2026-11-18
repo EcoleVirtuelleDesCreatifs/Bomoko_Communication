@@ -875,3 +875,8 @@ main:focus { outline: none; }
   .aq-afr__lead .aq-media { aspect-ratio: 16 / 10; min-height: 0; }
   .aq-afr__grid { grid-template-columns: 1fr; }
 }
+
+/* Section Culture : halo chaud sur fond encre */
+.aq-culture { position: relative; overflow: hidden; }
+.aq-culture::before { content: ""; position: absolute; top: -18rem; right: -8rem; width: min(60vw, 42rem); aspect-ratio: 1; background: radial-gradient(closest-side, rgba(222, 80, 17, .28), transparent 70%); pointer-events: none; }
+.aq-culture > .container-xl { position: relative; }

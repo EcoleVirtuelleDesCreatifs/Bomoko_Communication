@@ -220,7 +220,7 @@ const two = (n) => (n < 10 ? '0' + n : String(n));
     <div class="row g-4 g-xl-5"><ArticleCard v-for="a in soc.slice(0, 3)" :key="a.id" :a="a" col="col-md-4" /></div>
   </div></section>
 
-  <section class="aq-section aq-section--white aq-below" id="culture" aria-labelledby="h-culture"><div class="container-xl" v-if="cul.length">
+  <section class="aq-section aq-section--ink aq-culture aq-below" id="culture" aria-labelledby="h-culture"><div class="container-xl" v-if="cul.length">
     <ChapterHead id="culture" title="Culture" tagline="Vivez au rythme de la culture africaine" href="/rubrique/culture" more="Toute la rubrique" />
     <div class="row g-5">
       <article class="col-lg-7 aq-lead"><Link :href="cul[0].url">
