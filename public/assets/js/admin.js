@@ -1237,7 +1237,7 @@
             field('edRub', 'Rubrique', '<select class="ad-select" id="edRub">' + options(rubsSorted().map(function (r) { return { value: r.id, label: r.label }; }), a.rub) + '</select>') +
             field('edReg', 'Région', '<select class="ad-select" id="edReg">' + options(regsSorted().map(function (r) { return { value: r.id, label: r.label }; }), a.region || '', 'Aucune région') + '</select>') +
             field('edCountry', 'Pays ou thème', '<input class="ad-input" id="edCountry" value="' + esc(a.country) + '" placeholder="Ex. Sénégal, Cédéao, Football">') +
-            field('edAuthor', 'Auteur', '<select class="ad-select" id="edAuthor">' + options(S.users.map(function (u) { return { value: u.name, label: u.name }; }).concat(S.users.some(function (u) { return u.name === a.author; }) ? [] : [{ value: a.author, label: a.author }]), a.author) + '</select>') +
+            field('edAuthor', 'Auteur', '<select class="ad-select" id="edAuthor">' + options(S.users.map(function (u) { return { value: u.name, label: u.name }; }).concat(a.author && !S.users.some(function (u) { return u.name === a.author; }) ? [{ value: a.author, label: a.author }] : []), a.author, a.author ? undefined : 'Choisir un auteur…') + '</select>') +
             '<div class="ad-field"><label for="edTagIn">Mots-clés</label><div class="ad-chips" id="edTags"><input id="edTagIn" placeholder="Ajouter puis Entrée"></div></div>' +
           '</div></section>' +
           '<section class="ad-panel" id="edPersonBox"' + (a.rub === 'portraits' ? '' : ' hidden') + '><div class="ad-panel__head"><h2>Fiche du portrait</h2></div><div class="ad-panel__body">' +

@@ -603,7 +603,10 @@ class AdminStateController extends Controller
             $authors = $editor ? User::where('name', $a['author'] ?? '')->get(['id']) : collect();
             $owner = $editor ? ($authors->count() === 1 ? $authors->first()->id : null) : auth()->id();
             $article = $existing ?? new Article(['slug' => $slug, 'user_id' => $owner]);
-            if ($owner) {
+            // un article validé appartient à son créateur : ne jamais réassigner un propriétaire existant
+            if (! $existing && $owner) {
+                $article->user_id = $owner;
+            } elseif ($existing && ! $article->user_id && $owner) {
                 $article->user_id = $owner;
             }
             $article->fill([
@@ -613,7 +616,7 @@ class AdminStateController extends Controller
                 'country' => $a['country'] ?? null,
                 'title' => $a['title'] ?? 'Sans titre',
                 'chapo' => $a['chapo'] ?? null,
-                'author_name' => $editor ? ($a['author'] ?? $article->author_name) : ($article->author_name ?: auth()->user()->name),
+                'author_name' => $editor ? (($a['author'] ?? null) ?: $article->author_name) : ($article->author_name ?: auth()->user()->name),
                 'published_at' => $a['date'] ?? null,
                 'read_time' => $a['read'] ?? 4,
                 'tags' => $a['tags'] ?? [],

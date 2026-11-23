@@ -312,6 +312,34 @@ class AdminSafetyTest extends TestCase
         $this->assertSame($journalist->id, $article->fresh()->user_id);
     }
 
+    public function test_validation_keeps_the_article_owner_even_when_the_editor_is_author(): void
+    {
+        $contributor = User::factory()->create(['role' => 'contributeur', 'status' => 'actif']);
+        $chief = User::factory()->create(['role' => 'chef', 'status' => 'actif']);
+        $article = $this->articleFixture();
+        $article->update(['user_id' => $contributor->id, 'author_name' => $contributor->name, 'status' => 'relecture']);
+        $item = $this->actingAs($chief)->getJson('/admin/api/state')->assertOk()->json('articles.0');
+        $item['baseUpdated'] = $item['updated'];
+        $item['status'] = 'publie';
+        $item['author'] = $chief->name;
+        $this->postJson('/admin/api/state', ['protocol' => 2, 'revisions' => [], 'articles' => [$item]])->assertOk();
+        $this->assertSame($contributor->id, $article->fresh()->user_id);
+        $this->assertSame($chief->name, $article->fresh()->author_name);
+    }
+
+    public function test_validation_backfills_owner_only_when_the_article_has_none(): void
+    {
+        $contributor = User::factory()->create(['role' => 'contributeur', 'status' => 'actif']);
+        $chief = User::factory()->create(['role' => 'chef', 'status' => 'actif']);
+        $article = $this->articleFixture();
+        $article->update(['user_id' => null, 'author_name' => $contributor->name, 'status' => 'relecture']);
+        $item = $this->actingAs($chief)->getJson('/admin/api/state')->assertOk()->json('articles.0');
+        $item['baseUpdated'] = $item['updated'];
+        $item['status'] = 'publie';
+        $this->postJson('/admin/api/state', ['protocol' => 2, 'revisions' => [], 'articles' => [$item]])->assertOk();
+        $this->assertSame($contributor->id, $article->fresh()->user_id);
+    }
+
     public function test_scheduled_article_is_visible_when_due_without_database_rewrite(): void
     {
         $article = $this->articleFixture();
