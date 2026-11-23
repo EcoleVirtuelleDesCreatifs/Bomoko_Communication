@@ -38,6 +38,10 @@ class FrontController extends Controller
     public function home()
     {
         $articles = $this->list($this->pub());
+        // les rubriques à faible volume sortent du flux des 60 derniers : quota dédié pour ne jamais afficher une section vide
+        $extra = collect(['societe', 'opinion', 'portraits', 'tips'])
+            ->flatMap(fn ($rub) => $this->list($this->pub()->where('rubrique_slug', $rub), 6));
+        $articles = $articles->concat($extra)->unique('id')->values();
         $debate = Debate::current()->latest('id')->first() ?? Debate::latest('id')->first();
         $voter = request()->cookie('aq-voter') ?: request()->session()->get('debate_voter');
         $voted = $debate && is_string($voter) ? DB::table('debate_votes')->where('debate_id', $debate->id)
