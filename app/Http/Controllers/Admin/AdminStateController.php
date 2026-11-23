@@ -219,13 +219,15 @@ class AdminStateController extends Controller
 
         $state['adMetrics'] = DB::table('ad_metrics')->get()
             ->mapWithKeys(fn ($m) => [$m->ad_key => ['imp' => (int) $m->impressions, 'clk' => (int) $m->clicks]])->all();
+        $state['flashMetrics'] = DB::table('flash_metrics')->get()
+            ->mapWithKeys(fn ($m) => [$m->flash_key => ['imp' => (int) $m->impressions, 'clk' => (int) $m->clicks]])->all();
         $admin = auth()->user()->role === 'admin';
         $editor = in_array(auth()->user()->role, ['admin', 'chef'], true);
         if (! $admin) {
             $state['sessions'] = [];
         }
         if (! $editor) {
-            foreach (['subscribers', 'messages', 'comments', 'adMetrics', 'log', 'ads', 'campaigns', 'slots', 'settings', 'flash', 'debats', 'agenda'] as $key) {
+            foreach (['subscribers', 'messages', 'comments', 'adMetrics', 'flashMetrics', 'log', 'ads', 'campaigns', 'slots', 'settings', 'flash', 'debats', 'agenda'] as $key) {
                 $state[$key] = [];
             }
             $state['users'] = array_map(fn ($u) => array_intersect_key($u, array_flip(['id', 'name', 'role', 'status'])), $state['users']);
@@ -264,6 +266,7 @@ class AdminStateController extends Controller
         $stats = app(EditorialStats::class);
         $me = auth()->user();
         $state['publicationStats'] = $stats->publications($editor ? null : $me);
+        $state['weekdayStats'] = $stats->weekdayProduction($editor ? null : $me);
         $state['dashboardStats'] = $stats->dashboard($editor ? null : $me);
         $state['gaStats'] = $editor ? app(GoogleAnalytics::class)->summary() : [];
         $state['readerStats'] = [];

@@ -1143,8 +1143,23 @@ const _sfc_main$6 = {
     const duration = computed(() => Math.max(20, n.value * 12) + "s");
     const idx = ref(0);
     const cur = computed(() => props.items[idx.value] ?? {});
+    function xsrf() {
+      return decodeURIComponent((document.cookie.match(/XSRF-TOKEN=([^;]+)/) || [])[1] || "");
+    }
+    function track(type, id) {
+      if (!id) return;
+      fetch("/flash-event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest", "X-XSRF-TOKEN": xsrf() },
+        body: JSON.stringify({ flash: id, type }),
+        credentials: "same-origin",
+        keepalive: true
+      }).catch(() => {
+      });
+    }
     let timer = null;
     onMounted(() => {
+      props.items.forEach((f) => track("imp", f.id));
       if (!reduceMotion) timer = setInterval(() => {
         if (!paused.value) idx.value = (idx.value + 1) % n.value;
       }, 4500);
@@ -1152,7 +1167,7 @@ const _sfc_main$6 = {
     onUnmounted(() => clearInterval(timer));
     return (_ctx, _push, _parent, _attrs) => {
       if (n.value) {
-        _push(`<div${ssrRenderAttrs(mergeProps({ class: "aq-flashbar" }, _attrs))} data-v-6b1512ab><div class="container-xl" data-v-6b1512ab><div class="aq-flash" role="region" aria-label="Flash info" data-v-6b1512ab><div class="aq-flash__label" data-v-6b1512ab><span class="aq-flash__dot" aria-hidden="true" data-v-6b1512ab></span><span data-v-6b1512ab><small data-v-6b1512ab>En direct</small><strong data-v-6b1512ab>Flash info</strong></span></div><div class="aq-flash__viewport aq-flash__ticker" data-v-6b1512ab><div class="aq-flash__track" style="${ssrRenderStyle({ animationDuration: duration.value, animationPlayState: paused.value || unref(reduceMotion) ? "paused" : "running" })}" data-v-6b1512ab><!--[-->`);
+        _push(`<div${ssrRenderAttrs(mergeProps({ class: "aq-flashbar" }, _attrs))} data-v-6ac1c2d7><div class="container-xl" data-v-6ac1c2d7><div class="aq-flash" role="region" aria-label="Flash info" data-v-6ac1c2d7><div class="aq-flash__label" data-v-6ac1c2d7><span class="aq-flash__dot" aria-hidden="true" data-v-6ac1c2d7></span><span data-v-6ac1c2d7><small data-v-6ac1c2d7>En direct</small><strong data-v-6ac1c2d7>Flash info</strong></span></div><div class="aq-flash__viewport aq-flash__ticker" data-v-6ac1c2d7><div class="aq-flash__track" style="${ssrRenderStyle({ animationDuration: duration.value, animationPlayState: paused.value || unref(reduceMotion) ? "paused" : "running" })}" data-v-6ac1c2d7><!--[-->`);
         ssrRenderList(2, (rep) => {
           _push(`<!--[--><!--[-->`);
           ssrRenderList(__props.items, (f, i) => {
@@ -1161,7 +1176,8 @@ const _sfc_main$6 = {
               _push(ssrRenderComponent(unref(Link), {
                 class: "aq-flash__item",
                 href: f.url,
-                "aria-hidden": rep === 2
+                "aria-hidden": rep === 2,
+                onClick: ($event) => track("clk", f.id)
               }, {
                 default: withCtx((_, _push2, _parent2, _scopeId) => {
                   if (_push2) {
@@ -1175,7 +1191,7 @@ const _sfc_main$6 = {
                 _: 2
               }, _parent));
             } else {
-              _push(`<span class="aq-flash__item"${ssrRenderAttr("aria-hidden", rep === 2)} data-v-6b1512ab>${ssrInterpolate(unref(fr)(f.text))}</span>`);
+              _push(`<span class="aq-flash__item"${ssrRenderAttr("aria-hidden", rep === 2)} data-v-6ac1c2d7>${ssrInterpolate(unref(fr)(f.text))}</span>`);
             }
             _push(`<!--]-->`);
           });
@@ -1183,16 +1199,17 @@ const _sfc_main$6 = {
         });
         _push(`<!--]--></div></div>`);
         if (n.value > 1) {
-          _push(`<div class="aq-flash__nav" data-v-6b1512ab><button class="aq-flash__pause" type="button"${ssrRenderAttr("aria-label", paused.value ? "Reprendre le défilement" : "Mettre le défilement en pause")}${ssrRenderAttr("aria-pressed", paused.value)} data-v-6b1512ab><i class="${ssrRenderClass([paused.value ? "bi-play-fill" : "bi-pause-fill", "bi"])}" aria-hidden="true" data-v-6b1512ab></i></button></div>`);
+          _push(`<div class="aq-flash__nav" data-v-6ac1c2d7><button class="aq-flash__pause" type="button"${ssrRenderAttr("aria-label", paused.value ? "Reprendre le défilement" : "Mettre le défilement en pause")}${ssrRenderAttr("aria-pressed", paused.value)} data-v-6ac1c2d7><i class="${ssrRenderClass([paused.value ? "bi-play-fill" : "bi-pause-fill", "bi"])}" aria-hidden="true" data-v-6ac1c2d7></i></button></div>`);
         } else {
           _push(`<!---->`);
         }
-        _push(`</div><div class="aq-flash__rotator" role="group" aria-label="Flashs en cours" data-v-6b1512ab>`);
+        _push(`</div><div class="aq-flash__rotator" role="group" aria-label="Flashs en cours" data-v-6ac1c2d7>`);
         if (cur.value.url) {
           _push(ssrRenderComponent(unref(Link), {
             key: idx.value,
             class: "aq-flash__ritem",
-            href: cur.value.url
+            href: cur.value.url,
+            onClick: ($event) => track("clk", cur.value.id)
           }, {
             default: withCtx((_, _push2, _parent2, _scopeId) => {
               if (_push2) {
@@ -1206,12 +1223,12 @@ const _sfc_main$6 = {
             _: 1
           }, _parent));
         } else {
-          _push(`<span class="aq-flash__ritem" data-v-6b1512ab>${ssrInterpolate(unref(fr)(cur.value.text))}</span>`);
+          _push(`<span class="aq-flash__ritem" data-v-6ac1c2d7>${ssrInterpolate(unref(fr)(cur.value.text))}</span>`);
         }
         if (n.value > 1) {
-          _push(`<div class="aq-flash__dots" data-v-6b1512ab><!--[-->`);
+          _push(`<div class="aq-flash__dots" data-v-6ac1c2d7><!--[-->`);
           ssrRenderList(__props.items, (f, i) => {
-            _push(`<button type="button" class="${ssrRenderClass({ on: i === idx.value })}"${ssrRenderAttr("aria-label", "Flash " + (i + 1) + " sur " + n.value)}${ssrRenderAttr("aria-pressed", i === idx.value)} data-v-6b1512ab></button>`);
+            _push(`<button type="button" class="${ssrRenderClass({ on: i === idx.value })}"${ssrRenderAttr("aria-label", "Flash " + (i + 1) + " sur " + n.value)}${ssrRenderAttr("aria-pressed", i === idx.value)} data-v-6ac1c2d7></button>`);
           });
           _push(`<!--]--></div>`);
         } else {
@@ -1230,7 +1247,7 @@ _sfc_main$6.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Components/FlashBar.vue");
   return _sfc_setup$6 ? _sfc_setup$6(props, ctx) : void 0;
 };
-const FlashBar = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["__scopeId", "data-v-6b1512ab"]]);
+const FlashBar = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["__scopeId", "data-v-6ac1c2d7"]]);
 const _sfc_main$5 = {
   __name: "Home",
   __ssrInlineRender: true,

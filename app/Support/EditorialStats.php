@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Models\Article;
 use App\Models\Rubrique;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class EditorialStats
@@ -21,6 +22,24 @@ class EditorialStats
                 $id = $row->user_id ?: ($matches->count() === 1 ? $matches->first()->id : null);
 
                 return ['member' => $id ? 'u'.$id : '__ext', 'day' => $row->day, 'count' => (int) $row->total];
+            })->all();
+    }
+
+    public function weekdayProduction(?User $user = null): array
+    {
+        $users = User::all(['id', 'name'])->groupBy('name');
+        $start = now()->startOfWeek();
+
+        return $this->owned(Article::where('status', '!=', 'corbeille')->where('created_at', '>=', $start), $user)
+            ->select('user_id', 'author_name')->selectRaw('DATE(created_at) AS day, COUNT(*) AS total')
+            ->groupBy('user_id', 'author_name')->groupByRaw('DATE(created_at)')->get()
+            ->map(function ($row) use ($users) {
+                $matches = $users[$row->author_name] ?? collect();
+                $id = $row->user_id ?: ($matches->count() === 1 ? $matches->first()->id : null);
+
+                return ['member' => $id ? 'u'.$id : '__ext',
+                    'wd' => (Carbon::parse($row->day)->dayOfWeek + 6) % 7,
+                    'count' => (int) $row->total];
             })->all();
     }
 

@@ -133,6 +133,22 @@ class EditorialServicesTest extends TestCase
         $this->assertDatabaseHas('ad_metrics', ['ad_key' => 'ad1', 'impressions' => 1]);
     }
 
+    public function test_flash_events_require_a_live_flash(): void
+    {
+        $flash = ['id' => 'f1', 'articleId' => '', 'text' => 'Flash test', 'active' => false,
+            'start' => now()->subDay()->toDateString(), 'end' => now()->addDay()->toDateString()];
+        DB::table('admin_data')->insert(['key' => 'flash', 'value' => json_encode([$flash])]);
+        $this->postJson('/flash-event', ['flash' => 'f1', 'type' => 'imp'])->assertStatus(422);
+        $flash['active'] = true;
+        DB::table('admin_data')->where('key', 'flash')->update(['value' => json_encode([$flash])]);
+        $this->postJson('/flash-event', ['flash' => 'f1', 'type' => 'imp'])->assertNoContent();
+        $this->postJson('/flash-event', ['flash' => 'f1', 'type' => 'clk'])->assertNoContent();
+        $this->assertDatabaseHas('flash_metrics', ['flash_key' => 'f1', 'impressions' => 1, 'clicks' => 1]);
+        $flash['end'] = now()->subDay()->toDateString();
+        DB::table('admin_data')->where('key', 'flash')->update(['value' => json_encode([$flash])]);
+        $this->postJson('/flash-event', ['flash' => 'f1', 'type' => 'imp'])->assertStatus(422);
+    }
+
     public function test_newsletter_scheduling_is_idempotent_and_dispatch_does_not_resend(): void
     {
         Mail::fake();

@@ -310,6 +310,7 @@
         if (sent.users) usersDeleted = [];
         S.log = j.log || []; S.teamStats = j.teamStats || S.teamStats; S.publishedToday = j.publishedToday || [];
         S.publicationStats = j.publicationStats || S.publicationStats; S.dashboardStats = j.dashboardStats || S.dashboardStats;
+        S.weekdayStats = j.weekdayStats || S.weekdayStats; S.flashMetrics = j.flashMetrics || S.flashMetrics;
         if (sent.users) ME = S.users.filter(function (u) { return u.id === ME.id; })[0] || ME;
         finishArticleSubmission(dirty, false);
         if (indicator && document.contains(indicator)) indicator.textContent = hasPendingChanges() ? 'Envoi confirmé ; des modifications plus récentes restent à enregistrer.' : 'Sauvegarde confirmée par le serveur à ' + fmtTime.format(new Date());
@@ -576,6 +577,29 @@
               '<td class="ad-muted" style="white-space:nowrap">' + new Date(a.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '</td></tr>'; }).join('') +
           '</tbody></table></div>' : '<div class="ad-empty"><strong>Aucune publication aujourd’hui</strong>Les articles publiés par les journalistes apparaîtront ici.</div>') +
         '</section>';
+      })() +
+      (function () {
+        var wIdx = {}, wDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'], todayWd = (new Date().getDay() + 6) % 7;
+        (S.weekdayStats || []).forEach(function (x) { (wIdx[x.member] = wIdx[x.member] || [0, 0, 0, 0, 0, 0, 0])[x.wd] += x.count; });
+        var wMembers = S.users.map(function (u) { return { key: u.id, name: u.name, role: ROLES[u.role] }; })
+          .filter(function (m) { return isEditorD || m.key === ME.id; });
+        if (isEditorD && wIdx[EXT]) wMembers.push({ key: EXT, name: 'Articles sans compte identifié', role: 'Signatures extérieures' });
+        wMembers = wMembers.filter(function (m) { return wIdx[m.key] || m.key !== EXT; });
+        if (!wMembers.length) return '';
+        var wHead = '<tr><th>' + (isEditorD ? 'Membre' : 'Ma production') + '</th>' + wDays.map(function (d, i) { return '<th class="num"' + (i === todayWd ? ' style="color:var(--orange)"' : '') + '>' + d + '</th>'; }).join('') + '<th class="num">Total</th></tr>';
+        function wRow(name, role, days) {
+          var tot = days.reduce(function (s, x) { return s + x; }, 0);
+          return '<tr><td><div class="ad-title-cell"><strong>' + esc(name) + '</strong><small>' + esc(role) + '</small></div></td>' +
+            days.map(function (x, i) { return '<td class="num"' + (i === todayWd ? ' style="background:rgba(232,101,15,.07);font-weight:600"' : '') + '>' + (x || '<span class="ad-muted">·</span>') + '</td>'; }).join('') +
+            '<td class="num"><b>' + tot + '</b></td></tr>';
+        }
+        var teamDays = [0, 0, 0, 0, 0, 0, 0];
+        wMembers.forEach(function (m) { (wIdx[m.key] || []).forEach(function (x, i) { teamDays[i] += x; }); });
+        return '<section class="ad-panel mb-4" aria-labelledby="hWeek"><div class="ad-panel__head"><h2 id="hWeek"><i class="bi bi-calendar-week" aria-hidden="true"></i> ' + (isEditorD ? 'Production de la semaine' : 'Ma production de la semaine') + '</h2><span class="ad-muted" style="font-size:.8125rem">Articles créés, du lundi au dimanche</span></div>' +
+          '<div class="ad-tablewrap"><table class="ad-table"><thead>' + wHead + '</thead><tbody>' +
+            wMembers.map(function (m) { return wRow(m.name, m.role, wIdx[m.key] || [0, 0, 0, 0, 0, 0, 0]); }).join('') +
+            (isEditorD && wMembers.length > 1 ? wRow('Toute l’équipe', 'Total du lundi au dimanche', teamDays) : '') +
+          '</tbody></table></div><div class="ad-panel__foot">Compte les articles créés dans l’administration depuis lundi, tous statuts sauf la corbeille. La colonne du jour est surlignée.</div></section>';
       })() +
       '<div class="ad-grid ad-grid--2 mb-4">' +
         '<section class="ad-panel" aria-labelledby="hRecent"><div class="ad-panel__head"><h2 id="hRecent">Dernières modifications</h2><a href="#articles">Tous les articles</a></div><div class="ad-tablewrap"><table class="ad-table"><thead><tr><th>Article</th><th>Statut</th><th>Modifié</th></tr></thead><tbody>' +
@@ -1680,7 +1704,12 @@
       '<form id="flForm" novalidate><label class="ad-label d-block mb-2" for="flArt">Ajouter un flash</label><div class="d-flex gap-2 flex-wrap"><select class="ad-select" id="flArt" style="flex:1;min-width:240px"></select><button class="ad-btn ad-btn--primary" type="submit"><i class="bi bi-plus-lg" aria-hidden="true"></i>Ajouter en tête</button></div><p class="ad-hint">Les articles programmés apparaîtront dans le bandeau dès leur publication.</p><p class="ad-error" id="flArtErr"></p></form>' +
       '<form id="flFreeForm" novalidate hidden><label class="ad-label d-block mb-2" for="flFreeTxt">Texte du flash</label><div class="d-flex gap-2 flex-wrap"><input class="ad-input" id="flFreeTxt" maxlength="' + FLASH_MAX + '" style="flex:1;min-width:240px" placeholder="Ex. Suivez en direct le sommet extraordinaire de la Cédéao"><input class="ad-input" id="flFreeUrl" type="url" style="flex:1;min-width:200px" placeholder="Lien externe (facultatif) : https://…"><button class="ad-btn ad-btn--primary" type="submit"><i class="bi bi-plus-lg" aria-hidden="true"></i>Ajouter en tête</button></div><p class="ad-hint">Sans article lié : le texte défile dans le bandeau jusqu’à sa date de fin ; le lien externe, s’il est renseigné, rend le flash cliquable.</p><p class="ad-error" id="flFreeTxtErr"></p><p class="ad-error" id="flFreeUrlErr"></p></form>' +
       '</div></section>' +
-      '<section class="ad-panel"><div class="ad-panel__head"><h2>Messages</h2><div class="d-flex gap-2 align-items-center"><div class="ad-seg" role="group" aria-label="Filtrer les flashs" id="flTabs"></div><button type="button" class="ad-btn ad-btn--outline" style="padding:.3rem .7rem;font-size:.8125rem" id="flPurge"><i class="bi bi-eraser" aria-hidden="true"></i>Purger les terminés</button><span class="ad-muted" style="font-size:.8125rem" id="flCount"></span></div></div><div id="flList"></div></section>';
+      '<section class="ad-panel"><div class="ad-panel__head"><h2>Messages</h2><div class="d-flex gap-2 align-items-center"><div class="ad-seg" role="group" aria-label="Filtrer les flashs" id="flTabs"></div><button type="button" class="ad-btn ad-btn--outline" style="padding:.3rem .7rem;font-size:.8125rem" id="flPurge"><i class="bi bi-eraser" aria-hidden="true"></i>Purger les terminés</button><span class="ad-muted" style="font-size:.8125rem" id="flCount"></span></div></div><div id="flList"></div><div class="ad-panel__foot" id="flFoot"></div></section>';
+    function flashMetric(f) {
+      var m = (S.flashMetrics || {})[f.id] || { imp: 0, clk: 0 };
+      var ctr = m.imp ? (m.clk / m.imp * 100).toFixed(2).replace('.', ',') : '0';
+      return '<span class="ad-muted" title="Impressions · clics · taux de clic mesurés sur le site"><i class="bi bi-eye" aria-hidden="true"></i> ' + fmtNum.format(m.imp) + ' <span class="ad-dotsep" aria-hidden="true">·</span> <i class="bi bi-cursor" aria-hidden="true"></i> ' + fmtNum.format(m.clk) + ' <span class="ad-dotsep" aria-hidden="true">·</span> ' + ctr + ' %</span>';
+    }
     function tickerHtml() {
       var live = flashLive(), it = live.map(function (f) { return f.articleId ? '<a href="#" data-edit="' + esc(f.articleId) + '">' + fr(f.text) + '</a>' : '<span>' + fr(f.text) + '</span>'; }).join('');
       return live.length ? it + it : '<span>Aucun flash en ligne : le bandeau est masqué sur le site.</span>';
@@ -1703,7 +1732,7 @@
         var a = art(f.articleId), st = flashState(f);
         return '<div class="ad-rowedit ad-flashrow"><div class="ad-order"><button type="button" class="ad-iconbtn" data-fu="' + i + '" aria-label="Monter"' + (i ? '' : ' disabled') + '><i class="bi bi-chevron-up" aria-hidden="true"></i></button><button type="button" class="ad-iconbtn" data-fd="' + i + '" aria-label="Descendre"' + (i < S.flash.length - 1 ? '' : ' disabled') + '><i class="bi bi-chevron-down" aria-hidden="true"></i></button></div>' +
           '<div class="d-grid gap-1"><label class="visually-hidden" for="fl' + i + '">Texte du flash ' + (i + 1) + '</label><input class="ad-input" id="fl' + i + '" data-ft="' + i + '" maxlength="' + FLASH_MAX + '" value="' + esc(f.text) + '">' +
-            '<div class="ad-flashrow__meta"><span class="ad-status ad-status--' + st[0] + '">' + esc(st[1]) + '</span>' +
+            '<div class="ad-flashrow__meta"><span class="ad-status ad-status--' + st[0] + '">' + esc(st[1]) + '</span>' + flashMetric(f) +
             (f.articleId ? (a ? '<a href="#" data-edit="' + esc(a.id) + '"><i class="bi bi-link-45deg" aria-hidden="true"></i>' + (f.auto ? 'Ouvrir l’article' : 'Article : ' + fr(a.title)) + '</a>' : '<span class="ad-muted">Article introuvable</span>') : '<span class="ad-muted"><i class="bi bi-megaphone" aria-hidden="true"></i> Flash libre' + (f.url ? ', <a href="' + esc(f.url) + '" target="_blank" rel="noopener">lien externe</a>' : ', sans lien') + '</span>') +
             (f.auto ? '<span class="ad-muted"><i class="bi bi-arrow-repeat" aria-hidden="true"></i> Suit le titre</span>' : (a ? '<button type="button" class="ad-linkbtn" data-fr="' + i + '"><i class="bi bi-arrow-repeat" aria-hidden="true"></i>Reprendre le titre de l’article</button>' : '')) +
             '<span class="ad-flashrow__dates"><label><i class="bi bi-calendar-event" aria-hidden="true"></i> Du <input class="ad-input ad-input--sm" type="date" data-fs="' + i + '" value="' + esc(f.start || '') + '" aria-label="Date de début du flash ' + (i + 1) + '"></label><label>au <input class="ad-input ad-input--sm" type="date" data-fe="' + i + '" value="' + esc(f.end || '') + '" aria-label="Date de fin du flash ' + (i + 1) + '" min="' + esc(f.start || '') + '"></label></span>' +
@@ -1712,6 +1741,8 @@
           '<button type="button" class="ad-iconbtn ad-iconbtn--sm" data-fc="' + i + '" aria-label="Dupliquer ce flash" title="Dupliquer"><i class="bi bi-copy" aria-hidden="true"></i></button>' +
           '<button type="button" class="ad-iconbtn ad-iconbtn--sm ad-iconbtn--danger" data-fx="' + i + '" aria-label="Retirer ce flash"><i class="bi bi-trash3" aria-hidden="true"></i></button></div>';
       }).join('') : '<div class="ad-empty"><strong>Aucun flash dans cet onglet</strong>Changez de filtre ou créez un nouveau flash.</div>') : '<div class="ad-empty"><strong>Aucun flash</strong>Choisissez un article ci-dessus pour créer le premier flash.</div>';
+      var tot = Object.keys(S.flashMetrics || {}).reduce(function (s, k) { var m = S.flashMetrics[k]; s.imp += m.imp; s.clk += m.clk; return s; }, { imp: 0, clk: 0 });
+      $('#flFoot').textContent = tot.imp ? 'Cumul mesuré sur le site : ' + fmtNum.format(tot.imp) + ' impressions, ' + fmtNum.format(tot.clk) + ' clics, taux de clic ' + (tot.clk / tot.imp * 100).toFixed(2).replace('.', ',') + ' %. Les compteurs démarrent à l’activation du suivi.' : 'Les impressions et clics de chaque flash seront mesurés ici dès les premières visites du site.';
     }
     $('#flForm').addEventListener('submit', function (e) {
       e.preventDefault(); var id = $('#flArt').value;

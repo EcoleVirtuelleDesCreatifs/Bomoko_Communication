@@ -10,8 +10,24 @@ const duration = computed(() => Math.max(20, n.value * 12) + 's');
 
 const idx = ref(0);
 const cur = computed(() => props.items[idx.value] ?? {});
+
+function xsrf() {
+  return decodeURIComponent((document.cookie.match(/XSRF-TOKEN=([^;]+)/) || [])[1] || '');
+}
+function track(type, id) {
+  if (!id) return;
+  fetch('/flash-event', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-XSRF-TOKEN': xsrf() },
+    body: JSON.stringify({ flash: id, type }),
+    credentials: 'same-origin',
+    keepalive: true,
+  }).catch(() => {});
+}
+
 let timer = null;
 onMounted(() => {
+  props.items.forEach((f) => track('imp', f.id));
   if (!reduceMotion) timer = setInterval(() => { if (!paused.value) idx.value = (idx.value + 1) % n.value; }, 4500);
 });
 onUnmounted(() => clearInterval(timer));
@@ -25,7 +41,7 @@ onUnmounted(() => clearInterval(timer));
       <div class="aq-flash__track" :style="{ animationDuration: duration, animationPlayState: paused || reduceMotion ? 'paused' : 'running' }">
         <template v-for="rep in 2" :key="rep">
           <template v-for="(f, i) in items" :key="rep + '-' + i">
-            <Link v-if="f.url" class="aq-flash__item" :href="f.url" :aria-hidden="rep === 2">{{ fr(f.text) }}</Link>
+            <Link v-if="f.url" class="aq-flash__item" :href="f.url" :aria-hidden="rep === 2" @click="track('clk', f.id)">{{ fr(f.text) }}</Link>
             <span v-else class="aq-flash__item" :aria-hidden="rep === 2">{{ fr(f.text) }}</span>
           </template>
         </template>
@@ -41,7 +57,7 @@ onUnmounted(() => clearInterval(timer));
 
   <div class="aq-flash__rotator" role="group" aria-label="Flashs en cours" @click="paused = !paused">
     <transition name="aqflash" mode="out-in">
-      <Link v-if="cur.url" :key="idx" class="aq-flash__ritem" :href="cur.url">{{ fr(cur.text) }}</Link>
+      <Link v-if="cur.url" :key="idx" class="aq-flash__ritem" :href="cur.url" @click="track('clk', cur.id)">{{ fr(cur.text) }}</Link>
       <span v-else :key="idx" class="aq-flash__ritem">{{ fr(cur.text) }}</span>
     </transition>
     <div class="aq-flash__dots" v-if="n > 1">

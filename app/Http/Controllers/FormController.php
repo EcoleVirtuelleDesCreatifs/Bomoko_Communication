@@ -151,4 +151,25 @@ class FormController extends Controller
 
         return response()->noContent();
     }
+
+    public function flashEvent(Request $request)
+    {
+        $data = $request->validate([
+            'flash' => 'required|string|max:80',
+            'type' => 'required|in:imp,clk',
+        ]);
+
+        $flashRaw = json_decode(DB::table('admin_data')->where('key', 'flash')->value('value') ?? '', true);
+        $today = now()->toDateString();
+        $live = collect(is_array($flashRaw) ? $flashRaw : [])->contains(fn ($f) => (string) ($f['id'] ?? '') === $data['flash']
+            && ($f['active'] ?? true)
+            && (empty($f['start']) || $f['start'] <= $today)
+            && (empty($f['end']) || $f['end'] >= $today));
+        abort_unless($live, 422, 'Flash inactif ou inconnu.');
+        $col = $data['type'] === 'imp' ? 'impressions' : 'clicks';
+        DB::table('flash_metrics')->insertOrIgnore(['flash_key' => $data['flash'], 'created_at' => now(), 'updated_at' => now()]);
+        DB::table('flash_metrics')->where('flash_key', $data['flash'])->increment($col);
+
+        return response()->noContent();
+    }
 }
